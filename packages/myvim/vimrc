@@ -1,0 +1,183 @@
+" === Sensible defaults ===
+" don't try to be compatible with old vi
+set nocompatible
+" avoid deleting and then re-creating the file on write
+set backupcopy=yes
+
+" UI
+let base16colorspace=256  " Access colors present in 256 colorspace
+" colorscheme base16-default-dark
+colorscheme desert
+
+" enable spell checking
+set spell
+
+" send more characters to the screen
+set ttyfast
+" make backspace behave properly in insert mode
+set backspace=indent,eol,start
+" fix for nix
+let shell = "bash"
+
+" hide buffers instead of closing them even if they contain unwritten changes
+set hidden
+" disable softwrap for lines
+set nowrap
+
+" Whitespace stuff
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set expandtab
+"set nosmarttab
+set textwidth=78
+set colorcolumn=+0
+
+set list " show hidden chars
+"set listchars=tab:\ \ ,trail:·
+set listchars=tab:»\ ,trail:\ ,extends:>,precedes:<,nbsp:+
+" http://vim.wikia.com/wiki/Highlight_unwanted_spaces
+
+" === tab completion ===
+set wildmode=list:longest,list:full
+set wildignore+=*.o,*.obj,.git,*.rbc,*.pyc,.direnv
+" disable archive files
+set wildignore+=*.zip,*.tar.gz,*.tar.bz2,*.rar,*.tar.xz
+"set complete=.,w,b
+
+""" Search
+set hlsearch
+
+
+""" Undo / backup
+" if has("persistent_undo")
+"   set undodir='~/.vim/undo/'
+"   set undofile
+" endif
+
+""" Key bindings
+
+let mapleader = " "
+
+" Unix/emacs key bindings
+inoremap <C-a> <c-o>0
+inoremap <C-e> <c-o>$
+inoremap <C-k> <esc>Da
+cnoremap <C-a> <Home>
+cnoremap <C-b> <Left>
+nnoremap <C-a> 0
+nnoremap <C-e> $
+nnoremap <C-k> D
+" <C-u> erase current line: works
+" <C-k> erase until end of like: works
+" <C-w> erase word before: works
+
+" Doesn't work :/
+vnoremap <M-y> "*y
+vnoremap <A-y> "*y
+nnoremap <M-v> "*p
+
+" No EX mode
+map Q <Nop>
+
+" Commands
+
+" Write the file as sudoer
+cmap w!! w !sudo tee % >/dev/null
+
+com! CD lcd %:p:h
+
+" Stupid shift key fixes
+com! W w
+com! WQ wq
+com! Wq wq
+com! Q q
+
+""" File types
+
+if has("autocmd")
+  function! s:setupWrapping()
+    set wrap
+    set linebreak
+  endfunction
+
+  " make and python use real tabs
+  autocmd FileType asciidoc           call s:setupWrapping()
+  autocmd FileType go                 set noexpandtab
+  autocmd FileType haskell            setlocal omnifunc=necoghc#omnifunc
+  autocmd FileType jinja2             set noexpandtab
+  autocmd FileType jinja2             set tabstop=4
+  autocmd FileType make               set noexpandtab
+  autocmd FileType markdown           call s:setupWrapping()
+  autocmd FileType python             set expandtab
+  autocmd FileType python             set shiftwidth=4
+  autocmd FileType python             set softtabstop=4
+  autocmd FileType python             set tabstop=8
+  autocmd FileType text               call s:setupWrapping()
+
+  "autocmd BufRead,BufNewFile *.jinja2 set filetype=jinja2
+
+  " When editing a file, always jump to the last known cursor position.
+  " Don't do it when the position is invalid or when inside an event
+  " handler (happens when dropping a file on gvim).
+  autocmd BufReadPost *
+    \ if line("'\"") > 0 && line("'\"") <= line("$") |
+    \   exe "normal g`\"" |
+    \ endif
+
+  " Source the vimrc file after saving it
+  "autocmd bufwritepost .vimrc source %
+endif
+
+""" Treefmt
+let g:treefmt_enabled = 1
+
+function! TreeFmt()
+  " FIXME
+  return
+  if !g:treefmt_enabled || !executable('treefmt')
+    return
+  endif
+
+  " Save the cursor position
+  let l:cursor_position = getpos('.')
+
+  " Retrieve the buffer content and format it with treefmt
+  let l:buffer_content = join(getline(1, '$'), "\n")
+  let l:current_file = expand('%:p')
+  let l:output = systemlist('treefmt --stdin -- ' . l:current_file . ' 2>&1', l:buffer_content)
+
+  " Check if the treefmt command failed
+  if v:shell_error != 0
+    echohl ErrorMsg | echomsg 'treefmt failed: ' . join(l:output, "\n") | echohl None
+  else
+    echohl WarnMsg | echomsg 'treefmt output: ' . join(l:output, "\n") | echohl None
+    let l:formatted_content = join(l:output, "\n")
+    call setline(1, split(l:formatted_content, "\n"))
+  endif
+
+  " Restore the cursor position
+  call setpos('.', l:cursor_position)
+endfunction
+
+function! NoTreefmt()
+  if g:treefmt_enabled
+    let g:treefmt_enabled = 0
+    echo "treefmt disabled"
+  else
+    let g:treefmt_enabled = 1
+    echo "treefmt enabled"
+  endif
+endfunction
+
+command! NoTreefmt call NoTreefmt()
+
+augroup treefmt
+  autocmd!
+  autocmd BufWritePre * call TreeFmt()
+augroup END
+
+
+""" Plugin settings
+
+let g:airline_theme='base16_default'

@@ -1,0 +1,25 @@
+# Use Vi, not Emacs, style editing
+#set editing-mode vi
+
+# Ignore case
+set completion-ignore-case on
+
+# Show all completions as soon as I press tab, even if there's more than one
+set show-all-if-ambiguous on
+
+# on menu-complete, first display the common prefix, then cycle through the
+# options when hitting TAB
+set menu-complete-display-prefix on
+
+# see https://cirw.in/blog/bracketed-paste
+set enable-bracketed-paste on
+
+#set keymap vi-command
+
+###########################################################
+# Keymaps for when we're in insert (i.e., typing stuff in) mode
+#set keymap vi-insert
+
+"\ep": history-search-backward
+"\e[A": history-search-backward
+"\e[B": history-search-forward

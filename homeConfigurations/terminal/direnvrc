@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+
+: "${XDG_CACHE_HOME:=$HOME/.cache}"
+: "${direnv:=$(type -p direnv)}"
+#direnv_layout_dir=$XDG_CACHE_HOME/direnv/layouts/$(echo -n $PWD | shasum | awk '{ print $1 }')
+
+abort() {
+  echo "$@" >&2
+  exit 1
+}
+
+ruby-version() {
+  use ruby ruby-"$(< .ruby-version)"
+}
+
+use_ruby() {
+  local ruby_path=$HOME/.rubies/$1
+  if [[ ! -d $ruby_path ]]; then
+    abort "No ruby found in $ruby_path"
+  fi
+  load_prefix "$ruby_path"
+  layout_ruby
+}
+
+use_python() {
+  local python_root=$HOME/.pyenv/versions/$1
+  load_prefix "$python_root"
+  layout_python "$python_root/bin/python"
+}
+
+load_brew() {
+  load_prefix "$(brew --prefix "$1")"
+}
+
+# TODO: switch to using `stack`
+layout_haskell() {
+  PATH_add ~/.cabal/bin
+  [ -d .cabal-sandbox ] || cabal sandbox init
+  PATH_add .cabal-sandbox/bin
+  #export GHC_PACKAGE_PATH=$(cabal exec -- sh -c "echo \$GHC_PACKAGE_PATH")
+}
+
+export_function() {
+  local name=$1
+  local alias_dir=$PWD/.direnv/aliases
+  mkdir -p "$alias_dir"
+  PATH_add "$alias_dir"
+  local target="$alias_dir/$name"
+  if declare -f "$name" >/dev/null; then
+    echo "#!/usr/bin/env bash -e" > "$target"
+    declare -f "$name" >> "$target" 2>/dev/null
+    echo "$name" >> "$target"
+    chmod +x "$target"
+  fi
+}
+
+export_alias() {
+  local name=$1
+  shift
+  local alias_dir=$PWD/.direnv/aliases
+  local target="$alias_dir/$name"
+  mkdir -p "$alias_dir"
+  PATH_add "$alias_dir"
+  echo "#!/usr/bin/env bash -e" > "$target"
+  echo "$@" >> "$target"
+  chmod +x "$target"
+}
+
+e() {
+  export "$1=$2"
+}
+
+fail() {
+  log_error "$*"
+  return 1
+}
+
+use_nix_run() {
+  watch_file default.nix
+  direnv_load nix run -c direnv dump
+}
+
+use_nix-flakes() {
+  watch_file flake.nix
+  watch_file flake.lock
+  eval "$(nix print-dev-env --profile "$(direnv_layout_dir)/flake-profile")"
+}
+
+# Usage: use nix_shell
+#
+# Works like use_nix, except that it's only rebuilt if the shell.nix or
+# default.nix file changes.  This avoids scenarios where the nix-channel is
+# being updated and all the projects now need to be re-built.
+#
+# To force the reload the derivation, run `touch shell.nix`
+# use_nix() {
+#   local shellfile=shell.nix
+#   local wd=$PWD/.direnv/nix
+#   local drvfile=$wd/shell.drv
+
+#   # same heuristic as nix-shell
+#   if [[ ! -f $shellfile ]]; then
+#     shellfile=default.nix
+#   fi
+
+#   if [[ ! -f $shellfile ]]; then
+#     fail "use nix_shell: shell.nix or default.nix not found in the folder"
+#   fi
+
+#   if [[ -f $drvfile && $(stat -c %Y "$shellfile") -gt $(stat -c %Y "$drvfile") ]]; then
+#     log_status "use nix_shell: removing stale drv"
+#     rm "$drvfile"
+#   fi
+
+#   if [[ ! -f $drvfile ]]; then
+#     mkdir -p "$wd"
+#     # instanciate the drv like it was in a nix-shell
+#     IN_NIX_SHELL=1 nix-instantiate \
+#       --show-trace \
+#       --add-root "$drvfile" --indirect \
+#       "$shellfile" >/dev/null
+#   fi
+
+#   direnv_load nix-shell "$drvfile" --run "$(join_args "$direnv" dump)"
+#   watch_file "$shellfile"
+# }
+
+nix-profile() {
+  local profile=$PWD/.direnv/nix-profile
+  mkdir -p .direnv
+
+  rm -f "$profile"
+  nix-build --out-link "$profile" profile.nix
+  watch_file profile.nix
+
+  #source "$profile/etc/profile.d/nix.sh"
+  load_prefix "$profile"
+}
+
+# if [[ -f .envrc.private ]]; then 
+#   source_env .envrc.private
+# fi

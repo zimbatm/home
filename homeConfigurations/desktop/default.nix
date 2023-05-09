@@ -1,0 +1,31 @@
+{ pkgs, ... }:
+{
+  imports = [
+    ../terminal
+  ];
+
+  programs.firefox.enable = true;
+  programs.vscode.enable = true;
+
+  home.packages = with pkgs; [
+    # Graphical
+    brave
+    discord
+    element-desktop
+    gimp
+    logseq
+    signal-desktop
+    slack
+    tdesktop # telegram desktop
+    termite
+    vlc
+    xournal
+    zoom-us
+    zotero
+
+    # KDE stuff
+    filelight
+    krita
+    okular
+  ];
+}
