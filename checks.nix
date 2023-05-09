@@ -3,7 +3,7 @@
   perSystem = { system, lib, ... }:
     let
       # Only check the configurations for the current system
-      sysConfigs = lib.filterAttrs (name: value: value.pkgs.system == system) self.nixosConfigurations;
+      sysConfigs = lib.filterAttrs (_name: value: value.pkgs.system == system) self.nixosConfigurations;
     in
     {
       # Add all the nixos configurations to the checks

@@ -1,5 +1,5 @@
 # Common configuration accross *all* the machines
-{ lib, inputs, ... }:
+{ inputs, ... }:
 {
   imports = [
     inputs.srvos.nixosModules.common

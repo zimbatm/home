@@ -19,7 +19,7 @@
     };
   };
 
-  flake.overlays.default = final: prev: {
+  flake.overlays.default = _final: prev: {
     alpacasay = prev.callPackage ./alpacasay { };
     myvim = prev.callPackage ./myvim { };
   };
