@@ -1,0 +1,16 @@
+name: nix-flake-check
+on:
+  branch: [ main ]
+  pull_request:
+  workflow_dispatch: # allows manual triggering
+
+jobs:
+  nix-flake-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v1
+      - name: Nix Flake check
+        run: nix flake check -L
