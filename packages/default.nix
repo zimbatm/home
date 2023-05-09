@@ -1,8 +1,11 @@
 { self, inputs, ... }: {
   perSystem = { system, pkgs, ... }: {
     packages = {
-      # re-export our vim
-      inherit (pkgs) myvim;
+      # re-export our packages
+      inherit (pkgs)
+        alpacasay
+        myvim
+        ;
     };
     # make pkgs available to all `perSystem` functions
     _module.args.pkgs = import inputs.nixpkgs {
@@ -17,6 +20,7 @@
   };
 
   flake.overlays.default = final: prev: {
+    alpacasay = prev.callPackage ./alpacasay { };
     myvim = prev.callPackage ./myvim { };
   };
 }

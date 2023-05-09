@@ -1,0 +1,13 @@
+# Llama
+# Justin Ledford - 2016
+# https://github.com/justinledford/llama-cowfile
+
+$the_cow = <<EOC;
+       $thoughts     (\\/)
+        $thoughts   (_o |
+             /  |
+             \\  \\______
+              \\        )o
+               /|----- |
+               \\|     /|
+EOC
