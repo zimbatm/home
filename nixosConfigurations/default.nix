@@ -9,6 +9,10 @@ in
       system = "x86_64-linux";
       modules = [ ./no1 ];
     };
+    silent1 = nixosSystem {
+      system = "x86_64-linux";
+      modules = [ ./silent1 ];
+    };
     x1 = nixosSystem {
       system = "x86_64-linux";
       modules = [ ./x1 ];
