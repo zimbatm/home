@@ -110,14 +110,17 @@
     },
     "systems": {
       "locked": {
-        "lastModified": 0,
+        "lastModified": 1680978846,
         "narHash": "sha256-Gtqg8b/v49BFDpDetjclCYXm8mAnTrUzR0JnE2nv5aw=",
-        "path": "/nix/store/g1pv78p6lk92hjzr7syrcihvj4rx1fnz-source",
-        "type": "path"
+        "owner": "nix-systems",
+        "repo": "x86_64-linux",
+        "rev": "2ecfcac5e15790ba6ce360ceccddb15ad16d08a8",
+        "type": "github"
       },
       "original": {
-        "id": "systems",
-        "type": "indirect"
+        "owner": "nix-systems",
+        "repo": "x86_64-linux",
+        "type": "github"
       }
     },
     "treefmt-nix": {
