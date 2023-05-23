@@ -20,13 +20,13 @@
       systems = import systems;
       imports = [
         inputs.treefmt-nix.flakeModule
-        ./checks.nix
-        ./devShell.nix
+        ./checks
+        ./devShells
         ./homeConfigurations
         ./nixosConfigurations
         ./nixosModules
         ./packages
       ];
-      perSystem.treefmt = import ./treefmt.nix;
+      perSystem.treefmt.imports = [ ./treefmt.nix ];
     };
 }
