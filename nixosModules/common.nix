@@ -3,6 +3,7 @@
 {
   imports = [
     inputs.srvos.nixosModules.common
+    inputs.srvos.nixosModules.mixins-terminfo
     ./zimbatm.nix
   ];
 
