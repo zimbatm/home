@@ -21,6 +21,7 @@
     gh
     gist
     gopass
+    gnupg
     h
     jq
     mdsh
@@ -171,13 +172,13 @@
     #lfs.enable = true;
   };
 
-  # services.gpg-agent = {
-  #   enable = true;
-  #   defaultCacheTtl = 1800;
-  #   extraConfig = ''
-  #     pinentry-program ${pkgs.pinentry-gtk2}/bin/pinentry
-  #   '';
-  # };
+  services.gpg-agent = {
+    enable = true;
+    defaultCacheTtl = 1800;
+    extraConfig = ''
+      pinentry-program ${pkgs.pinentry-gtk2}/bin/pinentry
+    '';
+  };
 
   programs.home-manager.enable = true;
 

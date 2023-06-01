@@ -19,7 +19,7 @@ let
 in
 {
   # This is the flake that contains the home-manager configuration
-  perSystem = { pkgs, ... }: {
+  perSystem = { pkgs, lib, system, ... }: {
     # Run `nix run hm switch`
     #
     # TODO: set the home.homeDirectory and home.username dynamically
@@ -44,5 +44,10 @@ in
     legacyPackages.homeConfigurations.desktop = hmConfig pkgs ./desktop;
     legacyPackages.homeConfigurations.sway = hmConfig pkgs ./sway;
     legacyPackages.homeConfigurations.terminal = hmConfig pkgs ./terminal;
+
+    # Add all the home configurations to the checks
+    checks = lib.mapAttrs'
+      (name: value: { name = "home-${name}"; value = value.activation-script; })
+      self.legacyPackages.${system}.homeConfigurations;
   };
 }

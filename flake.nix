@@ -20,7 +20,6 @@
       systems = import systems;
       imports = [
         inputs.treefmt-nix.flakeModule
-        ./checks
         ./devShells
         ./homeConfigurations
         ./nixosConfigurations
