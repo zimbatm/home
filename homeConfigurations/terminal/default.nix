@@ -180,8 +180,6 @@
     '';
   };
 
-  programs.home-manager.enable = true;
-
   programs.htop.enable = true;
 
   programs.keychain.enable = true;
