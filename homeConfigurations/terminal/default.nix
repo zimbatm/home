@@ -175,9 +175,6 @@
   services.gpg-agent = {
     enable = true;
     defaultCacheTtl = 1800;
-    extraConfig = ''
-      pinentry-program ${pkgs.pinentry-gtk2}/bin/pinentry
-    '';
   };
 
   programs.htop.enable = true;
