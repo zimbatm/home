@@ -11,6 +11,7 @@
     inputs.srvos.nixosModules.mixins-systemd-boot
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
+    inputs.home-manager.nixosModules.default
   ];
 
   #boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -67,6 +68,15 @@
 
   services.xserver.wacom.enable = true;
   # services.xserver.upscaleDefaultCursor = lib.mkForce false;
+
+  home-manager.extraSpecialArgs.inputs = inputs;
+  home-manager.users.zimbatm = {
+    imports = [
+      inputs.self.homeModules.desktop
+    ];
+
+    config.home.stateVersion = "22.11";
+  };
 
   # This value determines the NixOS release with which your system is to be
   # compatible, in order to avoid breaking some software such as database

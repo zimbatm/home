@@ -82,5 +82,14 @@
   #virtualisation.libvirtd.enable = true;
   #networking.firewall.checkReversePath = false;
 
+  home-manager.extraSpecialArgs.inputs = inputs;
+  home-manager.users.zimbatm = {
+    imports = [
+      inputs.self.legacyPackages.${pkgs.system}.homeConfigurations.sway
+    ];
+
+    home.stateVersion = "22.11";
+  };
+
   system.stateVersion = "18.09";
 }

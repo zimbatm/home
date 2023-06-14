@@ -41,7 +41,7 @@
     man-pages
 
     # Coding
-    myvim
+    inputs.self.packages.${pkgs.system}.myvim
     go
     gopls
     (lowPrio gotools)

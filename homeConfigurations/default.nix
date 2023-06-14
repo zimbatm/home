@@ -18,6 +18,9 @@ let
     };
 in
 {
+  flake.homeModules.desktop = ./desktop;
+  flake.homeModules.sway = ./sway;
+
   # This is the flake that contains the home-manager configuration
   perSystem = { pkgs, lib, system, ... }: {
     # Run `nix run hm switch`
@@ -27,10 +30,14 @@ in
       set -euo pipefail
 
       export PATH=${pkgs.lib.makeBinPath [pkgs.git pkgs.coreutils pkgs.nix pkgs.jq pkgs.unixtools.hostname]}
-      declare -A profiles=(["x1"]="sway" ["no1"]="desktop")
+      declare -A profiles=(["x1"]="nixos" ["no1"]="nixos")
       profile="terminal"
       if [[ -n ''${profiles[$(hostname)]:-} ]]; then
         profile=''${profiles[$(hostname)]}
+      fi
+      if [[ $profile == nixos ]]; then
+        echo "aborting: deployed by NixOS" >&2
+        exit 1
       fi
       if [[ "''${1:-}" == profile ]]; then
         echo $profile
