@@ -6,6 +6,7 @@
       # Include the results of the hardware scan.
       ./hardware-configuration.nix
       inputs.self.nixosModules.desktop
+      inputs.home-manager.nixosModules.default
     ];
 
   services.greetd = {
