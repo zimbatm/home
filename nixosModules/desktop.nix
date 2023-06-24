@@ -8,21 +8,8 @@
     inputs.srvos.nixosModules.desktop
   ];
 
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "zerotierone"
-  ];
-
   # set for VSCode
   boot.kernel.sysctl."fs.inotify.max_user_watches" = 524288;
-
-  # The sound system of the future. See https://nixos.wiki/wiki/PipeWire
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
 
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
@@ -36,10 +23,6 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   networking.networkmanager.enable = true;
-
-  # Allow Samba discovery
-  networking.firewall.extraCommands = "iptables -t raw -A OUTPUT -p udp -m udp --dport 137 -j CT --helper netbios-ns";
-  services.gvfs.enable = true;
 
   programs.bash.enableCompletion = true;
 

@@ -1,16 +1,16 @@
 # Common configuration accross *all* the machines
-{ inputs, ... }:
+{ inputs, lib, ... }:
 {
   imports = [
+    ./zimbatm.nix
+    inputs.home-manager.nixosModules.default
     inputs.srvos.nixosModules.common
     inputs.srvos.nixosModules.mixins-terminfo
-    inputs.home-manager.nixosModules.default
-    ./zimbatm.nix
   ];
 
   # Configure Let's Encrypt
   security.acme.acceptTerms = true;
-  security.acme.defaults.email = "admin+acme@numtide.com";
+  security.acme.defaults.email = "zimbatm@zimbatm.com";
 
   # Configure all the machines with NumTide's binary cache
   nix.settings.trusted-public-keys = [
@@ -23,6 +23,10 @@
   ];
 
   nixpkgs.config.allowUnfree = true;
+
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "zerotierone"
+  ];
 
   # One network to rule them all.
   services.zerotierone.enable = true;
