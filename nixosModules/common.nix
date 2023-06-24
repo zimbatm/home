@@ -4,6 +4,7 @@
   imports = [
     inputs.srvos.nixosModules.common
     inputs.srvos.nixosModules.mixins-terminfo
+    inputs.home-manager.nixosModules.default
     ./zimbatm.nix
   ];
 
@@ -30,4 +31,9 @@
     172.28.61.193  no1.zt
     172.28.80.106  x1.zt
   '';
+
+  # Configure home-manager
+  home-manager.extraSpecialArgs.inputs = inputs; # forward the inputs
+  home-manager.useGlobalPkgs = true; # don't create another instance of nixpkgs
+  home-manager.useUserPackages = true; # install user packages directly to the user's profile
 }

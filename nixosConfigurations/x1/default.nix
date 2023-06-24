@@ -1,13 +1,11 @@
 { pkgs, inputs, ... }:
 
 {
-  imports =
-    [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      inputs.self.nixosModules.desktop
-      inputs.home-manager.nixosModules.default
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    inputs.self.nixosModules.desktop
+  ];
 
   services.greetd = {
     enable = true;
@@ -83,12 +81,8 @@
   #virtualisation.libvirtd.enable = true;
   #networking.firewall.checkReversePath = false;
 
-  home-manager.extraSpecialArgs.inputs = inputs;
   home-manager.users.zimbatm = {
-    imports = [
-      inputs.self.legacyPackages.${pkgs.system}.homeConfigurations.sway
-    ];
-
+    imports = [ inputs.self.homeModules.sway ];
     home.stateVersion = "22.11";
   };
 

@@ -11,7 +11,6 @@
     inputs.srvos.nixosModules.mixins-systemd-boot
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
-    inputs.home-manager.nixosModules.default
   ];
 
   #boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -69,12 +68,8 @@
   services.xserver.wacom.enable = true;
   # services.xserver.upscaleDefaultCursor = lib.mkForce false;
 
-  home-manager.extraSpecialArgs.inputs = inputs;
   home-manager.users.zimbatm = {
-    imports = [
-      inputs.self.homeModules.desktop
-    ];
-
+    imports = [ inputs.self.homeModules.desktop ];
     config.home.stateVersion = "22.11";
   };
 

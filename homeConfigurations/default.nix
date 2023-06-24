@@ -20,6 +20,7 @@ in
 {
   flake.homeModules.desktop = ./desktop;
   flake.homeModules.sway = ./sway;
+  flake.homeModules.terminal = ./terminal;
 
   # This is the flake that contains the home-manager configuration
   perSystem = { pkgs, lib, system, ... }: {
