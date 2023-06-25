@@ -1,6 +1,6 @@
 { inputs, self, ... }:
 {
-  perSystem = { system, pkgs, ... }: {
+  perSystem = { system, ... }: {
     packages.docs = inputs.mkdocs-numtide.lib.${system}.mkDocs {
       name = "zimbatm-docs";
       src = self;
