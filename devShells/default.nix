@@ -1,9 +1,7 @@
 {
-  perSystem = { pkgs, config, ... }: {
-    devShells.default = pkgs.mkShellNoCC {
-      packages = [
-        config.treefmt.build.wrapper
-      ];
-    };
+  perSystem = { config, ... }: {
+    devshells.default.packages = [
+      config.treefmt.build.wrapper
+    ];
   };
 }

@@ -1,5 +1,28 @@
 {
   "nodes": {
+    "devshell": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": [
+          "systems"
+        ]
+      },
+      "locked": {
+        "lastModified": 1687173957,
+        "narHash": "sha256-GOds2bAQcZ94fb9/Nl/aM+r+0wGSi4EKYuZYR8Dw4R8=",
+        "owner": "numtide",
+        "repo": "devshell",
+        "rev": "2cf83bb31720fcc29a999aee28d6da101173e66a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "devshell",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
@@ -37,6 +60,26 @@
       "original": {
         "owner": "nix-community",
         "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "mkdocs-numtide": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1680442283,
+        "narHash": "sha256-g/OEIdDyXQ5XG2KdP3VKM+BuPGBQyEqk3vyNTNBECr4=",
+        "owner": "numtide",
+        "repo": "mkdocs-numtide",
+        "rev": "6c8711b1ea7eea45a6780c49f1da3950e322b044",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "mkdocs-numtide",
         "type": "github"
       }
     },
@@ -78,8 +121,10 @@
     },
     "root": {
       "inputs": {
+        "devshell": "devshell",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
+        "mkdocs-numtide": "mkdocs-numtide",
         "nix-index-database": "nix-index-database",
         "nixpkgs": [
           "srvos",

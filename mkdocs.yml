@@ -1,0 +1,26 @@
+INHERIT: !ENV MKDOCS_NUMTIDE_THEME
+
+### Navigation ###
+
+nav:
+  - Home: index.md
+
+### Site metadata ###
+
+copyright: Copyright &copy; zimbatm
+edit_uri: edit/main/docs
+repo_name: 'zimbatm/dotfiles'
+repo_url: https://github.com/zimbatm/dotfiles
+site_description: sovereign infrastructure
+site_name: zimbatm's dotfiles
+site_url: https://zimbatm.github.io/dotfiles/
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/zimbatm
+      name: zimbatm on Github
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/zimbatm
+      name: zimbatm on Twitter
+  generator: false # hide the line "Made with Material for MkDocs"
