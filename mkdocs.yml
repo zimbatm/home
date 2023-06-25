@@ -9,11 +9,11 @@ nav:
 
 copyright: Copyright &copy; zimbatm
 edit_uri: edit/main/docs
-repo_name: 'zimbatm/dotfiles'
-repo_url: https://github.com/zimbatm/dotfiles
+repo_name: 'zimbatm/home'
+repo_url: https://github.com/zimbatm/home
 site_description: sovereign infrastructure
-site_name: zimbatm's dotfiles
-site_url: https://zimbatm.github.io/dotfiles/
+site_name: zimbatm's home
+site_url: https://zimbatm.github.io/home/
 
 extra:
   social:
