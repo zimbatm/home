@@ -13,17 +13,11 @@
     inputs.self.nixosModules.gnome
   ];
 
-  #boot.kernelPackages = pkgs.linuxPackages_latest;
-  boot.kernelModules = [ "v4l2loopback" ];
   boot.extraModprobeConfig = ''
     options kvm_intel nested=1
     options kvm_intel emulate_invalid_guest_state=0
     options kvm ignore_msrs=1
-    options v4l2loopback card_label="OBS Video Source"
-    options v4l2loopback exclusive_caps=1
-    options v4l2loopback video_nr=10
   '';
-  boot.extraModulePackages = with config.boot.kernelPackages; [ v4l2loopback ];
 
   hardware.opengl.enable = true;
   hardware.pulseaudio.enable = lib.mkForce false;
@@ -42,28 +36,12 @@
   ];
   nix.settings.sandbox = "relaxed";
 
-  # nix.buildMachines = [
-  #   {
-  #     hostName = "macos1.zt";
-  #     sshUser = "zimbatm";
-  #     sshKey = "/root/.ssh/id_rsa";
-  #     system = "x86_64-darwin";
-  #     maxJobs = 2;
-  #   }
-  # ];
-
   # Flatpak
   services.flatpak.enable = true;
   xdg.portal.enable = true;
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
-  services.printing.enable = true;
-  services.printing.drivers = with pkgs; [ gutenprint hplip ];
-
-  # DavFS
-  services.davfs2.enable = true;
 
   services.xserver.wacom.enable = true;
   # services.xserver.upscaleDefaultCursor = lib.mkForce false;
