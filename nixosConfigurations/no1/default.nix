@@ -36,10 +36,6 @@
   ];
   nix.settings.sandbox = "relaxed";
 
-  # Flatpak
-  services.flatpak.enable = true;
-  xdg.portal.enable = true;
-
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
