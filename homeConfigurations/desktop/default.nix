@@ -13,7 +13,6 @@
     discord
     element-desktop
     gimp
-    logseq
     signal-desktop
     slack
     tdesktop # telegram desktop
