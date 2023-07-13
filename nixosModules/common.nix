@@ -1,5 +1,5 @@
 # Common configuration accross *all* the machines
-{ inputs, lib, ... }:
+{ inputs, lib, pkgs, ... }:
 {
   imports = [
     ./zimbatm.nix
@@ -21,6 +21,8 @@
     "https://cache.garnix.io"
     "https://numtide.cachix.org"
   ];
+
+  nix.package = pkgs.nixVersions.nix_2_16;
 
   nixpkgs.config.allowUnfree = true;
 
