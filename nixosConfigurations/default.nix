@@ -17,6 +17,10 @@ in
       system = "x86_64-linux";
       modules = [ ./x1 ];
     };
+    web1 = nixosSystem {
+      system = "x86_64-linux";
+      modules = [ ./web1 ];
+    };
   };
 
   # This is the flake that contains the home-manager configuration

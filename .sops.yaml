@@ -1,0 +1,11 @@
+# AUTOMATICALLY GENERATED WITH:
+# bld run update-sops-files
+creation_rules:
+  - key_groups:
+      - age:
+          # ztm.io
+          - age1ym929q4ksluqsjquzpq9573mvalplaf55a5wnpm4z8zjqahnfc9sj7j7t7
+
+          # zimbatm
+          - age1jrh8yyq3swjru09s75s4mspu0mphh7h6z54z946raa9wx3pcdegq0x8t4h
+    path_regex: ^nixosConfigurations/web1/secrets.yaml$
