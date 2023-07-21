@@ -23,6 +23,26 @@
         "type": "github"
       }
     },
+    "disko": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1689943059,
+        "narHash": "sha256-DXBCl0n4yLwY8OmrZDFWD3vxyzs2tSAv+iu1h6vebOA=",
+        "owner": "nix-community",
+        "repo": "disko",
+        "rev": "f2248036d2aeb61690903130458b4e7f975b1c78",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "disko",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
@@ -103,6 +123,78 @@
         "type": "github"
       }
     },
+    "nixos-2305": {
+      "locked": {
+        "lastModified": 1687938137,
+        "narHash": "sha256-Z00c0Pk3aE1aw9x44lVcqHmvx+oX7dxCXCvKcUuE150=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ba2ded3227a2992f2040fad4ba6f218a701884a5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "release-23.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixos-anywhere": {
+      "inputs": {
+        "disko": [
+          "disko"
+        ],
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixos-2305": "nixos-2305",
+        "nixos-images": "nixos-images",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": [
+          "treefmt-nix"
+        ]
+      },
+      "locked": {
+        "lastModified": 1689945193,
+        "narHash": "sha256-+GPRt7ouE84A7GPNKnFYGU0cQL7skKxz0BAY0sUjUmw=",
+        "owner": "numtide",
+        "repo": "nixos-anywhere",
+        "rev": "27161266077a177ac116e2cb72cc70af5f145189",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "nixos-anywhere",
+        "type": "github"
+      }
+    },
+    "nixos-images": {
+      "inputs": {
+        "nixos-2305": [
+          "nixos-anywhere",
+          "nixos-2305"
+        ],
+        "nixos-unstable": [
+          "nixos-anywhere",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1686819168,
+        "narHash": "sha256-IbRVStbKoMC2fUX6TxNO82KgpVfI8LL4Cq0bTgdYhnY=",
+        "owner": "nix-community",
+        "repo": "nixos-images",
+        "rev": "ccc1a2c08ce2fc38bcece85d2a6e7bf17bac9e37",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "nixos-images",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1688921215,
@@ -119,20 +211,60 @@
         "type": "github"
       }
     },
+    "nixpkgs-stable": {
+      "locked": {
+        "lastModified": 1689473667,
+        "narHash": "sha256-41ePf1ylHMTogSPAiufqvBbBos+gtB6zjQlYFSEKFMM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "13231eccfa1da771afa5c0807fdd73e05a1ec4e6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "release-23.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "devshell": "devshell",
+        "disko": "disko",
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "mkdocs-numtide": "mkdocs-numtide",
         "nix-index-database": "nix-index-database",
+        "nixos-anywhere": "nixos-anywhere",
         "nixpkgs": [
           "srvos",
           "nixpkgs"
         ],
+        "sops-nix": "sops-nix",
         "srvos": "srvos",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix"
+      }
+    },
+    "sops-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-stable": "nixpkgs-stable"
+      },
+      "locked": {
+        "lastModified": 1689534977,
+        "narHash": "sha256-EB4hasmjKgetTR0My2bS5AwELZFIQ4zANLqHKi7aVXg=",
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "rev": "bd695cc4d0a5e1bead703cc1bec5fa3094820a81",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "sops-nix",
+        "type": "github"
       }
     },
     "srvos": {

@@ -5,8 +5,8 @@ let
 in
 {
   # Some secrets we will need below
-  sops.secrets.gotosocial-restic-password = {};
-  sops.secrets.gotosocial-storagebox-password = {};
+  sops.secrets.gotosocial-restic-password = { };
+  sops.secrets.gotosocial-storagebox-password = { };
 
   # Configure gotosocial
   services.gotosocial = {

@@ -1,5 +1,5 @@
 {
-  perSystem = { config, inputs', pkgs, ... }: {
+  perSystem = { config, pkgs, ... }: {
     devshells.default.packages = [
       config.treefmt.build.wrapper
       # inputs'.nixos-anywhere.packages.default
