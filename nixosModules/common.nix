@@ -22,8 +22,6 @@
     "https://numtide.cachix.org"
   ];
 
-  nix.package = pkgs.nixVersions.nix_2_16;
-
   nixpkgs.config.allowUnfree = true;
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
