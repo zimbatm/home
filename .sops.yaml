@@ -3,9 +3,11 @@
 creation_rules:
   - key_groups:
       - age:
-          # ztm.io
-          - age1ym929q4ksluqsjquzpq9573mvalplaf55a5wnpm4z8zjqahnfc9sj7j7t7
-
-          # zimbatm
-          - age1jrh8yyq3swjru09s75s4mspu0mphh7h6z54z946raa9wx3pcdegq0x8t4h
+          - age18rs3vr8rp5dtyxpc0t6fz3m7suyjpve0whs0qpajhxdg0aq7u32qd2wvce # no1.zt
+          - age1jrh8yyq3swjru09s75s4mspu0mphh7h6z54z946raa9wx3pcdegq0x8t4h # zimbatm
+    path_regex: ^nixosConfigurations/no1/secrets.yaml$
+  - key_groups:
+      - age:
+          - age1ym929q4ksluqsjquzpq9573mvalplaf55a5wnpm4z8zjqahnfc9sj7j7t7 # ztm.io
+          - age1jrh8yyq3swjru09s75s4mspu0mphh7h6z54z946raa9wx3pcdegq0x8t4h # zimbatm
     path_regex: ^nixosConfigurations/web1/secrets.yaml$

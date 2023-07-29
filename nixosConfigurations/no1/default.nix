@@ -8,10 +8,14 @@
   imports = [
     ./hardware-configuration-extra.nix
     ./hardware-configuration.nix
-    inputs.srvos.nixosModules.mixins-systemd-boot
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
+    inputs.self.nixosModules.nix-remote-builders
+    inputs.sops-nix.nixosModules.default
+    inputs.srvos.nixosModules.mixins-systemd-boot
   ];
+
+  sops.defaultSopsFile = ./secrets.yaml;
 
   boot.extraModprobeConfig = ''
     options kvm_intel nested=1
