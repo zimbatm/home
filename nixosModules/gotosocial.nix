@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  domain = "ztm.io";
+  domain = "gts.zimbatm.com";
   cfg = config.services.gotosocial;
 in
 {
@@ -11,10 +11,11 @@ in
   # Configure gotosocial
   services.gotosocial = {
     enable = true;
+    settings.account-domain = "zimbatm.com";
+    settings.accounts-allow-custom-css = true;
+    settings.accounts-registration-open = false;
     settings.host = domain;
     settings.instance-expose-public-timeline = true;
-    settings.accounts-registration-open = false;
-    settings.accounts-allow-custom-css = true;
   };
 
   # Put nginx in front
@@ -24,7 +25,7 @@ in
 
     # Redirect / to my user since it's a single user install
     locations."= /" = {
-      return = "301 $scheme://$host/@zimbatm";
+      return = "302 $scheme://$host/@zimbatm";
     };
 
     locations."/" = {
