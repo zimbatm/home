@@ -11,6 +11,10 @@ in
   # Configure gotosocial
   services.gotosocial = {
     enable = true;
+    # Make sure to forward the following prefixes from the main website:
+    # * /.well-known/nodeinfo
+    # * /.well-known/host-meta
+    # * /.well-known/webfinger
     settings.account-domain = "zimbatm.com";
     settings.accounts-allow-custom-css = true;
     settings.accounts-registration-open = false;
@@ -32,6 +36,8 @@ in
       proxyPass = "http://127.0.0.1:${toString cfg.settings.port}";
       proxyWebsockets = true;
     };
+
+    # TODO: Add caching. See https://docs.gotosocial.org/en/latest/advanced/caching/
   };
 
   # Bind the Hetzner storage box to the host for the backups
@@ -62,6 +68,8 @@ in
       "--keep-weekly 5"
       "--keep-monthly 6"
     ];
+    # TODO: Dump the sqlite database separately to ensure data consistency.
+    #       The traffic is fairly low so it would work ok.
     repository = "/mnt/gotosocial-backup/gotosocial";
     timerConfig.OnCalendar = "hourly";
   };
