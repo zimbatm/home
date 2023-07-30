@@ -1,5 +1,5 @@
 # Common configuration accross *all* the machines
-{ inputs, lib, pkgs, ... }:
+{ inputs, lib, ... }:
 {
   imports = [
     ./zimbatm.nix
