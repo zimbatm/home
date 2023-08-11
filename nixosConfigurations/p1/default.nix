@@ -1,0 +1,57 @@
+{ config, pkgs, lib, inputs, ... }:
+{
+  imports = [
+    ./hardware-configuration.nix
+    inputs.self.nixosModules.desktop
+    inputs.self.nixosModules.gnome
+    inputs.srvos.nixosModules.mixins-systemd-boot
+  ];
+
+  # Bootloader.
+  boot.loader.efi.canTouchEfiVariables = true;
+
+  # Setup keyfile
+  boot.initrd.secrets = {
+    "/crypto_keyfile.bin" = null;
+  };
+
+  # Hostname
+  networking.hostName = "p1"; # Define your hostname.
+
+  # Set your time zone.
+  time.timeZone = "Europe/Zurich";
+
+  # Configure keymap in X11
+  services.xserver = {
+    layout = lib.mkForce "ch";
+    xkbVariant = "fr_nodeadkeys";
+  };
+
+  # FIXME: Is needed for some reason
+  hardware.pulseaudio.enable = false;
+
+  # Configure console keymap
+  console.keyMap = lib.mkForce "sg";
+
+  # Enable CUPS to print documents.
+  services.printing.enable = true;
+
+  # Configure the home-manager profile
+  home-manager.users.zimbatm = {
+    imports = [ inputs.self.homeModules.desktop ];
+    config.home.stateVersion = "22.11";
+  };
+
+  # List services that you want to enable:
+
+  # Enable the OpenSSH daemon.
+  # services.openssh.enable = true;
+
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  system.stateVersion = "23.05"; # Did you read the comment?
+}

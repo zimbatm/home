@@ -2,6 +2,7 @@
 {
   users.users.zimbatm = {
     uid = 1000;
+    description = "Jonas Chevalier";
 
     isNormalUser = true;
 
