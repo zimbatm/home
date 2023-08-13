@@ -144,7 +144,7 @@
       branch.mergeoptions = "--no-ff";
       core.whitespace = "trailing-space,space-before-tab,tab-in-indent";
       fetch.parallel = 10;
-      gpg.format = "ssh";
+      # gpg.format = "ssh";
       merge.conflictstyle = "diff3";
       rebase.autoSquash = true;
       rebase.autoStash = true;
