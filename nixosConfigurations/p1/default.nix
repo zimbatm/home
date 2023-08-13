@@ -2,6 +2,7 @@
 {
   imports = [
     ./hardware-configuration.nix
+    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p16s-amd-gen1
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
     inputs.srvos.nixosModules.mixins-systemd-boot
