@@ -11,6 +11,9 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
+    lanzaboote.inputs.flake-parts.follows = "flake-parts";
+    lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
+    lanzaboote.url = "github:nix-community/lanzaboote/v0.3.0";
     mkdocs-numtide.inputs.nixpkgs.follows = "nixpkgs";
     mkdocs-numtide.url = "github:numtide/mkdocs-numtide";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";

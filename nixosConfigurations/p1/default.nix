@@ -2,11 +2,25 @@
 {
   imports = [
     ./hardware-configuration.nix
+    inputs.lanzaboote.nixosModules.lanzaboote
     inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p16s-amd-gen1
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
+
+  environment.systemPackages = [
+    # For debugging and troubleshooting Secure Boot.
+    pkgs.sbctl
+  ];
+
+  # lanzaboote replaces systemd-boot
+  boot.loader.systemd-boot.enable = lib.mkForce false;
+
+  boot.lanzaboote = {
+    enable = true;
+    pkiBundle = "/etc/secureboot";
+  };
 
   # Bootloader.
   boot.loader.efi.canTouchEfiVariables = true;
