@@ -1,6 +1,9 @@
 { self, inputs, ... }: {
   perSystem = { system, pkgs, ... }: {
     packages = {
+      # The most important package in this repo
+      default = pkgs.alpacasay;
+
       # re-export our packages
       inherit (pkgs)
         alpacasay
