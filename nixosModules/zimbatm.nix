@@ -1,5 +1,9 @@
 { inputs, pkgs, ... }:
 {
+  environment.systemPackages = [
+    pkgs.nushell
+  ];
+
   users.users.zimbatm = {
     uid = 1000;
     description = "Jonas Chevalier";
@@ -22,7 +26,7 @@
       inputs.self.packages.${pkgs.system}.myvim
     ];
 
-    shell = "/run/current-system/sw/bin/bash";
+    shell = "/run/current-system/sw/bin/nu";
 
     # Allow to SSH from any host to any host
     openssh.authorizedKeys.keyFiles = [ ../authorized_keys ];

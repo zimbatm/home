@@ -1,5 +1,5 @@
 # Common configuration accross *all* the machines
-{ inputs, lib, ... }:
+{ inputs, lib, pkgs, ... }:
 {
   imports = [
     ./zimbatm.nix
@@ -7,6 +7,8 @@
     inputs.srvos.nixosModules.common
     inputs.srvos.nixosModules.mixins-terminfo
   ];
+
+  nix.package = pkgs.nixVersions.unstable;
 
   # Configure Let's Encrypt
   security.acme.acceptTerms = true;
