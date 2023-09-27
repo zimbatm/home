@@ -46,6 +46,13 @@
   services.xserver.wacom.enable = true;
   # services.xserver.upscaleDefaultCursor = lib.mkForce false;
 
+  # 
+  services.printing.enable = true;
+  services.printing.drivers = [ pkgs.cnijfilter2 ];
+  services.avahi.enable = true;
+  services.avahi.nssmdns = true;
+  services.avahi.openFirewall = true;
+
   home-manager.users.zimbatm = {
     imports = [ inputs.self.homeModules.desktop ];
     config.home.stateVersion = "22.11";
