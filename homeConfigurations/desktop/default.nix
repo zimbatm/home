@@ -20,7 +20,6 @@
     vlc
     xournal
     zoom-us
-    zotero
 
     # KDE stuff
     filelight
