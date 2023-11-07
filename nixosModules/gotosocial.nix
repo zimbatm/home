@@ -64,9 +64,9 @@ in
     passwordFile = config.sops.secrets.gotosocial-restic-password.path;
     paths = [ "/var/lib/gotosocial" ];
     pruneOpts = [
-      "--keep-daily 7"
-      "--keep-weekly 5"
-      "--keep-monthly 6"
+      "--keep-daily 5"
+      "--keep-weekly 1"
+      "--keep-monthly 1"
     ];
     # TODO: Dump the sqlite database separately to ensure data consistency.
     #       The traffic is fairly low so it would work ok.
