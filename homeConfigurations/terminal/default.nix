@@ -19,7 +19,6 @@
     fd
     file
     gh
-    gist
     gopass
     gnupg
     h
