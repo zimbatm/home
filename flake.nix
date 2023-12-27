@@ -26,6 +26,7 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nixpkgs.follows = "srvos/nixpkgs"; # use the version of nixpkgs that has been tested with SrvOS
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+    sops-nix.inputs.nixpkgs-stable.follows = "";
     sops-nix.url = "github:Mic92/sops-nix";
     srvos.url = "github:numtide/srvos";
     srvos.inputs.nixos-stable.follows = "";

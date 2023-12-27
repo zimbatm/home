@@ -50,7 +50,7 @@
   services.printing.enable = true;
   services.printing.drivers = [ pkgs.cnijfilter2 ];
   services.avahi.enable = true;
-  services.avahi.nssmdns = true;
+  services.avahi.nssmdns4 = true;
   services.avahi.openFirewall = true;
 
   home-manager.users.zimbatm = {

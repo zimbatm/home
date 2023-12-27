@@ -174,6 +174,7 @@
   services.gpg-agent = {
     enable = true;
     defaultCacheTtl = 1800;
+    pinentryFlavor = "gnome3";
   };
 
   programs.htop.enable = true;
