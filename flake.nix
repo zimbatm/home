@@ -18,11 +18,6 @@
     mkdocs-numtide.url = "github:numtide/mkdocs-numtide";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
     nix-index-database.url = "github:Mic92/nix-index-database";
-    nixos-anywhere.inputs.disko.follows = "disko";
-    nixos-anywhere.inputs.flake-parts.follows = "flake-parts";
-    nixos-anywhere.inputs.nixpkgs.follows = "nixpkgs";
-    nixos-anywhere.inputs.treefmt-nix.follows = "treefmt-nix";
-    nixos-anywhere.url = "github:numtide/nixos-anywhere";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nixpkgs.follows = "srvos/nixpkgs"; # use the version of nixpkgs that has been tested with SrvOS
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
