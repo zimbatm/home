@@ -25,6 +25,7 @@
 
   hardware.opengl.enable = true;
   hardware.pulseaudio.enable = lib.mkForce false;
+  services.xserver.videoDrivers = [ "nvidia" ];
 
   networking.hostName = "no1"; # Define your hostname.
   networking.firewall.interfaces.ztr2q47jsy.allowedTCPPorts = [
