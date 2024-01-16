@@ -32,7 +32,7 @@ in
     swaylock # needed by sway
     xdg-utils # needed for termite URL opening
     # xwayland
-    j4-dmenu-desktop
+    # j4-dmenu-desktop
     bemenu
 
     okular
@@ -85,7 +85,7 @@ in
       modifier = "Mod4";
       terminal = "termite";
       menu = ''
-        ${pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop \
+        $${FIXME: pkgs.j4-dmenu-desktop}/bin/j4-dmenu-desktop \
           --dmenu='BEMENU_BACKEND=wayland ${pkgs.bemenu}/bin/bemenu --ignorecase' \
           --term=termite
       '';
