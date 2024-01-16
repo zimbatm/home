@@ -6,7 +6,6 @@
 
 {
   imports = [
-    ./unifi.nix
     ./samba.nix
     ./hardware-configuration.nix
     inputs.self.nixosModules.server
