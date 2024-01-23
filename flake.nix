@@ -4,7 +4,6 @@
   inputs = {
     devshell.inputs.flake-utils.follows = "flake-utils";
     devshell.inputs.nixpkgs.follows = "nixpkgs";
-    devshell.inputs.systems.follows = "systems";
     devshell.url = "github:numtide/devshell";
     disko.inputs.nixpkgs.follows = "nixpkgs";
     disko.url = "github:nix-community/disko";
@@ -28,7 +27,6 @@
     sops-nix.inputs.nixpkgs-stable.follows = "";
     sops-nix.url = "github:Mic92/sops-nix";
     srvos.inputs.flake-parts.follows = "flake-parts";
-    srvos.inputs.nixos-stable.follows = "";
     srvos.url = "github:numtide/srvos";
     systems.url = "github:nix-systems/x86_64-linux";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
