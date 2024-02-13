@@ -35,7 +35,11 @@
   networking.extraHosts = ''
     172.28.61.193  no1.zt
     172.28.80.106  x1.zt
+
+    204:a605:4fd1:382d:1b43:b35d:1cef:c6c9 no1.my
   '';
+
+  networking.firewall.allowPing = true;
 
   # Replace ZeroTier with mycelium.
   services.mycelium.enable = true;
