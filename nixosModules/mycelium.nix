@@ -34,6 +34,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    environment.systemPackages = [ cfg.package ];
+
     networking.firewall.allowedTCPPorts = lib.optionals cfg.openFirewall [ 9651 ];
     networking.firewall.allowedUDPPorts = lib.optionals cfg.openFirewall [ 9650 9651 ];
 
