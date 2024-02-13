@@ -15,7 +15,7 @@
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
-  # environment.stub-ld.enable = false;
+  environment.stub-ld.enable = false;
 
   sops.defaultSopsFile = ./secrets.yaml;
 
