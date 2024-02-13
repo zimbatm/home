@@ -22,7 +22,7 @@
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
     nix-index-database.url = "github:Mic92/nix-index-database";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
-    nixpkgs.url = "github:zimbatm/nixpkgs/f9d39fb9aff0efee4a3d5f4a6d7c17701d38a1d8"; # use the version of nixpkgs that has been tested with SrvOS
+    nixpkgs.url = "github:zimbatm/nixpkgs/690f9eb1b3bacf625a291403276ef99c902564f0"; # use the version of nixpkgs that has been tested with SrvOS
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
     sops-nix.inputs.nixpkgs-stable.follows = "";
     sops-nix.url = "github:Mic92/sops-nix";
