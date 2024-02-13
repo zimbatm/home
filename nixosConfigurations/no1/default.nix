@@ -28,12 +28,6 @@
   services.xserver.videoDrivers = [ "nvidia" ];
 
   networking.hostName = "no1"; # Define your hostname.
-  networking.firewall.interfaces.ztr2q47jsy.allowedTCPPorts = [
-    22000 # syncthing
-  ];
-  networking.firewall.interfaces.ztr2q47jsy.allowedUDPPorts = [
-    22000 # syncthing
-  ];
   networking.networkmanager.enable = true;
 
   nix.nixPath = [
