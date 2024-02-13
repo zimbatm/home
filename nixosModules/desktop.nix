@@ -3,7 +3,7 @@
 {
   imports = [
     ./common.nix
-    ./ubuntu-light.nix
+    # ./ubuntu-light.nix
     ./pinned-nix-registry.nix
     inputs.srvos.nixosModules.desktop
   ];

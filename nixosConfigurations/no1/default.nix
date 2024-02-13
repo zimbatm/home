@@ -15,6 +15,8 @@
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
+  # environment.stub-ld.enable = false;
+
   sops.defaultSopsFile = ./secrets.yaml;
 
   boot.extraModprobeConfig = ''
@@ -22,6 +24,8 @@
     options kvm_intel emulate_invalid_guest_state=0
     options kvm ignore_msrs=1
   '';
+
+  services.guix.enable = true;
 
   hardware.opengl.enable = true;
   hardware.pulseaudio.enable = lib.mkForce false;
