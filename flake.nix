@@ -26,7 +26,6 @@
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
     sops-nix.inputs.nixpkgs-stable.follows = "";
     sops-nix.url = "github:Mic92/sops-nix";
-    srvos.inputs.flake-parts.follows = "flake-parts";
     srvos.url = "github:numtide/srvos";
     systems.url = "github:nix-systems/x86_64-linux";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
