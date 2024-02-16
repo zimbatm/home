@@ -148,7 +148,7 @@
       rebase.autoSquash = true;
       rebase.autoStash = true;
       submodule.recurse = true;
-      url."ssh://git@github.com/".insteadOf = "https://github.com/";
+      url."ssh://git@github.com/".pushInsteadOf = "https://github.com/";
     };
     ignores = [
       # direnv
