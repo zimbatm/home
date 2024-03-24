@@ -17,6 +17,8 @@
 
   sops.defaultSopsFile = ./secrets.yaml;
 
+  boot.initrd.systemd.enable = true;
+
   boot.extraModprobeConfig = ''
     options kvm_intel nested=1
     options kvm_intel emulate_invalid_guest_state=0

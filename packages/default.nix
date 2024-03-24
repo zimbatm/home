@@ -8,7 +8,6 @@
       inherit (pkgs)
         alpacasay
         myvim
-        mycelium
         ;
     };
     # make pkgs available to all `perSystem` functions
@@ -26,6 +25,5 @@
   flake.overlays.default = _final: prev: {
     alpacasay = prev.callPackage ./alpacasay { };
     myvim = prev.callPackage ./myvim { };
-    mycelium = prev.callPackage ./mycelium { };
   };
 }

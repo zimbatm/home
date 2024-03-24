@@ -1,9 +1,8 @@
 # Common configuration accross *all* the machines
-{ inputs, pkgs, lib, ... }:
+{ inputs, lib, ... }:
 {
   imports = [
     ./zimbatm.nix
-    ./mycelium.nix
     inputs.home-manager.nixosModules.default
     inputs.srvos.nixosModules.common
     inputs.srvos.nixosModules.mixins-terminfo
@@ -44,7 +43,6 @@
   # Replace ZeroTier with mycelium.
   services.mycelium.enable = true;
   services.mycelium.openFirewall = true;
-  services.mycelium.package = inputs.self.packages.${pkgs.system}.mycelium;
 
   # Configure home-manager
   home-manager.extraSpecialArgs.inputs = inputs; # forward the inputs
