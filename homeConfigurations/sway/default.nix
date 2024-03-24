@@ -102,11 +102,7 @@ in
         XF86LaunchB = "exec $menu";
       };
 
-      bars = [
-        {
-          statusCommand = "i3status-rs ~/.config/sway/status.toml";
-        }
-      ];
+      bars = [ { statusCommand = "i3status-rs ~/.config/sway/status.toml"; } ];
 
       # Sway specific
 

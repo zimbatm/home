@@ -1,6 +1,11 @@
 { pkgs, ... }:
 let
-  mkShare = { name, comment ? name, path ? "/data/${name}" }:
+  mkShare =
+    {
+      name,
+      comment ? name,
+      path ? "/data/${name}",
+    }:
     {
       "create mask" = "0664";
       "directory mask" = "0775";
@@ -34,6 +39,15 @@ in
   services.samba.shares."TV Shows" = mkShare { name = "TV Shows"; };
 
   networking.firewall.allowPing = true;
-  networking.firewall.allowedTCPPorts = [ 137 138 139 445 ];
-  networking.firewall.allowedUDPPorts = [ 137 138 139 ];
+  networking.firewall.allowedTCPPorts = [
+    137
+    138
+    139
+    445
+  ];
+  networking.firewall.allowedUDPPorts = [
+    137
+    138
+    139
+  ];
 }

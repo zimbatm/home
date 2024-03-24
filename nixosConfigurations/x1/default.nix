@@ -33,9 +33,7 @@
 
   networking.hostName = "x1";
 
-  nix.nixPath = [
-    "nixpkgs=${toString pkgs.path}"
-  ];
+  nix.nixPath = [ "nixpkgs=${toString pkgs.path}" ];
 
   nix.distributedBuilds = true;
   nix.buildMachines = [
@@ -71,7 +69,12 @@
     IPCAllowedGroups = [ "wheel" ];
   };
 
-  swapDevices = [{ device = "/swapfile"; size = 10000; }];
+  swapDevices = [
+    {
+      device = "/swapfile";
+      size = 10000;
+    }
+  ];
 
   time.timeZone = "Europe/Paris";
 

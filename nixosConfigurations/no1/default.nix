@@ -2,7 +2,13 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, inputs, pkgs, lib, ... }:
+{
+  config,
+  inputs,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [
@@ -32,9 +38,7 @@
   networking.hostName = "no1"; # Define your hostname.
   networking.networkmanager.enable = true;
 
-  nix.nixPath = [
-    "nixpkgs=${toString pkgs.path}"
-  ];
+  nix.nixPath = [ "nixpkgs=${toString pkgs.path}" ];
   nix.settings.sandbox = "relaxed";
 
   # Enable the OpenSSH daemon.

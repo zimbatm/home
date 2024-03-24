@@ -24,7 +24,10 @@
     pkgs.rclone
   ];
 
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
   networking.hostName = "silent1";
 
   powerManagement.powerUpCommands = ''

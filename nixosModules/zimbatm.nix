@@ -18,9 +18,7 @@
       "wheel"
     ];
 
-    packages = [
-      inputs.self.packages.${pkgs.system}.myvim
-    ];
+    packages = [ inputs.self.packages.${pkgs.system}.myvim ];
 
     shell = "/run/current-system/sw/bin/bash";
 

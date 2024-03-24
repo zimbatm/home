@@ -1,5 +1,5 @@
 {
   projectRootFile = "flake.lock";
   programs.deadnix.enable = true;
-  programs.nixpkgs-fmt.enable = true;
+  programs.nixfmt-rfc-style.enable = true;
 }

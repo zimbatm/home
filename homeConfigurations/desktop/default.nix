@@ -1,8 +1,6 @@
 { pkgs, ... }:
 {
-  imports = [
-    ../terminal
-  ];
+  imports = [ ../terminal ];
 
   programs.firefox.enable = true;
   programs.vscode.enable = true;

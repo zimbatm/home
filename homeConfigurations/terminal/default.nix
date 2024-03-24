@@ -1,63 +1,65 @@
-{ config, pkgs, inputs, ... }:
 {
-  imports = [
-    inputs.nix-index-database.hmModules.nix-index
-  ];
+  config,
+  pkgs,
+  inputs,
+  ...
+}:
+{
+  imports = [ inputs.nix-index-database.hmModules.nix-index ];
   # also wrap and install comma
   programs.nix-index-database.comma.enable = true;
 
   home.file.".inputrc".text = builtins.readFile ./inputrc;
-  home.packages = with pkgs; [
-    # TUI
-    tmate
+  home.packages =
+    with pkgs;
+    [
+      # TUI
+      tmate
 
-    # CLI stuff
-    bc
-    dnsutils
-    docker-compose
-    eternal-terminal
-    fd
-    file
-    gh
-    gopass
-    gnupg
-    h
-    jq
-    mdsh
-    psmisc
-    pwgen
-    ripgrep
-    ruby
-    shellcheck
-    shfmt
-    tree
-    unzip
-    webfs
-    wget
-    wl-clipboard
+      # CLI stuff
+      bc
+      dnsutils
+      docker-compose
+      eternal-terminal
+      fd
+      file
+      gh
+      gopass
+      gnupg
+      h
+      jq
+      mdsh
+      psmisc
+      pwgen
+      ripgrep
+      ruby
+      shellcheck
+      shfmt
+      tree
+      unzip
+      webfs
+      wget
+      wl-clipboard
 
-    # Linux man pages!
-    man-pages
+      # Linux man pages!
+      man-pages
 
-    # Coding
-    inputs.self.packages.${pkgs.system}.myvim
-    go
-    gopls
-    (lowPrio gotools)
+      # Coding
+      inputs.self.packages.${pkgs.system}.myvim
+      go
+      gopls
+      (lowPrio gotools)
 
-    # Nix stuff
-    nix-update
-    nixpkgs-fmt
-    nixpkgs-review
-  ]
-  ++ (
-    with pkgs.gitAndTools; [
+      # Nix stuff
+      nix-update
+      nixpkgs-fmt
+      nixpkgs-review
+    ]
+    ++ (with pkgs.gitAndTools; [
       git-absorb
       git-extras
       git-gone
-    ]
-  )
-  ;
+    ]);
 
   nixpkgs.config.allowUnfree = true;
 
