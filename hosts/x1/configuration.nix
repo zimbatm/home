@@ -7,6 +7,8 @@
     inputs.self.nixosModules.desktop
   ];
 
+  nixpkgs.hostPlatform = "x86_64-linux";
+
   services.greetd = {
     enable = true;
     settings.default_session = {

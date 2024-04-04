@@ -12,6 +12,8 @@
     inputs.srvos.nixosModules.server
   ];
 
+  nixpkgs.hostPlatform = "x86_64-linux";
+
   sops.defaultSopsFile = ./secrets.yaml;
 
   home-manager.users.zimbatm = {

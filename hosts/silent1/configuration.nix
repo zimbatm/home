@@ -11,6 +11,8 @@
     inputs.self.nixosModules.server
   ];
 
+  nixpkgs.hostPlatform = "x86_64-linux";
+
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";
   boot.kernelPackages = pkgs.linuxPackages_latest;

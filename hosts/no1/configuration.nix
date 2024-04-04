@@ -21,6 +21,8 @@
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
+  nixpkgs.hostPlatform = "x86_64-linux";
+
   sops.defaultSopsFile = ./secrets.yaml;
 
   boot.initrd.systemd.enable = true;
@@ -30,6 +32,9 @@
     options kvm_intel emulate_invalid_guest_state=0
     options kvm ignore_msrs=1
   '';
+
+  services.tailscale.enable = true;
+  services.tailscale.openFirewall = true;
 
   hardware.opengl.enable = true;
   hardware.pulseaudio.enable = lib.mkForce false;

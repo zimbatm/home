@@ -15,6 +15,8 @@
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
+  nixpkgs.hostPlatform = "x86_64-linux";
+
   environment.systemPackages = [
     # For debugging and troubleshooting Secure Boot.
     pkgs.sbctl

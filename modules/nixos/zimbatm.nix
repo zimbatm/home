@@ -23,6 +23,6 @@
     shell = "/run/current-system/sw/bin/bash";
 
     # Allow to SSH from any host to any host
-    openssh.authorizedKeys.keyFiles = [ ../authorized_keys ];
+    openssh.authorizedKeys.keyFiles = [ ../../authorized_keys ];
   };
 }

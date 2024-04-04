@@ -1,4 +1,5 @@
-{ vim_configurable, vimPlugins }:
+{ pkgs, ... }:
+with pkgs;
 vim_configurable.customize {
   name = "vim";
   # store plugins in a vim package
