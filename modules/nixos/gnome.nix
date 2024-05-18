@@ -2,10 +2,12 @@
 {
   services.xserver = {
     enable = true;
-    layout = "us";
-    libinput.enable = true;
+
+    xkb.layout = "us";
 
     desktopManager.gnome.enable = true;
     displayManager.gdm.enable = true;
   };
+
+  services.libinput.enable = true;
 }

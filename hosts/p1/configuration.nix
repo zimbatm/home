@@ -46,8 +46,8 @@
 
   # Configure keymap in X11
   services.xserver = {
-    layout = lib.mkForce "ch";
-    xkbVariant = "fr_nodeadkeys";
+    xkb.layout = lib.mkForce "ch";
+    xkb.variant = "fr_nodeadkeys";
   };
 
   # FIXME: Is needed for some reason
