@@ -134,7 +134,7 @@ in
 
       output = {
         "*" = {
-          bg = "~/Pictures/Wallpapers/falcon-heavy-boosters-wallpaper-2.jpg fill";
+          bg = "${./falcon-heavy-boosters-wallpaper-2.jpg} fill";
         };
         eDP-1 = {
           scale = "1.5";
