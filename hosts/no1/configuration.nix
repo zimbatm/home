@@ -22,6 +22,7 @@
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
+  nixpkgs.config.allowUnfree = true;
 
   sops.defaultSopsFile = ./secrets.yaml;
 
@@ -36,7 +37,11 @@
   services.tailscale.enable = true;
   services.tailscale.openFirewall = true;
 
+  hardware.nvidia.modesetting.enable = true;
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.production;
+  hardware.nvidia.nvidiaSettings = true;
   hardware.opengl.enable = true;
+  hardware.opengl.driSupport = true;
   hardware.pulseaudio.enable = lib.mkForce false;
   services.xserver.videoDrivers = [ "nvidia" ];
 
