@@ -19,7 +19,6 @@
 
   # Select internationalisation properties.
   console.keyMap = "us";
-  console.font = "sun12x22";
   i18n.defaultLocale = "en_US.UTF-8";
 
   networking.networkmanager.enable = true;
