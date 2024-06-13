@@ -18,6 +18,7 @@
     termite
     vlc
     xournal
+    zed-editor
     zoom-us
 
     # KDE stuff
