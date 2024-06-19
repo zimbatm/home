@@ -33,6 +33,10 @@
     172.28.61.193  no1.zt
   '';
 
+  # Deploy tailscale everywhere
+  services.tailscale.enable = true;
+  services.tailscale.openFirewall = true;
+
   networking.firewall.allowPing = true;
 
   # Configure home-manager

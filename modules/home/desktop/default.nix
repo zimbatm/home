@@ -11,6 +11,7 @@
     discord
     element-desktop
     gimp
+    mattermost-desktop
     signal-desktop
     slack
     tdesktop # telegram desktop

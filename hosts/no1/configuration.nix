@@ -34,9 +34,6 @@
     options kvm ignore_msrs=1
   '';
 
-  services.tailscale.enable = true;
-  services.tailscale.openFirewall = true;
-
   hardware.nvidia.modesetting.enable = true;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.production;
   hardware.nvidia.nvidiaSettings = true;
