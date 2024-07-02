@@ -1,7 +1,7 @@
-{ pkgs, perSystem, ... }:
+{ pkgs, perSystem }:
 pkgs.mkShell {
   packages = [
-    perSystem.blueprint.bp
+    perSystem.blueprint.default
     pkgs.nixos-anywhere
     pkgs.sbctl
     pkgs.sops

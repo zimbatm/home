@@ -22,6 +22,11 @@
     "https://numtide.cachix.org"
   ];
 
+  # Disallow IFDs by default. IFDs can too easily sneak in and cause trouble.
+  #
+  # https://nix.dev/manual/nix/2.22/language/import-from-derivation)
+  nix.settings.allow-import-from-derivation = false;
+
   nixpkgs.config.allowUnfree = true;
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "zerotierone" ];

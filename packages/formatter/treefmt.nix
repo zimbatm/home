@@ -5,7 +5,7 @@
   projectRootFile = "flake.lock";
 
   programs.deadnix.enable = true;
-  programs.nixfmt-rfc-style.enable = true;
+  programs.nixfmt.enable = true;
 
   programs.mdformat.enable = true;
 
@@ -14,8 +14,8 @@
 
   settings.formatter.deadnix.pipeline = "nix";
   settings.formatter.deadnix.priority = 1;
-  settings.formatter.nixfmt-rfc-style.pipeline = "nix";
-  settings.formatter.nixfmt-rfc-style.priority = 2;
+  settings.formatter.nixfmt.pipeline = "nix";
+  settings.formatter.nixfmt.priority = 2;
 
   settings.formatter.shellcheck.pipeline = "shell";
   settings.formatter.shellcheck.priority = 1;
