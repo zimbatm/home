@@ -29,7 +29,7 @@
 
   hardware.bluetooth.enable = true;
   hardware.cpu.intel.updateMicrocode = true;
-  hardware.opengl.enable = true;
+  hardware.graphics.enable = true;
   #hardware.enableAllFirmware = true; # for brcmfmac's binary blob
   #hardware.opengl.extraPackages = [ pkgs.vaapiIntel ];
 

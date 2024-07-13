@@ -34,10 +34,10 @@
     options kvm ignore_msrs=1
   '';
 
+  hardware.graphics.enable = true;
   hardware.nvidia.modesetting.enable = true;
-  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.production;
   hardware.nvidia.nvidiaSettings = true;
-  hardware.opengl.enable = true;
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.production;
   hardware.pulseaudio.enable = lib.mkForce false;
   services.xserver.videoDrivers = [ "nvidia" ];
 

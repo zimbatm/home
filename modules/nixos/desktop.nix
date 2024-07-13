@@ -23,7 +23,7 @@
 
   networking.networkmanager.enable = true;
 
-  programs.bash.enableCompletion = true;
+  programs.bash.completion.enable = true;
 
   # List services that you want to enable:
 
