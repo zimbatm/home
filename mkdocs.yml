@@ -1,0 +1,15 @@
+INHERIT: !ENV MKDOCS_NUMTIDE_THEME
+
+### Site metadata ###
+
+site_name: zimbatm
+site_description: no intro
+site_url: https://zimbatm.com
+repo_name: 'zimbatm/home'
+repo_url: https://github.com/zimbatm/home
+edit_uri: edit/main/docs
+
+### Navigation ###
+
+nav:
+  - Home: index.md
