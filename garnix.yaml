@@ -1,0 +1,8 @@
+servers:
+  - configuration: docs1
+    deployment:
+      type: on-branch
+      branch: main
+  - configuration: docs1
+    deployment:
+      type: on-pull-request
