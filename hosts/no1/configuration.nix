@@ -35,6 +35,8 @@
   '';
 
   hardware.graphics.enable = true;
+  hardware.graphics.enable32Bit = true;
+  hardware.nvidia-container-toolkit.enable = true;
   hardware.nvidia.modesetting.enable = true;
   hardware.nvidia.nvidiaSettings = true;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.production;
@@ -75,5 +77,6 @@
   time.timeZone = "Europe/Paris";
 
   virtualisation.docker.storageDriver = "btrfs";
+  virtualisation.docker.package = pkgs.docker_25;
   #virtualisation.libvirtd.enable = true;
 }
