@@ -203,11 +203,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1687786869,
-        "narHash": "sha256-KhaNnOTjj9FgPLtRHTFGa1RFXvSc+nF1UPcBiYf/CCY=",
+        "lastModified": 1722516164,
+        "narHash": "sha256-deGALzwpgYPrVAiOwtk1Ww5s6fWfTzuRRlh4uyHkNJs=",
         "owner": "numtide",
         "repo": "mkdocs-numtide",
-        "rev": "b3008171c75083f2bf2f1dc4e6781d4737dfaa49",
+        "rev": "2ae5be62b0837fa17cd5263aa7956e599175248b",
         "type": "github"
       },
       "original": {
