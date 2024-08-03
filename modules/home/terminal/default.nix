@@ -52,7 +52,8 @@
 
       # Nix stuff
       nix-update
-      nixpkgs-fmt
+      nixd
+      nixfmt-rfc-style
       nixpkgs-review
     ]
     ++ (with pkgs.gitAndTools; [
