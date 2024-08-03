@@ -46,6 +46,7 @@
 
       # Coding
       inputs.self.packages.${pkgs.system}.myvim
+      inputs.self.packages.${pkgs.system}.nvim
       go
       gopls
       (lowPrio gotools)
