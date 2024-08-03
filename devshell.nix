@@ -1,12 +1,25 @@
 { pkgs, perSystem }:
+let
+  nixos-rebuild = pkgs.writeShellApplication {
+    name = "nixos-rebuild";
+    runtimeInputs = [ pkgs.nixos-rebuild ];
+    text = ''
+      set -euo pipefail
+      export SUDO_USER=1
+      exec nixos-rebuild --flake "$PRJ_ROOT" "$@"
+    '';
+  };
+in
 pkgs.mkShell {
   packages = [
+    nixos-rebuild
     pkgs.nixos-anywhere
     pkgs.sbctl
     pkgs.sops
     pkgs.ssh-to-age
   ];
 
-  # so I can run `nixos-rebuild --flake . switch` without sudo in front
-  SUDO_USER = 1;
+  shellHook = ''
+    export PRJ_ROOT=$PWD
+  '';
 }
