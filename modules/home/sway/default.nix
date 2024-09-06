@@ -30,7 +30,6 @@ in
     slurp # dimension-grabbing CLI, to use with grim
     swayidle # needed by sway
     swaylock # needed by sway
-    xdg-utils # needed for termite URL opening
     # xwayland
     # j4-dmenu-desktop
     bemenu
