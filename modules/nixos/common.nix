@@ -6,6 +6,7 @@
     inputs.home-manager.nixosModules.default
     inputs.srvos.nixosModules.common
     inputs.srvos.nixosModules.mixins-terminfo
+    inputs.userborn.nixosModules.userborn
   ];
 
   # Configure Let's Encrypt
@@ -48,4 +49,7 @@
   home-manager.extraSpecialArgs.inputs = inputs; # forward the inputs
   home-manager.useGlobalPkgs = true; # don't create another instance of nixpkgs
   home-manager.useUserPackages = true; # install user packages directly to the user's profile
+
+  # Enable better declarative user management. https://github.com/nikstur/userborn
+  services.userborn.enable = true;
 }
