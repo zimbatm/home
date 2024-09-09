@@ -6,7 +6,6 @@
     inputs.home-manager.nixosModules.default
     inputs.srvos.nixosModules.common
     inputs.srvos.nixosModules.mixins-terminfo
-    inputs.userborn.nixosModules.userborn
   ];
 
   # Configure Let's Encrypt

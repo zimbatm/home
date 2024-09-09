@@ -30,11 +30,6 @@
     systems.url = "github:nix-systems/x86_64-linux";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
     treefmt-nix.url = "github:numtide/treefmt-nix";
-    userborn = {
-      url = "github:nikstur/userborn";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.systems.follows = "blueprint/systems";
-    };
   };
 
   outputs = inputs: inputs.blueprint { inherit inputs; };
