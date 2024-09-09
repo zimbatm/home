@@ -3,7 +3,7 @@
   # see https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/profiles/perlless.nix
 
   # Remove perl from activation
-  boot.initrd.systemd.enable = lib.mkDefault true;
+  boot.initrd.systemd.enable = true; # override SrvOS
   system.etc.overlay.enable = lib.mkDefault true;
   services.userborn.enable = lib.mkDefault true;
 
