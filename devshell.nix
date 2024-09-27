@@ -10,7 +10,7 @@ let
     '';
   };
 in
-pkgs.mkShell {
+pkgs.mkShellNoCC {
   packages = [
     nixos-rebuild
     pkgs.nixos-anywhere
