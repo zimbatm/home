@@ -53,4 +53,7 @@
 
   # Enable better declarative user management. https://github.com/nikstur/userborn
   services.userborn.enable = true;
+
+  # Security issue workaround. <https://discourse.nixos.org/t/newly-announced-vulnerabilities-in-cups/52771>
+  systemd.services.cups-browsed.enable = false;
 }
