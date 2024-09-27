@@ -18,6 +18,8 @@
       "wheel"
     ];
 
+    hashedPassword = "$y$j9T$qdF93ja3M6SK9Nwdh2jrD/$CVdHhL0iloYp6rj3kiDEYvxNd6sKzY2rXZiK0CBjWM.";
+
     packages = [ inputs.self.packages.${pkgs.system}.myvim ];
 
     shell = "/run/current-system/sw/bin/bash";
