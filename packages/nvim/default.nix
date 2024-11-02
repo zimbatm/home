@@ -12,6 +12,6 @@ perSystem.nixvim.makeNixvim {
     fugitive.enable = true;
     gitgutter.enable = true;
     nix.enable = true;
-    surround.enable = true;
+    vim-surround.enable = true;
   };
 }
