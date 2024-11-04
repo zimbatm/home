@@ -28,6 +28,7 @@
       gnupg
       h
       jq
+      jujutsu
       mdsh
       psmisc
       pwgen
