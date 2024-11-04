@@ -18,7 +18,7 @@ vim_configurable.customize {
 
       # More text objects.
       targets-vim
-      vim-surround
+      surround
       # motion: gc
       vim-commentary
       vim-repeat
