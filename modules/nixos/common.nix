@@ -29,6 +29,9 @@
   # https://nix.dev/manual/nix/2.22/language/import-from-derivation)
   nix.settings.allow-import-from-derivation = false;
 
+  # Allow __noChroot builds.
+  nix.settings.sandbox = "relaxed";
+
   nixpkgs.config.allowUnfree = true;
 
   nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "zerotierone" ];

@@ -47,7 +47,6 @@
   networking.networkmanager.enable = true;
 
   nix.nixPath = [ "nixpkgs=${toString pkgs.path}" ];
-  nix.settings.sandbox = "relaxed";
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;

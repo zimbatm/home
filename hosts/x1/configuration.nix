@@ -49,8 +49,6 @@
   nix.envVars = {
     #NIX_DEBUG_HOOK = "1";
   };
-  #nix.sandboxPaths = [ "/nix/cache" ];
-  nix.settings.sandbox = "relaxed";
 
   programs.firejail.enable = true;
 
