@@ -17,11 +17,10 @@
   # Configure all the machines with NumTide's binary cache
   nix.settings.trusted-public-keys = [
     "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-    "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
   ];
-  nix.settings.substituters = [
+  nix.settings.substituters = lib.mkForce [
+    "https://nixos.tvix.store"
     "https://cache.garnix.io"
-    "https://numtide.cachix.org"
   ];
 
   # Disallow IFDs by default. IFDs can too easily sneak in and cause trouble.
