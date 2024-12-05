@@ -2,6 +2,7 @@
   description = "zimbatm's dotfiles";
 
   inputs = {
+    blueprint.inputs.nixpkgs.follows = "nixpkgs";
     blueprint.url = "github:zimbatm/blueprint";
     disko.inputs.nixpkgs.follows = "nixpkgs";
     disko.url = "github:nix-community/disko";
