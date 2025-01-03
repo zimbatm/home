@@ -9,7 +9,7 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager";
     lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
-    lanzaboote.url = "github:nix-community/lanzaboote/v0.3.0";
+    lanzaboote.url = "github:zimbatm/lanzaboote/flake-update";
     mkdocs-numtide.inputs.nixpkgs.follows = "nixpkgs";
     mkdocs-numtide.url = "github:numtide/mkdocs-numtide";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";

@@ -10,14 +10,11 @@
     brave
     discord
     element-desktop
-    gimp
-    mattermost-desktop
     signal-desktop
     slack
     tdesktop # telegram desktop
     termite
     vlc
-    xournal
     zed-editor
     zoom-us
 
