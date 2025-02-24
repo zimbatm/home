@@ -38,6 +38,8 @@
     "/crypto_keyfile.bin" = null;
   };
 
+  nix.settings.trusted-users = [ "zimbatm" ];
+
   # Hostname
   networking.hostName = "p1"; # Define your hostname.
 
