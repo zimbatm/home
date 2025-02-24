@@ -40,7 +40,6 @@
   hardware.nvidia.modesetting.enable = true;
   hardware.nvidia.nvidiaSettings = true;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.production;
-  hardware.pulseaudio.enable = lib.mkForce false;
   services.xserver.videoDrivers = [ "nvidia" ];
 
   networking.hostName = "no1"; # Define your hostname.

@@ -52,9 +52,6 @@
     xkb.variant = "fr_nodeadkeys";
   };
 
-  # FIXME: Is needed for some reason
-  hardware.pulseaudio.enable = false;
-
   # Configure console keymap
   console.keyMap = lib.mkForce "sg";
 
