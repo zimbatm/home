@@ -146,13 +146,33 @@
     extraConfig = {
       branch.autosetuprebase = "always";
       branch.mergeoptions = "--no-ff";
+      branch.sort = "-committerdate";
+      column.ui = "auto";
+      commit.verbose = true;
       core.whitespace = "trailing-space,space-before-tab,tab-in-indent";
-      fetch.parallel = 10;
-      # gpg.format = "ssh";
+      diff.algorithm = "histogram";
+      diff.colorMoved = "plain";
+      diff.mnemonicPrefix = true;
+      diff.renames = true;
+      fetch.all = true;
+      fetch.prune = true;
+      fetch.pruneTags = true;
+      help.autoCorrect = "prompt";
       init.defaultBranch = "main";
-      merge.conflictstyle = "diff3";
+      merge.conflictstyle = "zdiff3";
+      push.autoSetupRemote = true;
+      push.default = "simple";
+      push.followTags = true;
+      pull.rebase = true;
       rebase.autoSquash = true;
       rebase.autoStash = true;
+      rebase.updateRefs = true;
+      rerere.autoUpdate = true;
+      rerere.enabled = true;
+      tag.sort = "version:refname";
+
+      fetch.parallel = 10;
+      # gpg.format = "ssh";
       submodule.recurse = true;
       url."ssh://git@github.com/".pushInsteadOf = "https://github.com/";
     };
