@@ -19,8 +19,7 @@
     zoom-us
 
     # KDE stuff
-    filelight
-    krita
-    okular
+    kdePackages.filelight
+    kdePackages.okular
   ];
 }

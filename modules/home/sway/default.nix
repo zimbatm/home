@@ -34,8 +34,6 @@ in
     # j4-dmenu-desktop
     bemenu
 
-    okular
-
     # Add some fonts
     dejavu_fonts # just a basic good fond
     font-awesome_5 # needed by i3status-rust
