@@ -38,6 +38,8 @@
     "/crypto_keyfile.bin" = null;
   };
 
+  nix.settings.trusted-users = [ "zimbatm" ];
+
   # Hostname
   networking.hostName = "p1"; # Define your hostname.
 
@@ -49,9 +51,6 @@
     xkb.layout = lib.mkForce "ch";
     xkb.variant = "fr_nodeadkeys";
   };
-
-  # FIXME: Is needed for some reason
-  hardware.pulseaudio.enable = false;
 
   # Configure console keymap
   console.keyMap = lib.mkForce "sg";
