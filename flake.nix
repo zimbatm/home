@@ -3,7 +3,7 @@
 
   inputs = {
     blueprint.inputs.nixpkgs.follows = "nixpkgs";
-    blueprint.url = "github:zimbatm/blueprint";
+    blueprint.url = "github:numtide/blueprint";
     disko.inputs.nixpkgs.follows = "nixpkgs";
     disko.url = "github:nix-community/disko";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";

@@ -10,13 +10,13 @@
       "locked": {
         "lastModified": 1739959476,
         "narHash": "sha256-wMGZp7fS7LekFLFB0WVjmin2o8TuRKuAYdDCPKSpNeg=",
-        "owner": "zimbatm",
+        "owner": "numtide",
         "repo": "blueprint",
         "rev": "ee2f933b458137c9cf3e415daab4856521caefa0",
         "type": "github"
       },
       "original": {
-        "owner": "zimbatm",
+        "owner": "numtide",
         "repo": "blueprint",
         "type": "github"
       }
