@@ -41,7 +41,7 @@
   hardware.nvidia-container-toolkit.enable = true;
   hardware.nvidia.modesetting.enable = true;
   hardware.nvidia.nvidiaSettings = true;
-  hardware.nvidia.open = false;
+  hardware.nvidia.open = true;
   hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.production;
   services.xserver.videoDrivers = [ "nvidia" ];
 
