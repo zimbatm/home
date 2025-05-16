@@ -284,16 +284,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1742362661,
-        "narHash": "sha256-wonmHfY804hKBC0SA/s3rOhjgNseURTLjpOXfAC2MkE=",
-        "owner": "NixOS",
+        "lastModified": 1744098102,
+        "narHash": "sha256-tzCdyIJj9AjysC3OuKA+tMD/kDEDAF9mICPDU7ix0JA=",
+        "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "903d679a5a674158c3f8d823f62680d5664d15c6",
+        "rev": "c8cd81426f45942bb2906d5ed2fe21d2f19d95b7",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable-small",
+        "owner": "nixos",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -378,10 +378,7 @@
         "mkdocs-numtide": "mkdocs-numtide",
         "nix-index-database": "nix-index-database",
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": [
-          "srvos",
-          "nixpkgs"
-        ],
+        "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
         "sops-nix": "sops-nix",
         "srvos": "srvos",
@@ -432,7 +429,9 @@
     },
     "srvos": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
         "lastModified": 1743041209,
