@@ -237,22 +237,6 @@
         identityFile = "~/.ssh/id_ed25519";
         identitiesOnly = true;
       };
-
-      "dev1.numtide.com" = {
-        forwardAgent = true;
-      };
-
-      # NixOS
-      "bastion.nixos.org" = {
-        user = "deploy";
-        sendEnv = [
-          "AWS_ACCESS_KEY_ID"
-          "AWS_SECRET_ACCESS_KEY"
-          "FASTLY_API_KEY"
-        ];
-        forwardAgent = true;
-        identityFile = "~/.ssh/id_rsa";
-      };
     };
   };
 
