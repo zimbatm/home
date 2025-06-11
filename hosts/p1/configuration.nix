@@ -22,6 +22,10 @@
     pkgs.sbctl
   ];
 
+  # Debugging tools
+  programs.bcc.enable = true;
+  programs.sysdig.enable = true;
+
   # lanzaboote replaces systemd-boot
   boot.loader.systemd-boot.enable = lib.mkForce false;
 
