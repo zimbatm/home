@@ -191,6 +191,9 @@
       # VSCode
       ".vscode"
 
+      # Claude Code
+      ".claude"
+
       # Work notes
       "WORK.md"
     ];
