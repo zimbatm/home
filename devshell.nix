@@ -2,11 +2,10 @@
 let
   nixos-rebuild = pkgs.writeShellApplication {
     name = "nixos-rebuild";
-    runtimeInputs = [ pkgs.nixos-rebuild ];
+    runtimeInputs = [ pkgs.nixos-rebuild-ng ];
     text = ''
       set -euo pipefail
-      export SUDO_USER=1
-      exec nixos-rebuild --flake "$PRJ_ROOT" "$@"
+      exec nixos-rebuild-ng --flake "$PRJ_ROOT" --sudo "$@"
     '';
   };
 in
