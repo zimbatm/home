@@ -19,7 +19,6 @@
       # CLI stuff
       bc
       dnsutils
-      docker-compose
       eternal-terminal
       fd
       file
