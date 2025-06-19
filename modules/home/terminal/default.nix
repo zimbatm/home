@@ -37,6 +37,7 @@
       shfmt
       tree
       unzip
+      watchexec
       webfs
       wget
       wl-clipboard
