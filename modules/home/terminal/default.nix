@@ -246,6 +246,70 @@
 
   programs.tmux.enable = true;
 
+  programs.gh-dash = {
+    enable = true;
+
+    settings = {
+      prSections = [
+        {
+          title = "Nixpkgs";
+          filters = "is:open -is:draft -author:@me repo:NixOS/nixpkgs";
+        }
+        {
+          title = "ninit";
+          filters = "is:open -is:draft -author:@me repo:NixOS/nixpkgs init at";
+        }
+        {
+          title = "minit";
+          filters = "is:merged -is:draft -author:@me repo:NixOS/nixpkgs init at";
+        }
+        {
+          title = "Nixpkgs (pings)";
+          filters = "is:open -is:draft involves:@me -author:@me repo:NixOS/nixpkgs";
+        }
+        {
+          title = "My Pull Requests";
+          filters = "is:open author:@me";
+        }
+        {
+          title = "Needs My Review";
+          filters = "is:open review-requested:@me";
+        }
+        {
+          title = "Involved";
+          filters = "is:open involves:@me -author:@me";
+        }
+      ];
+
+      issuesSections = [
+        {
+          title = "nixpkgs";
+          filters = "is:open repo:NixOS/nixpkgs";
+        }
+        {
+          title = "My Issues";
+          filters = "is:open author:@me";
+        }
+        {
+          title = "Assigned";
+          filters = "is:open assignee:@me";
+        }
+        {
+          title = "Involved";
+          filters = "is:open involves:@me -author:@me";
+        }
+      ];
+
+      repoPaths = {
+        "NixOS/nixpkgs" = "~/go/src/github.com/NixOS/nixpkgs";
+      };
+
+      pager = {
+        diff = "delta";
+      };
+    };
+  };
+
   xresources.properties = {
     # Sensible defaults
     "XTerm*locale" = false;
