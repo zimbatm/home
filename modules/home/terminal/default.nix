@@ -193,6 +193,7 @@
 
       # Claude Code
       ".claude"
+      "CLAUDE.local.md"
 
       # Work notes
       "WORK.md"
