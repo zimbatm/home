@@ -23,7 +23,8 @@
     fsType = "ext4";
   };
 
-  boot.initrd.luks.devices."cryptroot".device = "/dev/disk/by-uuid/d2cb12f8-67e3-4725-86c3-0b5c7ebee3a6";
+  boot.initrd.luks.devices."cryptroot".device =
+    "/dev/disk/by-uuid/d2cb12f8-67e3-4725-86c3-0b5c7ebee3a6";
 
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/863B-7B32";

@@ -1,4 +1,9 @@
-{ lib, stdenv, fetchzip, autoPatchelfHook }:
+{
+  lib,
+  stdenv,
+  fetchzip,
+  autoPatchelfHook,
+}:
 
 stdenv.mkDerivation rec {
   pname = "opencode";
@@ -17,11 +22,11 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     runHook preInstall
-    
+
     mkdir -p $out/bin
     cp opencode $out/bin/
     chmod +x $out/bin/opencode
-    
+
     runHook postInstall
   '';
 

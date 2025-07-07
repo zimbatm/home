@@ -6,7 +6,6 @@
   config,
   inputs,
   pkgs,
-  lib,
   ...
 }:
 
@@ -53,7 +52,7 @@
   services.xserver.wacom.enable = true;
   # services.xserver.upscaleDefaultCursor = lib.mkForce false;
 
-  # 
+  #
   services.printing.enable = true;
   services.printing.drivers = [ pkgs.cnijfilter2 ];
   services.avahi.enable = true;

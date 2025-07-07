@@ -1,4 +1,4 @@
-{ lib, pkgs, inputs, ... }:
+{ lib, ... }:
 {
   # see https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/profiles/perlless.nix
 
