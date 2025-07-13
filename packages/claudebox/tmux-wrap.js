@@ -7,88 +7,88 @@ const originalExec = cp.exec;
 const originalExecSync = cp.execSync;
 const originalExecFile = cp.execFile;
 
+// ANSI color constants
+const colors = {
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  grey: '\x1b[90m',
+  reset: '\x1b[0m'
+};
+
+// Track if we've created the right pane yet
+let rightPaneCreated = false;
+
 // Error handler that displays in Claude's UI
 function handleError(error, context) {
   const errorMsg = `[claudebox error in ${context}]: ${error.message || error}`;
   console.error(errorMsg);
   // Also try to show in the command pane if it exists
-  try {
-    if (rightPaneCreated && commandLog) {
-      fs.appendFileSync(commandLog, `\n❌ ${errorMsg}\n`);
-    }
-  } catch (e) {
-    // Ignore errors in error handler
+  if (rightPaneCreated) {
+    appendToLog(`\n❌ ${errorMsg}\n`);
   }
-}
-
-// Track if we've created the right pane yet
-let rightPaneCreated = false;
-
-function quoteForBash(cmd) {
-  return `'${cmd.replace(/'/g, `'\\''`)}'`;
 }
 
 // Helper to capture and log output from child processes
 function wrapChildProcess(child, command) {
   if (!child || !child.stdout || !child.stderr) return child;
   
-  const actualCommand = extractActualCommand(command) || command;
-  
   // Capture stdout
   child.stdout.on('data', (data) => {
-    try {
-      if (rightPaneCreated && commandLog) {
-        const output = data.toString().trim();
-        if (output) {
-          fs.appendFileSync(commandLog, `  → ${output}\n`);
-        }
-      }
-    } catch (e) {
-      // Ignore errors
+    const output = data.toString();
+    if (output) {
+      appendToLog(output);
     }
   });
   
   // Capture stderr
   child.stderr.on('data', (data) => {
-    try {
-      if (rightPaneCreated && commandLog) {
-        const output = data.toString().trim();
-        if (output) {
-          fs.appendFileSync(commandLog, `  ⚠ ${output}\n`);
-        }
-      }
-    } catch (e) {
-      // Ignore errors
+    const output = data.toString();
+    if (output) {
+      appendToLog(`${colors.red}${output}${colors.reset}`);
     }
   });
   
   // Log exit code
   child.on('exit', (code) => {
-    try {
-      if (rightPaneCreated && commandLog && code !== 0) {
-        fs.appendFileSync(commandLog, `  ✗ Exit code: ${code}\n`);
-      }
-    } catch (e) {
-      // Ignore errors
+    if (code !== 0) {
+      appendToLog(`${colors.red}✗ Exit code: ${code}${colors.reset}\n`);
     }
   });
   
   return child;
 }
 
-function extractActualCommand(command) {
+function parseCommand(command) {
   // Extract the actual command from Claude's bash wrapper
   // Pattern: bash -c -l eval 'ACTUAL_COMMAND' < /dev/null && pwd -P >| /tmp/...
   const evalMatch = command.match(/eval\s+'([^']+)'/);
-  if (evalMatch) {
-    return evalMatch[1];
-  }
   
-  // If it's not wrapped, return null to filter it out
-  return null;
+  return {
+    actualCommand: evalMatch ? evalMatch[1] : command,
+    isWrapped: !!evalMatch
+  };
 }
 
 const commandLog = `/tmp/claudebox-commands-${process.env.SESSION_NAME || 'unknown'}.log`;
+
+// Initialize the command log file immediately
+try {
+  fs.writeFileSync(commandLog, '=== Command Output ===\n');
+} catch (e) {
+  // Ignore errors
+}
+
+// Helper function to safely append to log file
+function appendToLog(content, ensureNewline = false) {
+  try {
+    fs.appendFileSync(commandLog, content);
+    if (ensureNewline && content && !content.endsWith('\n')) {
+      fs.appendFileSync(commandLog, '\n');
+    }
+  } catch (e) {
+    // Ignore if file doesn't exist or other errors
+  }
+}
 
 function ensureRightPane() {
   if (rightPaneCreated) return;
@@ -96,11 +96,8 @@ function ensureRightPane() {
   const sessionName = process.env.SESSION_NAME || 'claude';
   
   try {
-    // Create/clear the command log
-    fs.writeFileSync(commandLog, '=== Command Output ===\n');
-    
-    // Create the right pane with tail following the command log
-    originalExecSync(`tmux split-window -h -t ${sessionName} "tail -f ${commandLog}"`, { stdio: 'pipe' });
+    // Create the right pane with tail following the command log from the beginning
+    originalExecSync(`tmux split-window -h -t ${sessionName} "tail -f -n +1 ${commandLog}"`, { stdio: 'pipe' });
     // Return focus to the left pane
     originalExecSync(`tmux select-pane -t ${sessionName}:0.0`, { stdio: 'pipe' });
     rightPaneCreated = true;
@@ -109,24 +106,36 @@ function ensureRightPane() {
   }
 }
 
-function sendToRightPane(command) {
+function logCommand(command, source = '') {
   try {
-    // Extract the actual command
-    const actualCommand = extractActualCommand(command);
+    const { actualCommand, isWrapped } = parseCommand(command);
     
-    // Skip if not a wrapped command
-    if (!actualCommand) return;
+    // Skip empty commands
+    if (!actualCommand || actualCommand.trim() === '') return;
     
-    ensureRightPane();
+    // Only create the right pane on the first wrapped command
+    if (isWrapped && !rightPaneCreated) {
+      ensureRightPane();
+    }
     
-    // Add timestamp to make it clearer when commands are executed
-    const timestamp = new Date().toLocaleTimeString();
-    const commandWithTime = `[${timestamp}] ${actualCommand}\n`;
+    // Format timestamp in shorter format
+    const now = new Date();
+    const timestamp = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    // Create fake PS1 prompt - green for wrapped commands, grey for others
+    const promptColor = isWrapped ? colors.green : colors.grey;
+    const commandColor = isWrapped ? '' : colors.grey;
+    
+    // Add source info for non-wrapped commands
+    const sourceInfo = !isWrapped && source ? `[${source}] ` : '';
+    
+    const prompt = `${promptColor}[${timestamp}] ${sourceInfo}$ ${colors.reset}`;
+    const commandLine = `${prompt}${commandColor}${actualCommand}${colors.reset}\n`;
     
     // Append to the command log file
-    fs.appendFileSync(commandLog, commandWithTime);
+    appendToLog(commandLine);
   } catch (error) {
-    handleError(error, 'sendToRightPane');
+    handleError(error, 'logCommand');
   }
 }
 
@@ -134,71 +143,47 @@ function sendToRightPane(command) {
 try {
   // Patch spawn
   cp.spawn = function (cmd, args = [], options) {
-    let fullCommand = '';
-    try {
-      fullCommand = [cmd, ...args].map(String).join(' ');
-      sendToRightPane(fullCommand);
-    } catch (error) {
-      handleError(error, 'spawn patch');
-    }
+    const fullCommand = [cmd, ...args].map(String).join(' ');
+    logCommand(fullCommand, 'spawn');
     const child = originalSpawn.call(this, cmd, args, options);
     return wrapChildProcess(child, fullCommand);
   };
 
   // Patch exec
   cp.exec = function (command, options, callback) {
-    try {
-      // Handle different argument patterns
-      if (typeof options === 'function') {
-        callback = options;
-        options = undefined;
-      }
-      sendToRightPane(command);
-    } catch (error) {
-      handleError(error, 'exec patch');
+    // Handle different argument patterns
+    if (typeof options === 'function') {
+      callback = options;
+      options = undefined;
     }
+    logCommand(command, 'exec');
     const child = originalExec.call(this, command, options, callback);
     return wrapChildProcess(child, command);
   };
 
   // Patch execSync
   cp.execSync = function (command, options) {
-    try {
-      sendToRightPane(command);
-    } catch (error) {
-      handleError(error, 'execSync patch');
-    }
+    logCommand(command, 'execSync');
     
     let result;
     let exitCode = 0;
     try {
       result = originalExecSync.call(this, command, options);
       // Log successful output
-      try {
-        const actualCommand = extractActualCommand(command);
-        if (actualCommand && rightPaneCreated && commandLog && result) {
-          const output = result.toString().trim();
-          if (output) {
-            fs.appendFileSync(commandLog, `  → ${output}\n`);
-          }
+      if (result) {
+        const output = result.toString();
+        if (output) {
+          appendToLog(output, true);
         }
-      } catch (e) {
-        // Ignore logging errors
       }
     } catch (error) {
       exitCode = error.status || 1;
       // Log error output
-      try {
-        const actualCommand = extractActualCommand(command);
-        if (actualCommand && rightPaneCreated && commandLog) {
-          if (error.stderr) {
-            fs.appendFileSync(commandLog, `  ⚠ ${error.stderr.toString().trim()}\n`);
-          }
-          fs.appendFileSync(commandLog, `  ✗ Exit code: ${exitCode}\n`);
-        }
-      } catch (e) {
-        // Ignore logging errors
+      if (error.stderr) {
+        const stderr = error.stderr.toString();
+        appendToLog(`${colors.red}${stderr}${colors.reset}`, true);
       }
+      appendToLog(`${colors.red}✗ Exit code: ${exitCode}${colors.reset}\n`);
       throw error; // Re-throw the original error
     }
     
@@ -207,32 +192,20 @@ try {
 
   // Patch execFile
   cp.execFile = function (file, args, options, callback) {
-    let fullCommand = '';
-    try {
-      // Handle various argument patterns for execFile
-      let actualArgs = [];
-      let actualOptions = options;
-      let actualCallback = callback;
-      
-      if (typeof args === 'function') {
-        actualCallback = args;
-        actualArgs = [];
-      } else if (Array.isArray(args)) {
-        actualArgs = args;
-      } else if (typeof args === 'object' && args !== null && !Array.isArray(args)) {
-        // args is actually options
-        actualOptions = args;
-        actualArgs = [];
-        if (typeof options === 'function') {
-          actualCallback = options;
-        }
-      }
-      
-      fullCommand = [file, ...actualArgs].map(String).join(' ');
-      sendToRightPane(fullCommand);
-    } catch (error) {
-      handleError(error, 'execFile patch');
+    // Handle various argument patterns for execFile
+    let actualArgs = [];
+    
+    if (typeof args === 'function') {
+      actualArgs = [];
+    } else if (Array.isArray(args)) {
+      actualArgs = args;
+    } else if (typeof args === 'object' && args !== null && !Array.isArray(args)) {
+      // args is actually options
+      actualArgs = [];
     }
+    
+    const fullCommand = [file, ...actualArgs].map(String).join(' ');
+    logCommand(fullCommand, 'execFile');
     const child = originalExecFile.apply(this, arguments);
     return wrapChildProcess(child, fullCommand);
   };
