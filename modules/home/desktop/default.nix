@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 {
   imports = [ ../terminal ];
 
@@ -29,5 +29,9 @@
     # KDE stuff
     kdePackages.filelight
     kdePackages.okular
+
+    # AI
+    gemini-cli
+    inputs.self.packages.${pkgs.system}.claudebox
   ];
 }
