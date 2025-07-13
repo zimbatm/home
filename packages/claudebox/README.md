@@ -4,6 +4,8 @@ Run Claude Code in YOLO mode with transparency.
 
 See all commands Claude executes in a tmux split pane.
 
+![Demo](./claudbox-demo.svg)
+
 ## Usage
 
 ```bash
@@ -11,6 +13,7 @@ claudebox
 ```
 
 Opens Claude Code with:
+
 - Left pane: Claude interface
 - Right pane: Live command log
 

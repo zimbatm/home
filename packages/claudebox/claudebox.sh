@@ -24,7 +24,7 @@ mkdir -p "$claude_config"
 claude_json="${HOME}/.claude.json"
 
 # Ensure Claude is initialized before sandboxing
-if [[ ! -f "$claude_json" ]]; then
+if [[ ! -f $claude_json ]]; then
   echo "Initializing Claude configuration..."
   claude --help >/dev/null 2>&1 || true
   sleep 1
@@ -54,10 +54,10 @@ bwrap_args=(
   --ro-bind /lib64 /lib64
   --ro-bind /etc /etc
   --ro-bind /nix /nix
-  --bind /nix/var/nix/daemon-socket /nix/var/nix/daemon-socket  # For package installs
+  --bind /nix/var/nix/daemon-socket /nix/var/nix/daemon-socket # For package installs
   --tmpfs /tmp
   --bind "$claude_home" "$HOME"           # Isolated home (YOLO safety)
-  --bind "$claude_config" "$HOME/.claude"  # API keys access
+  --bind "$claude_config" "$HOME/.claude" # API keys access
   --bind "$claude_json" "$HOME/.claude.json"
   --unshare-all
   --share-net
