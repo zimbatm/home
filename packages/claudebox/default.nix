@@ -31,11 +31,18 @@ pkgs.runCommand "claudebox"
     buildInputs = [ pkgs.makeWrapper ];
   }
   ''
-    mkdir -p $out/bin $out/share/claudebox
+    mkdir -p $out/bin $out/share/claudebox $out/libexec/claudebox
 
     # Install helper scripts
     cp ${./claudebox.sh} $out/bin/claudebox
     chmod +x $out/bin/claudebox
+
+    # Install command-viewer script
+    cp ${./command-viewer.js} $out/libexec/claudebox/command-viewer.js
+
+    # Create wrapper for command-viewer
+    makeWrapper ${pkgs.nodejs}/bin/node $out/libexec/claudebox/command-viewer \
+      --add-flags $out/libexec/claudebox/command-viewer.js
 
     # Patch shebang
     patchShebangs $out/bin/claudebox
@@ -47,7 +54,7 @@ pkgs.runCommand "claudebox"
       --set DISABLE_AUTOUPDATER 1 \
       --set DISABLE_NON_ESSENTIAL_MODEL_CALLS 1 \
       --set DISABLE_TELEMETRY 1 \
-      --set NODE_OPTIONS "--require=${./tmux-wrap.js}" \
+      --set NODE_OPTIONS "--require=${./command-logger.js}" \
       --inherit-argv0
 
     # Wrap claudebox start script

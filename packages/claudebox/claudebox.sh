@@ -81,16 +81,31 @@ fi
 # Current project gets full write access (YOLO mode)
 bwrap_args+=(--bind "$project_dir" "$project_dir")
 
+# Define log file path
+logfile="/tmp/claudebox-commands-${session_name}.log"
+
+# Add logfile to bwrap environment
+bwrap_args+=(--setenv CLAUDEBOX_LOG_FILE "$logfile")
+
 # Launch tmux with Claude in left pane, commands in right
 exec bwrap "${bwrap_args[@]}" bash -c "
+  # Create the log file
+  touch '$logfile'
+
+  # Create session with two panes
   tmux new-session -d -s '$session_name' -n main 2>/dev/null
-  
-  tmux set-option -t '$session_name' remain-on-exit off
-  
-  tmux set-hook -t '$session_name' pane-exited \"if -F '#{==:#{pane_index},0}' 'kill-session -t $session_name'\"
-  
+
+  # Set large history limit for both panes (50k lines)
+  tmux set-option -t '$session_name' history-limit 50000
+
+  # Create right pane for command viewer (exec to share process group)
+  tmux split-window -h -t '$session_name' \"exec command-viewer '$logfile'\"
+
+  # Return focus to left pane
+  tmux select-pane -t '${session_name}:0.0'
+
   # Launch Claude with --dangerously-skip-permissions (safe in sandbox)
   tmux send-keys -t '${session_name}:0.0' 'exec claude --dangerously-skip-permissions' C-m
-  
+
   exec tmux attach -t '$session_name'
 "
