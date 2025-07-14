@@ -88,7 +88,7 @@ logfile="/tmp/claudebox-commands-${session_name}.log"
 bwrap_args+=(--setenv CLAUDEBOX_LOG_FILE "$logfile")
 
 # Launch tmux with Claude in left pane, commands in right
-exec bwrap "${bwrap_args[@]}" bash -c "
+bwrap "${bwrap_args[@]}" bash -c "
   # Create the log file
   touch '$logfile'
 
