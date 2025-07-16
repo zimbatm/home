@@ -1,8 +1,13 @@
 # claudebox - responsible YOLO
 
-Run Claude Code in YOLO mode with transparency.
+Open your project in a liteweight sandbox, and avoid unwanted surprises.
 
-See all commands Claude executes in a tmux split pane.
+The project shadows your $HOME, so no credentials are accessible (except
+~/.claude).
+The project parent folder is mounted read-only so it's possible to access
+other dependencies.
+
+We also patch Claude to monitor all the executed commands in a tmux side-pane.
 
 ![Demo](./claudbox-demo.svg)
 
