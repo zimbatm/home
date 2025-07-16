@@ -8,9 +8,6 @@
     inputs.srvos.nixosModules.desktop
   ];
 
-  # set for VSCode
-  boot.kernel.sysctl."fs.inotify.max_user_watches" = 524288;
-
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
     ntfs3g

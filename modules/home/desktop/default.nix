@@ -3,7 +3,6 @@
   imports = [ ../terminal ];
 
   programs.firefox.enable = true;
-  programs.vscode.enable = true;
 
   programs.ghostty = {
     enable = true;
