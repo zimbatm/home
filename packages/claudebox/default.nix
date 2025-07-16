@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, perSystem }:
 let
   # Bundle all the tools Claude needs into a single environment
   claudeTools = pkgs.buildEnv {
@@ -48,7 +48,7 @@ pkgs.runCommand "claudebox"
     patchShebangs $out/bin/claudebox
 
     # Create claude wrapper that references the original
-    makeWrapper ${pkgs.claude-code}/bin/claude $out/libexec/claudebox/claude \
+    makeWrapper ${perSystem.self.claude-code}/bin/claude $out/libexec/claudebox/claude \
       --unset DEV \
       --set CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC 1 \
       --set DISABLE_AUTOUPDATER 1 \
