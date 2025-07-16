@@ -6,6 +6,16 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 package_file="$script_dir/package.nix"
 lock_file="$script_dir/package-lock.json"
 
+# Cleanup function
+cleanup() {
+  if [ -n "${tmp_dir:-}" ] && [ -d "$tmp_dir" ]; then
+    rm -rf "$tmp_dir"
+  fi
+}
+
+# Set up cleanup trap
+trap cleanup EXIT
+
 # Fetch latest version from npm
 echo "Fetching latest version..."
 latest_version=$(npm view @google/gemini-cli version)
@@ -52,8 +62,7 @@ sed -i "s|/@google/gemini-cli/-/gemini-cli-[0-9.]*\.tgz|/@google/gemini-cli/-/ge
 old_tarball_hash=$(grep -B1 -A1 'url = "https://registry.npmjs.org/@google/gemini-cli' "$package_file" | grep 'hash = ' | sed -E 's/.*hash = "([^"]+)".*/\1/')
 sed -i "s|hash = \"$old_tarball_hash\"|hash = \"$new_tarball_hash\"|" "$package_file"
 
-# Clean up
-rm -rf "$tmp_dir"
+# Cleanup happens automatically via trap
 
 echo "Updated version and tarball hash. Now building to get new npmDeps hash..."
 

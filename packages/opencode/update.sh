@@ -5,6 +5,16 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 package_file="$script_dir/package.nix"
 
+# Cleanup function
+cleanup() {
+  if [ -n "${tmp_file:-}" ] && [ -f "$tmp_file" ]; then
+    rm -f "$tmp_file"
+  fi
+}
+
+# Set up cleanup trap
+trap cleanup EXIT
+
 # Fetch latest version from GitHub API
 echo "Fetching latest version..."
 latest_version=$(curl -s https://api.github.com/repos/sst/opencode/releases/latest | jq -r '.tag_name' | sed 's/^v//')
@@ -64,3 +74,4 @@ echo "Building package to verify..."
 nix build "$script_dir/../.."#packages.x86_64-linux.opencode
 
 echo "Update completed successfully!"
+echo "opencode has been updated from $current_version to $latest_version"

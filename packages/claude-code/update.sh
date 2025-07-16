@@ -5,6 +5,16 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 package_file="$script_dir/package.nix"
 
+# Cleanup function
+cleanup() {
+  if [ -n "${package_json_created:-}" ] && [ -f "$script_dir/package.json" ]; then
+    rm -f "$script_dir/package.json"
+  fi
+}
+
+# Set up cleanup trap
+trap cleanup EXIT
+
 # Fetch latest version from npm
 echo "Fetching latest version..."
 latest_version=$(npm view @anthropic-ai/claude-code version)
@@ -25,8 +35,8 @@ echo "Update available: $current_version -> $latest_version"
 # Generate updated lock file
 echo "Updating package-lock.json..."
 cd "$script_dir"
+package_json_created=1
 npm i --package-lock-only @anthropic-ai/claude-code@"$latest_version"
-rm -f package.json
 
 # Calculate new source hash
 echo "Calculating source hash for new version..."
