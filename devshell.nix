@@ -16,6 +16,7 @@ pkgs.mkShellNoCC {
     pkgs.sbctl
     pkgs.sops
     pkgs.ssh-to-age
+    perSystem.self.formatter
   ];
 
   shellHook = ''
