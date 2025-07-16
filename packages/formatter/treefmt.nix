@@ -12,6 +12,9 @@
   programs.shellcheck.enable = true;
   programs.shfmt.enable = true;
 
+  programs.taplo.enable = true;
+  programs.yamlfmt.enable = true;
+
   settings.formatter.deadnix.pipeline = "nix";
   settings.formatter.deadnix.priority = 1;
   settings.formatter.nixfmt.pipeline = "nix";

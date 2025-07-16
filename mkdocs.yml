@@ -1,7 +1,5 @@
 INHERIT: !ENV MKDOCS_NUMTIDE_THEME
-
 ### Site metadata ###
-
 site_name: zimbatm
 site_description: no intro
 site_url: https://zimbatm.com
