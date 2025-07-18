@@ -29,7 +29,9 @@ let
       buildPhase = ''
         runHook preBuild
         export HOME=$TMPDIR
-        bun install --no-progress --frozen-lockfile
+        # Disable npm lifecycle scripts to prevent husky from running
+        export npm_config_ignore_scripts=true
+        bun install --no-progress --frozen-lockfile --ignore-scripts
         runHook postBuild
       '';
 
@@ -107,6 +109,9 @@ stdenv.mkDerivation rec {
     # Build the project to create the binary
     export HOME=$TMPDIR
     export PATH="$PWD/node_modules/.bin:$PATH"
+
+    # Disable npm lifecycle scripts to prevent husky from running
+    export npm_config_ignore_scripts=true
     bun run build
 
     runHook postBuild
