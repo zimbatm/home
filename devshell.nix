@@ -1,4 +1,4 @@
-{ pkgs, perSystem }:
+{ pkgs, perSystem, inputs }:
 let
   nixos-rebuild = pkgs.writeShellApplication {
     name = "nixos-rebuild";
@@ -16,7 +16,7 @@ pkgs.mkShellNoCC {
     pkgs.sbctl
     pkgs.sops
     pkgs.ssh-to-age
-    perSystem.self.formatter
+    inputs.nix-ai-tools.packages.${pkgs.system}.formatter
   ];
 
   shellHook = ''

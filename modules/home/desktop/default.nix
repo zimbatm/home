@@ -30,9 +30,9 @@
     kdePackages.okular
 
     # AI
-    inputs.self.packages.${pkgs.system}.backlog-md
-    inputs.self.packages.${pkgs.system}.claudebox
-    inputs.self.packages.${pkgs.system}.gemini-cli
-    inputs.self.packages.${pkgs.system}.opencode
+    inputs.nix-ai-tools.packages.${pkgs.system}.backlog-md
+    inputs.nix-ai-tools.packages.${pkgs.system}.claudebox
+    inputs.nix-ai-tools.packages.${pkgs.system}.gemini-cli
+    inputs.nix-ai-tools.packages.${pkgs.system}.opencode
   ];
 }
