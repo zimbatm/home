@@ -19,26 +19,24 @@
       # CLI stuff
       bc
       dnsutils
-      eternal-terminal
       fd
       file
       gh
-      gopass
       gnupg
+      gopass
       h
       jq
       jujutsu
       mdsh
       psmisc
+      pueue
       pwgen
       ripgrep
       ruby
       shellcheck
       shfmt
       tree
-      unzip
       watchexec
-      webfs
       wget
       wl-clipboard
 
