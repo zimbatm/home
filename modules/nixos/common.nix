@@ -14,13 +14,19 @@
   security.acme.acceptTerms = true;
   security.acme.defaults.email = "zimbatm@zimbatm.com";
 
-  # Configure all the machines with NumTide's binary cache
-  nix.settings.trusted-public-keys = [
-    "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+  # Configure all the machines with NumTide caches and a fast
+  # mirror for cache.nixos.org hosted at Hetzner.
+  nix.settings.trusted-public-keys = lib.mkOverride 1000 [
+    # cache.nixos.org
+    "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspc6rC48="
+    # numtide.cachix.org
+    "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
   ];
-  nix.settings.substituters = lib.mkForce [
-    "https://nixos.tvix.store"
-    "https://cache.garnix.io"
+  nix.settings.substituters = lib.mkOverride 1000 [
+    # Fast mirror for cache.nixos.org
+    "https://hetzner-cache.numtide.com"
+    # NumTide Cachix
+    "https://numtide.cachix.org"
   ];
 
   # Disallow IFDs by default. IFDs can too easily sneak in and cause trouble.
