@@ -17,6 +17,9 @@
 
   nixpkgs.hostPlatform = "x86_64-linux";
 
+  boot.loader.grub.configurationLimit = lib.mkDefault 8;
+  boot.loader.systemd-boot.configurationLimit = lib.mkDefault 8;
+
   environment.systemPackages = [
     # For debugging and troubleshooting Secure Boot.
     pkgs.sbctl
