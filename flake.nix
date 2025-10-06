@@ -21,7 +21,7 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     # Trick renovate into working: "github:NixOS/nixpkgs/nixpkgs-unstable"
     # see https://github.com/renovatebot/renovate/issues/29721
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=0700e294d021f70350bbfc361c223248d99003ac";
     nixvim = {
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
