@@ -23,7 +23,7 @@
   nixpkgs.hostPlatform = "x86_64-linux";
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.permittedInsecurePackages = [
-    "broadcom-sta-6.30.223.271-57-6.12.47"
+    "broadcom-sta-6.30.223.271-57-6.12.50"
   ];
 
   sops.defaultSopsFile = ./secrets.yaml;
