@@ -1,4 +1,8 @@
-{ pkgs, perSystem, inputs }:
+{
+  pkgs,
+  perSystem,
+  inputs,
+}:
 let
   nixos-rebuild = pkgs.writeShellApplication {
     name = "nixos-rebuild";
