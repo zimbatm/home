@@ -125,6 +125,8 @@
 
   programs.fzf.enable = true;
 
+  programs.mergiraf.enable = true;
+
   programs.git = {
     enable = true;
     userName = "zimbatm";
