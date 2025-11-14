@@ -29,7 +29,7 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=0700e294d021f70350bbfc361c223248d99003ac";
     nixvim = {
       url = "github:nix-community/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # inputs.nixpkgs.follows = "nixpkgs"; # error: postgres-language-server cannot be found in pkgs
       inputs.systems.follows = "systems";
     };
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
