@@ -204,6 +204,32 @@
         "type": "github"
       }
     },
+    "llm-agents": {
+      "inputs": {
+        "blueprint": [
+          "blueprint"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": [
+          "treefmt-nix"
+        ]
+      },
+      "locked": {
+        "lastModified": 1764903547,
+        "narHash": "sha256-ZAkVNnHrjp4lLtcpA0bLk7IoR4UuxeR/X3vD/G2nX8o=",
+        "owner": "numtide",
+        "repo": "llm-agents.nix",
+        "rev": "a5eb2131473bdaaa6081db3d17eb1b2a98b5e781",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "llm-agents.nix",
+        "type": "github"
+      }
+    },
     "mkdocs-numtide": {
       "inputs": {
         "nixpkgs": [
@@ -221,32 +247,6 @@
       "original": {
         "owner": "numtide",
         "repo": "mkdocs-numtide",
-        "type": "github"
-      }
-    },
-    "nix-ai-tools": {
-      "inputs": {
-        "blueprint": [
-          "blueprint"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "treefmt-nix": [
-          "treefmt-nix"
-        ]
-      },
-      "locked": {
-        "lastModified": 1764663766,
-        "narHash": "sha256-GRyARpYMh9GAPMPo5gNxW0FrIjJsHxCkaUwBU3eYkLQ=",
-        "owner": "numtide",
-        "repo": "nix-ai-tools",
-        "rev": "9cad6f35e70727dbac4286400adaf92ed20ce168",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "nix-ai-tools",
         "type": "github"
       }
     },
@@ -392,8 +392,8 @@
         "disko": "disko",
         "home-manager": "home-manager",
         "lanzaboote": "lanzaboote",
+        "llm-agents": "llm-agents",
         "mkdocs-numtide": "mkdocs-numtide",
-        "nix-ai-tools": "nix-ai-tools",
         "nix-index-database": "nix-index-database",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",

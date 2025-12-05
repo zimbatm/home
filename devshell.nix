@@ -20,7 +20,7 @@ pkgs.mkShellNoCC {
     pkgs.sbctl
     pkgs.sops
     pkgs.ssh-to-age
-    inputs.nix-ai-tools.packages.${pkgs.system}.formatter
+    inputs.llm-agents.packages.${pkgs.system}.formatter
   ];
 
   shellHook = ''

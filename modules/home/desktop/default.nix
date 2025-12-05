@@ -30,9 +30,9 @@
     kdePackages.okular
 
     # AI
-    inputs.nix-ai-tools.packages.${pkgs.system}.claudebox
-    inputs.nix-ai-tools.packages.${pkgs.system}.codex
-    inputs.nix-ai-tools.packages.${pkgs.system}.crush
-    inputs.nix-ai-tools.packages.${pkgs.system}.opencode
+    inputs.llm-agents.packages.${pkgs.system}.claudebox
+    inputs.llm-agents.packages.${pkgs.system}.codex
+    inputs.llm-agents.packages.${pkgs.system}.crush
+    inputs.llm-agents.packages.${pkgs.system}.opencode
   ];
 }

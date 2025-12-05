@@ -17,10 +17,10 @@
     lanzaboote.url = "github:nix-community/lanzaboote";
     mkdocs-numtide.inputs.nixpkgs.follows = "nixpkgs";
     mkdocs-numtide.url = "github:numtide/mkdocs-numtide";
-    nix-ai-tools.inputs.blueprint.follows = "blueprint";
-    nix-ai-tools.inputs.nixpkgs.follows = "nixpkgs";
-    nix-ai-tools.inputs.treefmt-nix.follows = "treefmt-nix";
-    nix-ai-tools.url = "github:numtide/nix-ai-tools";
+    llm-agents.inputs.blueprint.follows = "blueprint";
+    llm-agents.inputs.nixpkgs.follows = "nixpkgs";
+    llm-agents.inputs.treefmt-nix.follows = "treefmt-nix";
+    llm-agents.url = "github:numtide/llm-agents.nix";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
     nix-index-database.url = "github:Mic92/nix-index-database";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
