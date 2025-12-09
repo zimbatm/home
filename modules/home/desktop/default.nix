@@ -4,6 +4,15 @@
 
   programs.firefox.enable = true;
 
+  # ActivityWatch time tracker
+  services.activitywatch = {
+    enable = true;
+    watchers = {
+      aw-watcher-afk.package = pkgs.activitywatch;
+      aw-watcher-window.package = pkgs.activitywatch;
+    };
+  };
+
   programs.ghostty = {
     enable = true;
 
