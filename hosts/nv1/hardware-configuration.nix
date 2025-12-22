@@ -44,7 +44,13 @@
   };
 
   swapDevices = [
-    { device = "/dev/disk/by-uuid/a6efa52a-09dd-4434-80c3-e015edd1965f"; }
+    {
+      device = "/dev/disk/by-partlabel/swap";
+      randomEncryption = {
+        enable = true;
+        allowDiscards = true; # For SSD TRIM support
+      };
+    }
   ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
