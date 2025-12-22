@@ -1,68 +1,65 @@
 {
   config,
+  lib,
   pkgs,
   inputs,
   ...
 }:
 {
-  imports = [ inputs.nix-index-database.hmModules.nix-index ];
+  imports = [ inputs.nix-index-database.homeModules.nix-index ];
   # also wrap and install comma
   programs.nix-index-database.comma.enable = true;
 
   home.file.".inputrc".text = builtins.readFile ./inputrc;
-  home.packages =
-    with pkgs;
-    [
-      # TUI
-      tmate
+  home.packages = with pkgs; [
+    # TUI
+    tmate
 
-      # CLI stuff
-      bc
-      dnsutils
-      fd
-      file
-      gh
-      gnupg
-      gopass
-      h
-      jq
-      jujutsu
-      mdsh
-      psmisc
-      pueue
-      pwgen
-      ripgrep
-      ruby
-      shellcheck
-      shfmt
-      tree
-      watchexec
-      wget
-      wl-clipboard
+    # CLI stuff
+    bc
+    dnsutils
+    fd
+    file
+    gh
+    gnupg
+    gopass
+    h
+    jq
+    jujutsu
+    mdsh
+    psmisc
+    pueue
+    pwgen
+    ripgrep
+    ruby
+    shellcheck
+    shfmt
+    tree
+    watchexec
+    wget
+    wl-clipboard
 
-      # Linux man pages!
-      man-pages
+    # Linux man pages!
+    man-pages
 
-      # Coding
-      inputs.self.packages.${pkgs.system}.myvim
-      inputs.self.packages.${pkgs.system}.nvim
-      go
-      gopls
-      (lowPrio gotools)
+    # Coding
+    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.myvim
+    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.nvim
+    go
+    gopls
+    (lib.lowPrio gotools)
 
-      # Nix stuff
-      nix-update
-      nixd
-      nixfmt-rfc-style
-      nixpkgs-review
-    ]
-    ++ (with pkgs.gitAndTools; [
-      git-absorb
-      git-extras
-      git-gone
-    ]);
+    # Nix stuff
+    nix-update
+    nixd
+    nixfmt-rfc-style
+    nixpkgs-review
 
-  nixpkgs.config.allowUnfree = true;
+    # Git stuff
+    git-absorb
+    git-extras
+    git-gone
+  ];
 
   pam.sessionVariables = {
     EDITOR = "vim";
@@ -129,53 +126,6 @@
 
   programs.git = {
     enable = true;
-    userName = "zimbatm";
-    userEmail = "zimbatm@zimbatm.com";
-    aliases = {
-      amend = "commit --amend";
-      clean = "!git gone -f | xargs -r git branch -d";
-      co = "checkout";
-      # Rebase the current work to the origin default branch. Typically add
-      # `-i` to it so it becomes interactive.
-      rb = "rebase origin/HEAD";
-      review = "diff --cached";
-      st = "status -sb";
-      # Fix the remote head for `git rb` to work.
-      update-head = "remote set-head origin --auto";
-    };
-    extraConfig = {
-      branch.autosetuprebase = "always";
-      branch.mergeoptions = "--no-ff";
-      branch.sort = "-committerdate";
-      column.ui = "auto";
-      commit.verbose = true;
-      core.whitespace = "trailing-space,space-before-tab,tab-in-indent";
-      diff.algorithm = "histogram";
-      diff.colorMoved = "plain";
-      diff.mnemonicPrefix = true;
-      diff.renames = true;
-      fetch.all = true;
-      fetch.prune = true;
-      fetch.pruneTags = true;
-      help.autoCorrect = "prompt";
-      init.defaultBranch = "main";
-      merge.conflictstyle = "zdiff3";
-      push.autoSetupRemote = true;
-      push.default = "simple";
-      push.followTags = true;
-      pull.rebase = true;
-      rebase.autoSquash = true;
-      rebase.autoStash = true;
-      rebase.updateRefs = true;
-      rerere.autoUpdate = true;
-      rerere.enabled = true;
-      tag.sort = "version:refname";
-
-      fetch.parallel = 10;
-      # gpg.format = "ssh";
-      submodule.recurse = true;
-      url."ssh://git@github.com/".pushInsteadOf = "https://github.com/";
-    };
     ignores = [
       # direnv
       ".direnv"
@@ -199,6 +149,66 @@
       "WORK.md"
     ];
     #lfs.enable = true;
+    settings = {
+      user = {
+        name = "zimbatm";
+        email = "zimbatm@zimbatm.com";
+      };
+      alias = {
+        amend = "commit --amend";
+        clean = "!git gone -f | xargs -r git branch -d";
+        co = "checkout";
+        # Rebase the current work to the origin default branch. Typically add
+        # `-i` to it so it becomes interactive.
+        rb = "rebase origin/HEAD";
+        review = "diff --cached";
+        st = "status -sb";
+        # Fix the remote head for `git rb` to work.
+        update-head = "remote set-head origin --auto";
+      };
+      branch = {
+        autosetuprebase = "always";
+        mergeoptions = "--no-ff";
+        sort = "-committerdate";
+      };
+      column.ui = "auto";
+      commit.verbose = true;
+      core.whitespace = "trailing-space,space-before-tab,tab-in-indent";
+      diff = {
+        algorithm = "histogram";
+        colorMoved = "plain";
+        mnemonicPrefix = true;
+        renames = true;
+      };
+      fetch = {
+        all = true;
+        prune = true;
+        pruneTags = true;
+        parallel = 10;
+      };
+      help.autoCorrect = "prompt";
+      init.defaultBranch = "main";
+      merge.conflictstyle = "zdiff3";
+      push = {
+        autoSetupRemote = true;
+        default = "simple";
+        followTags = true;
+      };
+      pull.rebase = true;
+      rebase = {
+        autoSquash = true;
+        autoStash = true;
+        updateRefs = true;
+      };
+      rerere = {
+        autoUpdate = true;
+        enabled = true;
+      };
+      tag.sort = "version:refname";
+      # gpg.format = "ssh";
+      submodule.recurse = true;
+      url."ssh://git@github.com/".pushInsteadOf = "https://github.com/";
+    };
   };
 
   services.gpg-agent = {
@@ -225,17 +235,20 @@
 
   programs.ssh = {
     enable = true;
-    compression = true;
-    serverAliveInterval = 60;
-    controlMaster = "auto";
-    controlPersist = "10m";
-    controlPath = "~/.ssh/control-%C";
-    extraConfig = ''
-      # Breaks deploy_nixos
-      #IdentitiesOnly yes
-      StrictHostKeyChecking no
-    '';
+    enableDefaultConfig = false;
     matchBlocks = {
+      "*" = {
+        compression = true;
+        serverAliveInterval = 60;
+        controlMaster = "auto";
+        controlPersist = "10m";
+        controlPath = "~/.ssh/control-%C";
+        extraOptions = {
+          # Breaks deploy_nixos
+          #IdentitiesOnly = "yes";
+          StrictHostKeyChecking = "no";
+        };
+      };
       "github.com" = {
         user = "git";
         identityFile = "~/.ssh/id_ed25519_sk";

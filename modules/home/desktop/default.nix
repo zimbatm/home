@@ -29,9 +29,7 @@
     joplin-desktop
     signal-desktop
     slack
-    tdesktop # telegram desktop
-    termite
-    vlc
+    telegram-desktop
     zed-editor
 
     # KDE stuff
@@ -39,9 +37,9 @@
     kdePackages.okular
 
     # AI
-    inputs.llm-agents.packages.${pkgs.system}.claudebox
-    inputs.llm-agents.packages.${pkgs.system}.codex
-    inputs.llm-agents.packages.${pkgs.system}.crush
-    inputs.llm-agents.packages.${pkgs.system}.opencode
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claudebox
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.crush
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode
   ];
 }

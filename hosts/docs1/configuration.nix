@@ -26,7 +26,7 @@
     # forceSSL = true;
 
     # Serve the docs
-    locations."/".root = flake.packages.${pkgs.system}.docs;
+    locations."/".root = flake.packages.${pkgs.stdenv.hostPlatform.system}.docs;
   };
 
   system.stateVersion = "24.05";
