@@ -5,6 +5,7 @@
 {
   config,
   inputs,
+  lib,
   pkgs,
   ...
 }:
@@ -22,9 +23,7 @@
 
   nixpkgs.hostPlatform = "x86_64-linux";
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.permittedInsecurePackages = [
-    "broadcom-sta-6.30.223.271-57-6.12.50"
-  ];
+  nixpkgs.config.allowInsecurePredicate = pkg: lib.getName pkg == "broadcom-sta";
 
   sops.defaultSopsFile = ./secrets.yaml;
 
@@ -58,7 +57,8 @@
 
   #
   services.printing.enable = true;
-  services.printing.drivers = [ pkgs.cnijfilter2 ];
+  # TODO: cnijfilter2 broken with C23 (typedef char bool)
+  #services.printing.drivers = [ pkgs.cnijfilter2 ];
   services.avahi.enable = true;
   services.avahi.nssmdns4 = true;
   services.avahi.openFirewall = true;
