@@ -24,7 +24,6 @@
     signal-desktop
     slack
     telegram-desktop
-    zed-editor
 
     # KDE stuff
     kdePackages.filelight
