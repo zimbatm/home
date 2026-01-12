@@ -34,6 +34,7 @@
     ruby
     shellcheck
     shfmt
+    tea
     tree
     watchexec
     wget
