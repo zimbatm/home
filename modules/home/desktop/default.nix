@@ -35,5 +35,6 @@
     inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex
     inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.crush
     inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode
+    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.pi
   ];
 }
