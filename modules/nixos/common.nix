@@ -54,6 +54,9 @@
 
   networking.firewall.allowPing = true;
 
+  # DNS search domain
+  networking.search = [ "ntd.one" ];
+
   # Configure home-manager
   home-manager.extraSpecialArgs.inputs = inputs; # forward the inputs
   home-manager.useGlobalPkgs = true; # don't create another instance of nixpkgs
