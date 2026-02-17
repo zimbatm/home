@@ -330,6 +330,7 @@
         "nixvim": "nixvim",
         "sops-nix": "sops-nix",
         "srvos": "srvos",
+        "subportal": "subportal",
         "systems": "systems_2",
         "treefmt-nix": "treefmt-nix"
       }
@@ -392,6 +393,29 @@
       "original": {
         "owner": "numtide",
         "repo": "srvos",
+        "type": "github"
+      }
+    },
+    "subportal": {
+      "inputs": {
+        "blueprint": [
+          "blueprint"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1771369157,
+        "narHash": "sha256-5pVgQ4Z3zEczsJLpkrRkAFMtSNrjyfwC/xRBzes8qZI=",
+        "owner": "zimbatm",
+        "repo": "subportal",
+        "rev": "727df3944379c453b508d3ae29a268b9f1eb3c87",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zimbatm",
+        "repo": "subportal",
         "type": "github"
       }
     },
