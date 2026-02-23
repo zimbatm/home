@@ -406,15 +406,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1771410405,
-        "narHash": "sha256-D551FFuplXwekgNW5wmMiqfverGIODIxPe5C4eBr4Mc=",
+        "lastModified": 1771797973,
+        "narHash": "sha256-wisg8MmWHU9e0x23gxzgGiZva0HFnRttR3lWZHMqvCg=",
         "owner": "zimbatm",
         "repo": "subportal",
-        "rev": "e39a19b2a5879858cb069a3a42666c0e870ff5ec",
+        "rev": "6daf64a4b094608361075bd641b6fefdf44b2446",
         "type": "github"
       },
       "original": {
         "owner": "zimbatm",
+        "ref": "subportal-iroh",
         "repo": "subportal",
         "type": "github"
       }

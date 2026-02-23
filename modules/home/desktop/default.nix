@@ -3,7 +3,10 @@
   imports = [
     ../terminal
     ./activitywatch.nix
+    inputs.subportal.homeModules.subportal-desktop
   ];
+
+  services.subportal-desktop.enable = true;
 
   programs.firefox.enable = true;
 
