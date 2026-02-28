@@ -53,6 +53,7 @@
     enable = true;
     package = inputs.iroh-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
     daemon.enable = true;
+    substituter.enable = true;
     network = "zimbatm";
   };
 
