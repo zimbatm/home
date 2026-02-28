@@ -11,6 +11,7 @@
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
     inputs.self.nixosModules.steam
+    inputs.iroh-nix.nixosModules.default
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
@@ -47,7 +48,13 @@
     config.home.stateVersion = "22.11";
   };
 
-  # List services that you want to enable:
+  # iroh-nix P2P Nix artifact distribution
+  services.iroh-nix = {
+    enable = true;
+    package = inputs.iroh-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    daemon.enable = true;
+    network = "zimbatm";
+  };
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;

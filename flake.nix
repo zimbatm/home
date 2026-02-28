@@ -34,6 +34,8 @@
     };
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
     sops-nix.url = "github:Mic92/sops-nix";
+    iroh-nix.inputs.nixpkgs.follows = "nixpkgs";
+    iroh-nix.url = "github:zimbatm/iroh-nix";
     subportal.inputs.blueprint.follows = "blueprint";
     subportal.inputs.nixpkgs.follows = "nixpkgs";
     subportal.url = "github:zimbatm/subportal/subportal-iroh";
