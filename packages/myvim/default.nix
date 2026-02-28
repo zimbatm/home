@@ -12,13 +12,13 @@ vim-full.customize {
 
       # Fuzzy Find completion. RipGrep. Both go together
       fzf-vim
-      fzfWrapper
+      fzf-wrapper
 
       ### Motions ###
 
       # More text objects.
       targets-vim
-      surround
+      vim-surround
       # motion: gc
       vim-commentary
       vim-repeat
@@ -48,7 +48,7 @@ vim-full.customize {
 
       # Per project configuration
       editorconfig-vim
-      vimproc
+      vimproc-vim
       # :Rename, :SudoWrite
       vim-eunuch
 
