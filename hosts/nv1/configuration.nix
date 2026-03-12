@@ -58,6 +58,9 @@
     ];
   };
 
+  # Auto-tune power management settings
+  powerManagement.powertop.enable = true;
+
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
