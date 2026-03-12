@@ -52,8 +52,6 @@
   services.iroh-nix = {
     enable = true;
     package = inputs.iroh-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
-    daemon.enable = true;
-    substituter.enable = true;
     network = "zimbatm";
     peers = [
       "9a10928c9589fe79e08323907b5dda6e0f3e2ceee5d29589976e480cb026e27d"
