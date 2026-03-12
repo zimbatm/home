@@ -35,7 +35,7 @@
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
     sops-nix.url = "github:Mic92/sops-nix";
     iroh-nix.inputs.nixpkgs.follows = "nixpkgs";
-    iroh-nix.url = "github:zimbatm/iroh-nix";
+    iroh-nix.url = "github:zimbatm/iroh-nix/upload-client-oidc-auth";
     subportal.inputs.blueprint.follows = "blueprint";
     subportal.inputs.nixpkgs.follows = "nixpkgs";
     subportal.url = "github:zimbatm/subportal/subportal-iroh";
