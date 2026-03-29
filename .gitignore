@@ -1,6 +1,8 @@
 # Nix
 result
 result-*
+# Local secrets
+.envrc.local
 # mkdocs
 /site
 /.cache
