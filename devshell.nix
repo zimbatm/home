@@ -15,6 +15,7 @@ in
 pkgs.mkShellNoCC {
   packages = [
     nixos-rebuild
+    pkgs.hcloud
     pkgs.nixos-anywhere
     pkgs.sbctl
     pkgs.sops
