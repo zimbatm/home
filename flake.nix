@@ -38,7 +38,9 @@
     iroh-nix.url = "github:zimbatm/iroh-nix/upload-client-oidc-auth";
     subportal.inputs.blueprint.follows = "blueprint";
     subportal.inputs.nixpkgs.follows = "nixpkgs";
-    subportal.url = "github:zimbatm/subportal/subportal-iroh";
+    subportal.url = "github:zimbatm/subportal";
+    system-manager.inputs.nixpkgs.follows = "nixpkgs";
+    system-manager.url = "github:numtide/system-manager";
     srvos = {
       url = "github:numtide/srvos";
       inputs.nixpkgs.follows = "nixpkgs";
