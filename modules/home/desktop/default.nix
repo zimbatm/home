@@ -7,6 +7,7 @@
   ];
 
   services.subportal-desktop.enable = true;
+  services.subportal-desktop.relayUrl = "https://relay.ztm.io";
 
   programs.firefox.enable = true;
 
