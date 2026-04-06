@@ -1,0 +1,74 @@
+{
+  "generators": {
+    "identity/ca/_shared": {
+      "files": {
+        "ssh-ca": "213b867f7a561694811ecd711784fddb43875bf88fa5947702dc12ac70e5f0ad",
+        "tls-ca.key": "213b867f7a561694811ecd711784fddb43875bf88fa5947702dc12ac70e5f0ad"
+      },
+      "inputHash": "982e1a2e4e20828da1f4f04481019739c01f3c163d3f4374be60bcba32fc2aab"
+    },
+    "identity/machine/docs1": {
+      "files": {
+        "ssh-host": "4eee9f53ebccde5ba520333d011da9f125094163c6d573308c96fba28e8da650",
+        "tls.key": "4eee9f53ebccde5ba520333d011da9f125094163c6d573308c96fba28e8da650"
+      },
+      "inputHash": "b4f2c265ab20c774338eeead863e83e9d4f4486635956d74e44127a5d0293e03"
+    },
+    "identity/machine/no1": {
+      "files": {
+        "ssh-host": "4b6be49388d6dd124b1a025125b52a4a4571dc21ee7ad11b29fee19ab9c4a88d",
+        "tls.key": "4b6be49388d6dd124b1a025125b52a4a4571dc21ee7ad11b29fee19ab9c4a88d"
+      },
+      "inputHash": "f5042835bcb1aea8414c74609d5f6c8b86fb4be16ada4b020ad0b091154a1bc1"
+    },
+    "identity/machine/nv1": {
+      "files": {
+        "ssh-host": "24e19098a2fe153504034d615245fe626953f5386c27bb0c79bdaa4403edd304",
+        "tls.key": "24e19098a2fe153504034d615245fe626953f5386c27bb0c79bdaa4403edd304"
+      },
+      "inputHash": "7592486ca8894340ce453dc8602fb92c8287c204c1092f2cf514a763020f62d2"
+    },
+    "identity/machine/p1": {
+      "files": {
+        "ssh-host": "72f5f85022afdb541a08392100de53ad951343bae852c0c48ca2b37f6ee72dc2",
+        "tls.key": "72f5f85022afdb541a08392100de53ad951343bae852c0c48ca2b37f6ee72dc2"
+      },
+      "inputHash": "9421035cad4df83e3e10e73f15533871cbd2c37b9b57fbf1cdf0b9fb66087cd0"
+    },
+    "identity/user-zimbatm/_shared": {
+      "files": {},
+      "inputHash": "1dd509c24376970a85fc300dbf87433cff8ca5d3d513323f4c3a48e49a0cb081"
+    },
+    "users/password-zimbatm/_shared": {
+      "files": {
+        "hash": "eb979a4ad3a7587fbe3e778c67f6ad96eeea4bc811884aaa0861a3f5afec88e9",
+        "plain": "eb979a4ad3a7587fbe3e778c67f6ad96eeea4bc811884aaa0861a3f5afec88e9"
+      },
+      "inputHash": "e6cc0f27b325120aac7ea6e1dafbb2a2a4bb6b730f512d92bd38abe346c0fb16"
+    },
+    "wireguard/key/docs1": {
+      "files": {
+        "private": "4eee9f53ebccde5ba520333d011da9f125094163c6d573308c96fba28e8da650"
+      },
+      "inputHash": "6e2d731dead0750e9c7ec760d85e5e54c28f58b5125b95b20d6e0f8ff44764a2"
+    },
+    "wireguard/key/no1": {
+      "files": {
+        "private": "4b6be49388d6dd124b1a025125b52a4a4571dc21ee7ad11b29fee19ab9c4a88d"
+      },
+      "inputHash": "06cc9aff43b16ee6aba4dad20f43ffb71e060012307b3df6ba1dae85af82bbe1"
+    },
+    "wireguard/key/nv1": {
+      "files": {
+        "private": "24e19098a2fe153504034d615245fe626953f5386c27bb0c79bdaa4403edd304"
+      },
+      "inputHash": "088c0a9815d949ce9df5ca3c7fdbff9ae4f9925e621880dc2af05647e30a721e"
+    },
+    "wireguard/key/p1": {
+      "files": {
+        "private": "72f5f85022afdb541a08392100de53ad951343bae852c0c48ca2b37f6ee72dc2"
+      },
+      "inputHash": "9a8e8a42575e23bd80a67e669ed736f99a4d56edb0e3894d3883d763a8311860"
+    }
+  }
+}

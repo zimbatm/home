@@ -9,6 +9,8 @@
   inputs = {
     blueprint.inputs.nixpkgs.follows = "nixpkgs";
     blueprint.url = "github:numtide/blueprint";
+    kin.url = "path:/root/src/kin";
+    kin.inputs.nixpkgs.follows = "nixpkgs";
     disko.inputs.nixpkgs.follows = "nixpkgs";
     disko.url = "github:nix-community/disko";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -52,8 +54,17 @@
 
   outputs =
     inputs:
-    inputs.blueprint {
-      inherit inputs;
-      nixpkgs.config.allowUnfree = true;
+    let
+      bp = inputs.blueprint {
+        inherit inputs;
+        nixpkgs.config.allowUnfree = true;
+      };
+      kinOut = import ./flake-kin.nix { inherit inputs; kin = inputs.kin; };
+    in
+    bp // {
+      inherit (kinOut) kinManifest;
+      # kin's nixosConfigurations live under a separate attr during migration
+      # so blueprint's stay intact for diffing.
+      kinConfigurations = kinOut.nixosConfigurations;
     };
 }
