@@ -62,9 +62,11 @@
       kinOut = import ./flake-kin.nix { inherit inputs; kin = inputs.kin; };
     in
     bp // {
-      inherit (kinOut) kinManifest;
-      # kin's nixosConfigurations live under a separate attr during migration
-      # so blueprint's stay intact for diffing.
-      kinConfigurations = kinOut.nixosConfigurations;
+      inherit (kinOut) kinManifest kinStatus;
+      # kin's configs are now the canonical nixosConfigurations so `kin deploy`
+      # and `nixos-rebuild --flake .#<host>` use them. Blueprint's preserved
+      # for diffing.
+      nixosConfigurations = kinOut.nixosConfigurations;
+      blueprintConfigurations = bp.nixosConfigurations;
     };
 }

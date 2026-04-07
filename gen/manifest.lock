@@ -7,13 +7,6 @@
       },
       "inputHash": "0eb2414123f84b025dc319aa41d53bbeeb20e7593b926ffd97b6b40d95705d40"
     },
-    "identity/machine/docs1": {
-      "files": {
-        "ssh-host": "4eee9f53ebccde5ba520333d011da9f125094163c6d573308c96fba28e8da650",
-        "tls.key": "4eee9f53ebccde5ba520333d011da9f125094163c6d573308c96fba28e8da650"
-      },
-      "inputHash": "ccfa9bdbda8a71ff6df21e8e284a17d93b7eb1e8119a920f845ee8d04a46531a"
-    },
     "identity/machine/no1": {
       "files": {
         "ssh-host": "4b6be49388d6dd124b1a025125b52a4a4571dc21ee7ad11b29fee19ab9c4a88d",
@@ -35,29 +28,30 @@
       },
       "inputHash": "edef534b280db1e965d603b7bb077bd2f961dde295019e8ca664c90eaed5d088"
     },
+    "identity/machine/web1": {
+      "files": {
+        "ssh-host": "54e806c0dd00bc575a4d576b35b9b1cda2eb9b083a8bc29cf384e13f1f0dd96e",
+        "tls.key": "54e806c0dd00bc575a4d576b35b9b1cda2eb9b083a8bc29cf384e13f1f0dd96e"
+      },
+      "inputHash": "c747fe8314888576e745b1bb032786ca6e6c4bffbf513342c209c055e7428250"
+    },
     "identity/user-zimbatm/_shared": {
       "files": {},
       "inputHash": "b156bb3d74474681c8605d87d1b93f8df6ef13d0e6e768c510541c997da28864"
     },
     "users/password-migration-test/_shared": {
       "files": {
-        "hash": "eb979a4ad3a7587fbe3e778c67f6ad96eeea4bc811884aaa0861a3f5afec88e9",
-        "plain": "eb979a4ad3a7587fbe3e778c67f6ad96eeea4bc811884aaa0861a3f5afec88e9"
+        "hash": "33dbc3e27f1ff0d82ca36a2b3c18b1e18c61017ac06ba9392daf1b47e7e56615",
+        "plain": "33dbc3e27f1ff0d82ca36a2b3c18b1e18c61017ac06ba9392daf1b47e7e56615"
       },
       "inputHash": "65978e2598bd2c24746a35512de80d79b2ffca7e4b985628796ed61b3e72840e"
     },
     "users/password-zimbatm/_shared": {
       "files": {
-        "hash": "eb979a4ad3a7587fbe3e778c67f6ad96eeea4bc811884aaa0861a3f5afec88e9",
-        "plain": "eb979a4ad3a7587fbe3e778c67f6ad96eeea4bc811884aaa0861a3f5afec88e9"
+        "hash": "33dbc3e27f1ff0d82ca36a2b3c18b1e18c61017ac06ba9392daf1b47e7e56615",
+        "plain": "33dbc3e27f1ff0d82ca36a2b3c18b1e18c61017ac06ba9392daf1b47e7e56615"
       },
       "inputHash": "65978e2598bd2c24746a35512de80d79b2ffca7e4b985628796ed61b3e72840e"
-    },
-    "wireguard/key/docs1": {
-      "files": {
-        "private": "4eee9f53ebccde5ba520333d011da9f125094163c6d573308c96fba28e8da650"
-      },
-      "inputHash": "30452c603991a34795588c143f1c040802e10b078f2e9cf8cdb537467af0767f"
     },
     "wireguard/key/no1": {
       "files": {
@@ -76,6 +70,12 @@
         "private": "72f5f85022afdb541a08392100de53ad951343bae852c0c48ca2b37f6ee72dc2"
       },
       "inputHash": "31791714f057f91298ebf5ffbbd7f48e26cf49aab5629f708401b7b79a5eb579"
+    },
+    "wireguard/key/web1": {
+      "files": {
+        "private": "54e806c0dd00bc575a4d576b35b9b1cda2eb9b083a8bc29cf384e13f1f0dd96e"
+      },
+      "inputHash": "08a6dc92c91d9e000e0f0d8a40edcdb7fc63f10e7cda3971db4f0c97a2b92239"
     }
   }
 }

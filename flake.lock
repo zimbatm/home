@@ -352,11 +352,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775589047,
-        "narHash": "sha256-d8XjBJmtYfUGFZrwGIQXDGBmUSFGOlQUjjFv+pC4NyA=",
+        "lastModified": 1775589660,
+        "narHash": "sha256-F07S64oHf/lWXsETC1iWdjkNqAZzQz8/nkHNIIoiiuE=",
         "ref": "refs/heads/main",
-        "rev": "d629833db1848277c4ff519e45aadefc1b2a662f",
-        "revCount": 93,
+        "rev": "b646d26529955df3d534d814005f1ebc89facfec",
+        "revCount": 95,
         "type": "git",
         "url": "ssh://git@github.com/jonasc-ant/kin"
       },

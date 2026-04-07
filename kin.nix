@@ -18,7 +18,7 @@ in
     no1 = { host = "no1.zt"; tags = [ "desktop" "builder" ]; profile = "none"; };
     nv1 = { host = "nv1.zt"; tags = [ "desktop" ]; profile = "none"; };
     p1 = { host = "p1.local"; tags = [ "laptop" ]; profile = "none"; };
-    docs1 = { host = "docs1.garnix"; tags = [ "server" ]; profile = "none"; };
+    web1 = { host = "95.216.188.155"; tags = [ "server" ]; profile = "none"; };
   };
 
   services.identity = { domain = "ztm"; hosts = [ "all" ]; };
@@ -30,12 +30,12 @@ in
     files.key.secret = true;
   };
   gen.gotosocial-restic-password = {
-    for = [ "server" ];
+    for = [ "web1" ];
     perMachine = false;
     files.password.secret = true;
   };
   gen.gotosocial-storagebox-password = {
-    for = [ "server" ];
+    for = [ "web1" ];
     perMachine = false;
     files.password.secret = true;
   };
