@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   inputs,
@@ -7,7 +8,11 @@
 {
   imports = [
     ./hardware-configuration.nix
-    inputs.nixos-hardware.nixosModules.lenovo-thinkpad-p16s-amd-gen1
+    # NovaCustom V5xTNC: Intel Meteor Lake-H + NVIDIA RTX 4060 Max-Q
+    # GPU: Intel Arc for display, NVIDIA reserved for VFIO passthrough
+    inputs.nixos-hardware.nixosModules.common-cpu-intel
+    inputs.nixos-hardware.nixosModules.common-pc-laptop
+    inputs.nixos-hardware.nixosModules.common-pc-ssd
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
     inputs.self.nixosModules.steam
@@ -16,6 +21,18 @@
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
+
+  # Intel Arc (Meteor Lake) handles display.
+  # NVIDIA RTX 4060 Max-Q reserved for VFIO passthrough (CROPS VM).
+  hardware.graphics.enable = true;
+
+  # Claim NVIDIA GPU + audio for vfio-pci at boot, before nvidia driver loads.
+  boot.kernelParams = [ "intel_iommu=on" "iommu=pt" ];
+  boot.initrd.kernelModules = [ "vfio_pci" "vfio" "vfio_iommu_type1" ];
+  boot.extraModprobeConfig = ''
+    options vfio-pci ids=10de:28a0,10de:22be
+    softdep nvidia pre: vfio-pci
+  '';
 
   boot.loader.grub.configurationLimit = lib.mkDefault 8;
   boot.loader.systemd-boot.configurationLimit = lib.mkDefault 8;
