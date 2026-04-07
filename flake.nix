@@ -9,7 +9,7 @@
   inputs = {
     blueprint.inputs.nixpkgs.follows = "nixpkgs";
     blueprint.url = "github:numtide/blueprint";
-    kin.url = "github:jonasc-ant/kin";
+    kin.url = "git+ssh://git@github.com/jonasc-ant/kin";
     kin.inputs.nixpkgs.follows = "nixpkgs";
     disko.inputs.nixpkgs.follows = "nixpkgs";
     disko.url = "github:nix-community/disko";
