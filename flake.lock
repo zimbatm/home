@@ -347,22 +347,23 @@
     },
     "kin": {
       "inputs": {
+        "maille": "maille",
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1775589660,
-        "narHash": "sha256-F07S64oHf/lWXsETC1iWdjkNqAZzQz8/nkHNIIoiiuE=",
+        "lastModified": 1775598262,
+        "narHash": "sha256-f14S9cFU+0bVPLVhQq0FeW9TH5hvgeH1u/Cq4Ui9gaE=",
         "ref": "refs/heads/main",
-        "rev": "b646d26529955df3d534d814005f1ebc89facfec",
-        "revCount": 95,
+        "rev": "09c56f72fb69333a57a1335a2b5e219f969f30c1",
+        "revCount": 100,
         "type": "git",
-        "url": "ssh://git@github.com/jonasc-ant/kin"
+        "url": "ssh://git@github.com/assise/kin"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@github.com/jonasc-ant/kin"
+        "url": "ssh://git@github.com/assise/kin"
       }
     },
     "lanzaboote": {
@@ -415,6 +416,27 @@
         "owner": "numtide",
         "repo": "llm-agents.nix",
         "type": "github"
+      }
+    },
+    "maille": {
+      "inputs": {
+        "nixpkgs": [
+          "kin",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1775598099,
+        "narHash": "sha256-MaailZkbzGo+f8Fn6n/meNllHn5WKoV+YyLiJ5BYmH4=",
+        "ref": "refs/heads/main",
+        "rev": "6956b6a866e789289c7c3ab3f2aeb6ec6d278c85",
+        "revCount": 12,
+        "type": "git",
+        "url": "ssh://git@github.com/assise/maille"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/assise/maille"
       }
     },
     "mkdocs-numtide": {

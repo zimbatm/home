@@ -39,6 +39,10 @@
       "files": {},
       "inputHash": "b156bb3d74474681c8605d87d1b93f8df6ef13d0e6e768c510541c997da28864"
     },
+    "mesh/fingerprints/_shared": {
+      "files": {},
+      "inputHash": "e5c8078cfb21de5d398f37548cb1d8bd918e482b43fde26e8c208d00a047710e"
+    },
     "users/password-migration-test/_shared": {
       "files": {
         "hash": "33dbc3e27f1ff0d82ca36a2b3c18b1e18c61017ac06ba9392daf1b47e7e56615",
