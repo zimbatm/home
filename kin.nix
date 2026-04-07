@@ -5,30 +5,25 @@ let
   ];
 in
 {
-  admins = [ "zimbatm" "migration-test" ];
+  users.zimbatm = {
+    admin = true;
+    inherit sshKeys;
+    profile = "github:zimbatm/home#homeConfigurations.zimbatm";
+    uid = 1000;
+    groups = [ "audio" "docker" "input" "libvirtd" "networkmanager" "video" ];
+  };
+  users.migration-test = { admin = true; };
 
   machines = {
     no1 = { host = "no1.zt"; tags = [ "desktop" "builder" ]; profile = "none"; };
     nv1 = { host = "nv1.zt"; tags = [ "desktop" ]; profile = "none"; };
     p1 = { host = "p1.local"; tags = [ "laptop" ]; profile = "none"; };
     docs1 = { host = "docs1.garnix"; tags = [ "server" ]; profile = "none"; };
-    # relay uses system-manager (not nixosSystem) — out of scope, see flake.nix
   };
 
-  services.identity = {
-    hosts = [ "all" ];
-    domain = "ztm";
-    users.zimbatm = sshKeys;
-  };
+  services.identity = { domain = "ztm"; hosts = [ "all" ]; };
+  services.wireguard.peer = [ "all" ];
 
-  services.users.zimbatm = {
-    admin = true;
-    inherit sshKeys;
-  };
-
-  services.wireguard.peer = [ "all" ]; # replaces zerotier + tailscale
-
-  # External secrets (were sops; provide via `kin set`)
   gen.nix-remote-builder-key = {
     for = [ "builder" ];
     perMachine = false;
