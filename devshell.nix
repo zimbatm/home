@@ -3,20 +3,11 @@
   perSystem,
   inputs,
 }:
-let
-  nixos-rebuild = pkgs.writeShellApplication {
-    name = "nixos-rebuild";
-    text = ''
-      set -euo pipefail
-      exec ${pkgs.nixos-rebuild-ng}/bin/nixos-rebuild --flake "$PRJ_ROOT" --sudo "$@"
-    '';
-  };
-in
 pkgs.mkShellNoCC {
   packages = [
-    nixos-rebuild
+    inputs.kin.packages.${pkgs.stdenv.hostPlatform.system}.kin
+    pkgs.age
     pkgs.hcloud
-    pkgs.nixos-anywhere
     pkgs.sbctl
     pkgs.sops
     pkgs.ssh-to-age
@@ -25,5 +16,6 @@ pkgs.mkShellNoCC {
 
   shellHook = ''
     export PRJ_ROOT=$PWD
+    export KIN_IDENTITY="''${KIN_IDENTITY:-$PRJ_ROOT/keys/users/$(whoami).key}"
   '';
 }
