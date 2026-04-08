@@ -174,6 +174,26 @@
         "type": "github"
       }
     },
+    "iets": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1775651234,
+        "narHash": "sha256-I9+P62oTtzExpI4fdrvamo5wyXKJQE+aHJ69pL20nXI=",
+        "ref": "refs/heads/main",
+        "rev": "b7e31603370e4c7a7b55e07c1aaf09fd0574b006",
+        "revCount": 3222,
+        "type": "git",
+        "url": "ssh://git@github.com/jonasc-ant/iets"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/jonasc-ant/iets"
+      }
+    },
     "import-tree": {
       "locked": {
         "lastModified": 1763762820,
@@ -392,6 +412,7 @@
     "root": {
       "inputs": {
         "home-manager": "home-manager",
+        "iets": "iets",
         "kin": "kin",
         "lanzaboote": "lanzaboote",
         "llm-agents": "llm-agents",
