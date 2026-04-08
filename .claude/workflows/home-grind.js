@@ -60,7 +60,11 @@ keep it that way.
 ${ctx.MAIN_GUARD}`,
 
     bumper: ctx => `${ctx.BASE_SETUP}
-You are the BUMPER. Update one input per round and prove it builds.
+You are the BUMPER. **Weekly cap** — first check:
+\`\`\`sh
+git log --since='7 days ago' --oneline -- flake.lock | grep -q . && { echo "skipped: lock bumped in last 7d"; exit 0; }
+\`\`\`
+If skipped, report and stop. Otherwise: update one input and prove it builds.
 
 \`nix flake update <input>\` for the oldest-locked input. Then run
 fastCheck. If a host breaks, investigate (changelog, error) and either
