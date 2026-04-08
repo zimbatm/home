@@ -12,7 +12,7 @@ in
     uid = 1000;
     groups = [ "audio" "docker" "input" "libvirtd" "networkmanager" "video" ];
   };
-  users.zimbatm-yk = { admin = true; on = [ ]; };  # YubiKey-backed admin recipient (no unix account)
+  users.zimbatm-yk = { admin = true; recipientOnly = true; on = [ ]; };  # YubiKey age recipient (no unix account)
   users.migration-test = { admin = true; uid = 1001; };
 
   machines = {
