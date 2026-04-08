@@ -1,12 +1,41 @@
 # zimbatm's home
 
-Minimalist NixOS configuration repo for my machines.
+Jonas's personal machines, deployed with [`../kin`](../kin) over the [`../maille`](../maille) mesh. This is the **primary assise dogfood** — the falsification test for the whole stack: if an assise piece can't run here, it's not real. See [`../meta`](../meta) for the project context; [`../kin-infra`](../kin-infra) is the second dogfood (org infra).
 
-1. Use [blueprint](https://github.com/numtide/blueprint) to automatically map
-   the folder structure to flake outputs. Keep the boilerplate Nix code to the
-   minimum.
-1. Use [SrvOS](https://github.com/nix-community/srvos) for opinionated
-   NixOS defaults.
-1. Use [disko](https://github.com/nix-community/disko) for declarative disk
-   partitioning.
-1. Powered by [Garnix](https://garnix.io) for free CI and binary cache.
+## Machines
+
+| machine | host | tags | notes |
+|---|---|---|---|
+| `nv1` | `fd18:cb0b:6a1d::…:deae` (mesh ULA) | desktop | NAT'd; reachable via maille only |
+| `web2` | 89.167.46.118 | server | hetzner-cloud; runs gotosocial |
+| `relay1` | 95.216.188.155 | server, relay | hetzner-cloud; the maille relay |
+
+`no1` and `p1` have host configs but aren't kin-managed yet.
+
+All kin-managed machines are on the `ztm` identity domain and the maille mesh.
+
+## Layout
+
+```
+kin.nix              # the fleet declaration — users, machines, services, gen
+hosts/<name>/        # per-host NixOS config (hardware, machine-local)
+machines/            # symlink → hosts/ (kin's naming convention)
+modules/nixos/       # shared NixOS modules (common, desktop, server, …)
+modules/home/        # home-manager modules
+gen/                 # generated: identity certs, mesh, manifest.lock — `kin gen` rewrites this
+keys/                # age recipients for machines and users
+flake-shim.nix       # non-flake entrypoint for `iets eval` (A3)
+```
+
+The flake is explicit (no auto-discovery) per ADR-0006 — every module and host is listed in `flake.nix`.
+
+## Deploy
+
+```sh
+python3 ../kin/cli/kin.py gen          # regenerate gen/ from kin.nix
+python3 ../kin/cli/kin.py deploy <machine>
+```
+
+**Deploy is human-gated.** These are real machines (one's a desktop). The `/grind` loop and CI commit changes but never apply them — `kin deploy` is run by a person after reviewing the diff and confirming SSH access stays intact.
+
+Check before deploying: `nix build .#nixosConfigurations.<machine>.config.system.build.toplevel --dry-run`.
