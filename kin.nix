@@ -32,13 +32,14 @@ in
     files.key.secret = true;
   };
   gen.gotosocial-restic-password = {
-    for = [ "web1" ];
+    for = [ "server" ];
     perMachine = false;
     files.password.secret = true;
   };
-  gen.gotosocial-storagebox-password = {
-    for = [ "web1" ];
+  gen.gotosocial-storagebox-credentials = {
+    for = [ "server" ];
     perMachine = false;
-    files.password.secret = true;
+    # CIFS credentials file format: "username=...\npassword=..."
+    files.credentials.secret = true;
   };
 }
