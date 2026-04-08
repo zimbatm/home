@@ -8,6 +8,7 @@ pkgs.buildEnv {
     inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.iets
     pkgs.age
     pkgs.age-plugin-tpm
+    pkgs.age-plugin-yubikey
     pkgs.hcloud
     pkgs.sbctl
     pkgs.ssh-to-age
