@@ -50,6 +50,12 @@
       "files": {},
       "inputHash": "37ddde757701ab2667afe21c1eae9b1a5be8b532529e7074354a47758e5fdc9d"
     },
+    "user/gotosocial-restic-password/_shared": {
+      "files": {
+        "password": "d37d76557c6580a7eeaa2f4eaf8835bb625a38ac8e9950ff1b8ebbeecf63ac9e"
+      },
+      "inputHash": "83df651df587d3ef05e30ae68d2b8e86fa99ee3cc628d2c090b8ade8c422ebf1"
+    },
     "users/password-migration-test/_shared": {
       "files": {
         "hash": "6ea6b340798213cf84fe02c7c98c10282966c71b20eff93960df64c36aabb9a0",

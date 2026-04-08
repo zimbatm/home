@@ -34,6 +34,7 @@ in
   gen.gotosocial-restic-password = {
     for = [ "server" ];
     perMachine = false;
+    script = ''head -c 32 /dev/urandom | base64 > $out/password'';
     files.password.secret = true;
   };
   gen.gotosocial-storagebox-credentials = {
