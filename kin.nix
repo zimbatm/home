@@ -15,9 +15,7 @@ in
   users.migration-test = { admin = true; uid = 1001; };
 
   machines = {
-    no1 = { host = "no1.zt"; tags = [ "desktop" "builder" ]; profile = "none"; };
     nv1 = { host = "nv1.zt"; tags = [ "desktop" ]; profile = "none"; };
-    p1 = { host = "p1.local"; tags = [ "laptop" ]; profile = "none"; };
     web2 = { host = "89.167.46.118"; tags = [ "server" ]; profile = "hetzner-cloud"; };
     relay1 = { host = "95.216.188.155"; tags = [ "server" "relay" ]; profile = "hetzner-cloud"; };
   };
@@ -25,13 +23,6 @@ in
   services.identity = { domain = "ztm"; hosts = [ "all" ]; };
   services.mesh.member = [ "all" ];
 
-  gen.nix-remote-builder-key = {
-    for = [ "builder" ];
-    perMachine = false;
-    # External: ssh-keygen -t ed25519 -N "" -f /tmp/k && kin set user/nix-remote-builder-key/_shared/key < /tmp/k
-    # Then add /tmp/k.pub to the numtide builders' authorized_keys.
-    files.key.secret = true;
-  };
   gen.gotosocial-restic-password = {
     for = [ "server" ];
     perMachine = false;

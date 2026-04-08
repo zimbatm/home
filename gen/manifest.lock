@@ -7,26 +7,12 @@
       },
       "inputHash": "0eb2414123f84b025dc319aa41d53bbeeb20e7593b926ffd97b6b40d95705d40"
     },
-    "identity/machine/no1": {
-      "files": {
-        "ssh-host": "4b6be49388d6dd124b1a025125b52a4a4571dc21ee7ad11b29fee19ab9c4a88d",
-        "tls.key": "4b6be49388d6dd124b1a025125b52a4a4571dc21ee7ad11b29fee19ab9c4a88d"
-      },
-      "inputHash": "477270b84f075693c94a1cb51f4024098c885799c6edb01f049833a733013f9d"
-    },
     "identity/machine/nv1": {
       "files": {
         "ssh-host": "2a57e8d2d1e36f6f18f4c402d897327cfa21b66df0cc39dde28c8c59cab07c66",
         "tls.key": "2a57e8d2d1e36f6f18f4c402d897327cfa21b66df0cc39dde28c8c59cab07c66"
       },
       "inputHash": "0c42d49eb5ca521c45806800aa7db974037b9738cdf0f1833f465f4793063627"
-    },
-    "identity/machine/p1": {
-      "files": {
-        "ssh-host": "72f5f85022afdb541a08392100de53ad951343bae852c0c48ca2b37f6ee72dc2",
-        "tls.key": "72f5f85022afdb541a08392100de53ad951343bae852c0c48ca2b37f6ee72dc2"
-      },
-      "inputHash": "edef534b280db1e965d603b7bb077bd2f961dde295019e8ca664c90eaed5d088"
     },
     "identity/machine/relay1": {
       "files": {
@@ -48,7 +34,7 @@
     },
     "mesh/fingerprints/_shared": {
       "files": {},
-      "inputHash": "4769ebbbb89e608e9ec43bf5ed4740c17d138fd95152913713c6ecfd270ee346"
+      "inputHash": "0f85a67437c25fa6f3600879050f503dd79a1327948e85025db0dcd71ba5fd09"
     },
     "user/gotosocial-restic-password/_shared": {
       "files": {
@@ -58,15 +44,15 @@
     },
     "users/password-migration-test/_shared": {
       "files": {
-        "hash": "471d92c648c0a19fbd5d9bfccbd08964adeb297d676a6d94bdd1ef6452ebbe4a",
-        "plain": "471d92c648c0a19fbd5d9bfccbd08964adeb297d676a6d94bdd1ef6452ebbe4a"
+        "hash": "7679fc394a28ffc5079b3c2a66ab592d3aaada145f1aba7fa0e6eddc42e13c1e",
+        "plain": "7679fc394a28ffc5079b3c2a66ab592d3aaada145f1aba7fa0e6eddc42e13c1e"
       },
       "inputHash": "65978e2598bd2c24746a35512de80d79b2ffca7e4b985628796ed61b3e72840e"
     },
     "users/password-zimbatm/_shared": {
       "files": {
-        "hash": "471d92c648c0a19fbd5d9bfccbd08964adeb297d676a6d94bdd1ef6452ebbe4a",
-        "plain": "471d92c648c0a19fbd5d9bfccbd08964adeb297d676a6d94bdd1ef6452ebbe4a"
+        "hash": "7679fc394a28ffc5079b3c2a66ab592d3aaada145f1aba7fa0e6eddc42e13c1e",
+        "plain": "7679fc394a28ffc5079b3c2a66ab592d3aaada145f1aba7fa0e6eddc42e13c1e"
       },
       "inputHash": "65978e2598bd2c24746a35512de80d79b2ffca7e4b985628796ed61b3e72840e"
     }

@@ -31,7 +31,6 @@
         desktop = ./modules/nixos/desktop.nix;
         gnome = ./modules/nixos/gnome.nix;
         gotosocial = ./modules/nixos/gotosocial.nix;
-        nix-remote-builders = ./modules/nixos/nix-remote-builders.nix;
         perlless = ./modules/nixos/perlless.nix;
         pinned-nix-registry = ./modules/nixos/pinned-nix-registry.nix;
         server = ./modules/nixos/server.nix;
