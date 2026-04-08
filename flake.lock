@@ -353,11 +353,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775638842,
-        "narHash": "sha256-Hvqf1OXUM8/YqAnOoq/J9zBEX5yIjTyI4A3DFHSN5+4=",
+        "lastModified": 1775639165,
+        "narHash": "sha256-uVsHtbTDQB/cJtZ4/nvUGvvzJERJDzSwTvaRF0pEG+w=",
         "ref": "refs/heads/main",
-        "rev": "1e5c523eb5520199d136105f1befc277ec2458ee",
-        "revCount": 104,
+        "rev": "57ee4feb3f9a10bfa5cd6928e07f7dd24b92ce55",
+        "revCount": 105,
         "type": "git",
         "url": "ssh://git@github.com/assise/kin"
       },
