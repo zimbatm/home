@@ -28,13 +28,9 @@ in
   gen.nix-remote-builder-key = {
     for = [ "builder" ];
     perMachine = false;
-    inputs = [ "openssh" ];
-    script = ''
-      ssh-keygen -t ed25519 -N "" -C "kin-remote-builder" -f $out/key
-      mv $out/key.pub $out/pubkey
-    '';
+    # External: ssh-keygen -t ed25519 -N "" -f /tmp/k && kin set user/nix-remote-builder-key/_shared/key < /tmp/k
+    # Then add /tmp/k.pub to the numtide builders' authorized_keys.
     files.key.secret = true;
-    files.pubkey.secret = false;
   };
   gen.gotosocial-restic-password = {
     for = [ "server" ];
