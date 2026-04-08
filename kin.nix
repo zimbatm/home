@@ -15,7 +15,7 @@ in
   users.migration-test = { admin = true; uid = 1001; };
 
   machines = {
-    nv1 = { host = "nv1.zt"; tags = [ "desktop" ]; profile = "none"; };
+    nv1 = { host = "fd18:cb0b:6a1d::6e42:b995:2026:deae"; tags = [ "desktop" ]; profile = "none"; };
     web2 = { host = "89.167.46.118"; tags = [ "server" ]; profile = "hetzner-cloud"; };
     relay1 = { host = "95.216.188.155"; tags = [ "server" "relay" ]; profile = "hetzner-cloud"; };
   };
