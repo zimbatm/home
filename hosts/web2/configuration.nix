@@ -5,7 +5,7 @@
     # gotosocial added after data migration (module needs sops→kin secret port)
   ];
 
-  systemd.network.networks."10-uplink".networkConfig.Address = "2a01:4f9:c014:fac3::1/64";
+  # IPv4 via DHCP, IPv6 via hetzner-ipv6.service (kin profile) — no hardcoded addresses.
 
   system.stateVersion = "26.05";
 }
