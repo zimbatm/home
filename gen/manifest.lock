@@ -69,36 +69,6 @@
         "plain": "fe20632ca1a94c3cb3ea85d0729e22a7ed2d0a02bdb142898291cc822e0d5d8f"
       },
       "inputHash": "65978e2598bd2c24746a35512de80d79b2ffca7e4b985628796ed61b3e72840e"
-    },
-    "wireguard/key/no1": {
-      "files": {
-        "private": "4b6be49388d6dd124b1a025125b52a4a4571dc21ee7ad11b29fee19ab9c4a88d"
-      },
-      "inputHash": "1f1fb1fcc7e550400ba8ed7808e85f0b4c24bd2c766a76e9dc761cc48d2ea1f7"
-    },
-    "wireguard/key/nv1": {
-      "files": {
-        "private": "2a57e8d2d1e36f6f18f4c402d897327cfa21b66df0cc39dde28c8c59cab07c66"
-      },
-      "inputHash": "9186b01733af02eaf0a798c74cc4bb51cd82c51ae8e8fda8c20e61a291e41be4"
-    },
-    "wireguard/key/p1": {
-      "files": {
-        "private": "72f5f85022afdb541a08392100de53ad951343bae852c0c48ca2b37f6ee72dc2"
-      },
-      "inputHash": "31791714f057f91298ebf5ffbbd7f48e26cf49aab5629f708401b7b79a5eb579"
-    },
-    "wireguard/key/web1": {
-      "files": {
-        "private": "54e806c0dd00bc575a4d576b35b9b1cda2eb9b083a8bc29cf384e13f1f0dd96e"
-      },
-      "inputHash": "08a6dc92c91d9e000e0f0d8a40edcdb7fc63f10e7cda3971db4f0c97a2b92239"
-    },
-    "wireguard/key/web2": {
-      "files": {
-        "private": "797acd3113da20602ab0a7a44baf326986cc7d450f109b66af035a69984b7cda"
-      },
-      "inputHash": "5051cafbfca59fc9936944eceb6d4ba4f4fa66ecd88a947767da8fa757245b7f"
     }
   }
 }

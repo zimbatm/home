@@ -23,8 +23,7 @@ in
   };
 
   services.identity = { domain = "ztm"; hosts = [ "all" ]; };
-  services.wireguard.peer = [ "all" ];
-  services.mesh.member = [ "all" ]; # maille (QUIC TUN over noq) — runs alongside wg until proven
+  services.mesh.member = [ "all" ];
 
   gen.nix-remote-builder-key = {
     for = [ "builder" ];
