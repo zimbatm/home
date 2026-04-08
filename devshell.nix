@@ -1,6 +1,5 @@
 {
   pkgs,
-  perSystem,
   inputs,
 }:
 pkgs.mkShellNoCC {

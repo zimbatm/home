@@ -1,5 +1,5 @@
-{ perSystem }:
-perSystem.nixvim.makeNixvim {
+{ inputs, system, ... }:
+inputs.nixvim.legacyPackages.${system}.makeNixvim {
   editorconfig.enable = true;
 
   plugins = {
