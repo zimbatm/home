@@ -48,18 +48,18 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "zerotierone" ];
+  # nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "zerotierone" ];
 
-  # One network to rule them all.
-  services.zerotierone.enable = true;
-  services.zerotierone.joinNetworks = [ "565799d8f6567eae" ];
-  networking.extraHosts = ''
-    172.28.61.193  no1.zt
-  '';
+  # # One network to rule them all.
+  # services.zerotierone.enable = true;
+  # services.zerotierone.joinNetworks = [ "565799d8f6567eae" ];
+  # networking.extraHosts = ''
+  #   172.28.61.193  no1.zt
+  # '';
 
-  # Deploy tailscale everywhere
-  services.tailscale.enable = true;
-  services.tailscale.openFirewall = true;
+  # # Deploy tailscale everywhere
+  # services.tailscale.enable = true;
+  # services.tailscale.openFirewall = true;
 
   networking.firewall.allowPing = true;
 
