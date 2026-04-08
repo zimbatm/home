@@ -28,13 +28,6 @@
       },
       "inputHash": "edef534b280db1e965d603b7bb077bd2f961dde295019e8ca664c90eaed5d088"
     },
-    "identity/machine/web1": {
-      "files": {
-        "ssh-host": "54e806c0dd00bc575a4d576b35b9b1cda2eb9b083a8bc29cf384e13f1f0dd96e",
-        "tls.key": "54e806c0dd00bc575a4d576b35b9b1cda2eb9b083a8bc29cf384e13f1f0dd96e"
-      },
-      "inputHash": "c747fe8314888576e745b1bb032786ca6e6c4bffbf513342c209c055e7428250"
-    },
     "identity/machine/web2": {
       "files": {
         "ssh-host": "797acd3113da20602ab0a7a44baf326986cc7d450f109b66af035a69984b7cda",
@@ -48,25 +41,25 @@
     },
     "mesh/fingerprints/_shared": {
       "files": {},
-      "inputHash": "37ddde757701ab2667afe21c1eae9b1a5be8b532529e7074354a47758e5fdc9d"
+      "inputHash": "65ddf05268c6db9156314d7cda7c70f36f46be14dfa8f479ec635743e99f7d22"
     },
     "user/gotosocial-restic-password/_shared": {
       "files": {
-        "password": "d37d76557c6580a7eeaa2f4eaf8835bb625a38ac8e9950ff1b8ebbeecf63ac9e"
+        "password": "797acd3113da20602ab0a7a44baf326986cc7d450f109b66af035a69984b7cda"
       },
       "inputHash": "83df651df587d3ef05e30ae68d2b8e86fa99ee3cc628d2c090b8ade8c422ebf1"
     },
     "users/password-migration-test/_shared": {
       "files": {
-        "hash": "fe20632ca1a94c3cb3ea85d0729e22a7ed2d0a02bdb142898291cc822e0d5d8f",
-        "plain": "fe20632ca1a94c3cb3ea85d0729e22a7ed2d0a02bdb142898291cc822e0d5d8f"
+        "hash": "b70ae2fcfa28e478de2a358cf3dc02230d8b649858a00c522bbd02a89b581212",
+        "plain": "b70ae2fcfa28e478de2a358cf3dc02230d8b649858a00c522bbd02a89b581212"
       },
       "inputHash": "65978e2598bd2c24746a35512de80d79b2ffca7e4b985628796ed61b3e72840e"
     },
     "users/password-zimbatm/_shared": {
       "files": {
-        "hash": "fe20632ca1a94c3cb3ea85d0729e22a7ed2d0a02bdb142898291cc822e0d5d8f",
-        "plain": "fe20632ca1a94c3cb3ea85d0729e22a7ed2d0a02bdb142898291cc822e0d5d8f"
+        "hash": "b70ae2fcfa28e478de2a358cf3dc02230d8b649858a00c522bbd02a89b581212",
+        "plain": "b70ae2fcfa28e478de2a358cf3dc02230d8b649858a00c522bbd02a89b581212"
       },
       "inputHash": "65978e2598bd2c24746a35512de80d79b2ffca7e4b985628796ed61b3e72840e"
     }

@@ -18,7 +18,6 @@ in
     no1 = { host = "no1.zt"; tags = [ "desktop" "builder" ]; profile = "none"; };
     nv1 = { host = "nv1.zt"; tags = [ "desktop" ]; profile = "none"; };
     p1 = { host = "p1.local"; tags = [ "laptop" ]; profile = "none"; };
-    web1 = { host = "95.216.188.155"; tags = [ "server" ]; profile = "none"; };
     web2 = { host = "89.167.46.118"; tags = [ "server" ]; profile = "hetzner-cloud"; };
   };
 
