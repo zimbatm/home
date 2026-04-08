@@ -19,7 +19,7 @@ in
     nv1 = { host = "nv1.zt"; tags = [ "desktop" ]; profile = "none"; };
     p1 = { host = "p1.local"; tags = [ "laptop" ]; profile = "none"; };
     web2 = { host = "89.167.46.118"; tags = [ "server" ]; profile = "hetzner-cloud"; };
-    relay = { host = "5.161.211.65"; tags = [ "server" ]; profile = "hetzner-cloud"; };
+    relay1 = { host = "PENDING"; tags = [ "server" "relay" ]; profile = "hetzner-cloud"; };
   };
 
   services.identity = { domain = "ztm"; hosts = [ "all" ]; };
