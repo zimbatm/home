@@ -27,7 +27,6 @@
         gotosocial = ./modules/nixos/gotosocial.nix;
         perlless = ./modules/nixos/perlless.nix;
         pinned-nix-registry = ./modules/nixos/pinned-nix-registry.nix;
-        server = ./modules/nixos/server.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;
         zimbatm = ./modules/nixos/zimbatm.nix;
