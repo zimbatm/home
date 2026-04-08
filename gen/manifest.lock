@@ -28,12 +28,12 @@
       },
       "inputHash": "edef534b280db1e965d603b7bb077bd2f961dde295019e8ca664c90eaed5d088"
     },
-    "identity/machine/relay": {
+    "identity/machine/relay1": {
       "files": {
         "ssh-host": "e23503f6b889698cbf4cf0f31bbce1ba86029dd444b2912999f5c8ebec24f171",
         "tls.key": "e23503f6b889698cbf4cf0f31bbce1ba86029dd444b2912999f5c8ebec24f171"
       },
-      "inputHash": "8aee75b28ea3b287ebb5477d221fb3871c880df49888d8933e0b5755d94e5e2c"
+      "inputHash": "4605d0ce6da2c9a7cef14dfdb7d2e150a847141d552e94d011870a8a5ca390ea"
     },
     "identity/machine/web2": {
       "files": {
@@ -48,7 +48,7 @@
     },
     "mesh/fingerprints/_shared": {
       "files": {},
-      "inputHash": "11da2cadb5d1e673c1d5cb3a351326b3cf6d253113460a4bb12a950ac18b394f"
+      "inputHash": "4769ebbbb89e608e9ec43bf5ed4740c17d138fd95152913713c6ecfd270ee346"
     },
     "user/gotosocial-restic-password/_shared": {
       "files": {
