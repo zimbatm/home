@@ -1,6 +1,8 @@
 # Nix
 result
 result-*
+/.direnv/
+/.flake-archive.json
 # Local secrets
 .envrc.local
 # mkdocs
