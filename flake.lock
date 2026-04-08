@@ -181,11 +181,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775653009,
-        "narHash": "sha256-wnppIKkL9BevFwr/94pbY0QGM8c8T6Qj+m5PNuA2XvQ=",
+        "lastModified": 1775654721,
+        "narHash": "sha256-HVYo+Wuw5Rz7+vPXjKrrQ3Nv66lTXcN1PpNV1Wwqsno=",
         "ref": "refs/heads/main",
-        "rev": "833705af96a00946b9b08d47b816d254ddee947d",
-        "revCount": 3224,
+        "rev": "f345dd3a772aca56edd4d6daa047b45e8f5e94b4",
+        "revCount": 3226,
         "type": "git",
         "url": "ssh://git@github.com/jonasc-ant/iets"
       },
@@ -217,13 +217,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1775655007,
-        "narHash": "sha256-veFcVYVimZFZntzdKeUqpZXFpJ3JsznfDIO0whc40Cs=",
-        "ref": "refs/heads/main",
-        "rev": "bef3ee40b8685748a2ecdb5c1b78ad3ad154d37f",
-        "revCount": 117,
-        "type": "git",
-        "url": "ssh://git@github.com/assise/kin"
+        "lastModified": 1775655391,
+        "narHash": "sha256-rSt+VVPMOqNL2h0spLcaLFngyAugRbrC8No56AuQYeU=",
+        "path": "/root/src/kin",
+        "type": "path"
       },
       "original": {
         "type": "git",
@@ -240,11 +237,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1775510693,
-        "narHash": "sha256-gZfJ07j/oOciDi8mF/V8QTm7YCeDcusNSMZzBFi8OUM=",
+        "lastModified": 1775653335,
+        "narHash": "sha256-qKK410TIdAtS/2kg0w4oR1TdMQfH3TxONbaAvK5hrkM=",
         "owner": "nix-community",
         "repo": "lanzaboote",
-        "rev": "3fe0ae8cb285e0ad101a9675f4190d455fb05e85",
+        "rev": "a7127cc13bebac85d0aabe908018ece29e39237b",
         "type": "github"
       },
       "original": {
@@ -503,11 +500,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775636079,
-        "narHash": "sha256-pc20NRoMdiar8oPQceQT47UUZMBTiMdUuWrYu2obUP0=",
+        "lastModified": 1775125835,
+        "narHash": "sha256-2qYcPgzFhnQWchHo0SlqLHrXpux5i6ay6UHA+v2iH4U=",
         "owner": "numtide",
         "repo": "treefmt-nix",
-        "rev": "790751ff7fd3801feeaf96d7dc416a8d581265ba",
+        "rev": "75925962939880974e3ab417879daffcba36c4a3",
         "type": "github"
       },
       "original": {
