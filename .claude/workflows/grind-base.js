@@ -158,7 +158,9 @@ Expected files: ${pick.touches.join(', ')}
 
 1. Read backlog/${file} + backlog/tried/ (don't repeat abandoned approaches)
 2. Implement in "$WT"
-3. \`${CONFIG.fastCheck}\`
+3. \`${CONFIG.fastCheck}\` — invoke via the Bash tool directly,
+   NOT wrapped in REPL (workflow subagents lack REPL; it gets denied
+   and the round is wasted)
 ${CONFIG.implGate ? CONFIG.implGate({ ...ctx, pick, slug }) : '4. Report worst_regression_pct: 0 (no perf gate configured)'}
 5. Commit. Phased/tracker items: edit in place, mark your row done;
    \`git rm backlog/${file}\` only on the LAST row. Single-phase: \`git rm\`
@@ -215,7 +217,8 @@ test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" || \\
   { echo "ABORT: stale _merge state" >&2; exit 1; }
 \`\`\`
 1. \`git merge --no-ff ${impl.branch}\`; resolve conflicts semantically
-2. \`${CONFIG.fastCheck}\` — must pass
+2. \`${CONFIG.fastCheck}\` — must pass. Invoke via the Bash tool
+   directly, NOT wrapped in REPL (workflow subagents lack REPL).
 3. ${g.needsGate
       ? `**Gate** — \`${g.cmd}\`
 ${g.instructions}
