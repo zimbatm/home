@@ -224,12 +224,14 @@ ${g.instructions}
    - >15%: ABANDON — \`git merge --abort\`, write backlog/tried/<slug>.md,
      restore the backlog item, remove worktree, report abandoned:true`
       : `**Gate** — fastCheck passed; no perf gate configured.`}
-4. Push, then verify it landed:
+4. Push, verify it landed, then fast-forward the main checkout:
    \`\`\`sh
    git push origin HEAD:main
    git fetch origin main
    git merge-base --is-ancestor HEAD origin/main || \\
      { echo "ABORT: push lost" >&2; exit 1; }
+   git -C "$(git worktree list --porcelain | sed -n '1s/^worktree //p')" \\
+     merge --ff-only origin/main || true
    \`\`\`
 5. Clean up: \`git worktree remove ${impl.worktree}\`, \`git branch -d ${impl.branch}\`
 `, {
