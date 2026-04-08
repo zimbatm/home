@@ -3,11 +3,7 @@
   imports = [
     ../terminal
     ./activitywatch.nix
-    # inputs.subportal.homeModules.subportal-desktop
   ];
-
-  # services.subportal-desktop.enable = true;
-  # services.subportal-desktop.relayUrl = "https://relay.ztm.io";
 
   programs.firefox.enable = true;
 
