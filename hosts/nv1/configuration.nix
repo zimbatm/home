@@ -16,7 +16,7 @@
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
     inputs.self.nixosModules.steam
-    inputs.iroh-nix.nixosModules.default
+    # inputs.iroh-nix.nixosModules.default
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
@@ -66,14 +66,14 @@
   };
 
   # iroh-nix P2P Nix artifact distribution
-  services.iroh-nix = {
-    enable = true;
-    package = inputs.iroh-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
-    network = "zimbatm";
-    peers = [
-      "9a10928c9589fe79e08323907b5dda6e0f3e2ceee5d29589976e480cb026e27d"
-    ];
-  };
+  # services.iroh-nix = {
+  #   enable = true;
+  #   package = inputs.iroh-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  #   network = "zimbatm";
+  #   peers = [
+  #     "9a10928c9589fe79e08323907b5dda6e0f3e2ceee5d29589976e480cb026e27d"
+  #   ];
+  # };
 
   # Auto-tune power management settings
   powerManagement.powertop.enable = true;
