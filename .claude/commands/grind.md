@@ -16,7 +16,7 @@ Meta phase reminds you to `kin deploy` if hosts/ or kin.nix changed.
 
 1. Check no grind running: `ls ../home-grind/_base/.git 2>/dev/null`
 2. `rm -f .grind-stop`
-3. Read `.claude/workflows/home-grind.js` and `../nix-skills/.claude/workflows/grind-base.js`
+3. Read `.claude/workflows/home-grind.js` and `.claude/workflows/grind-base.js`
 4. `Workflow({script: project + "\n" + base, args: ${ARGUMENTS:-{}}})`
 
 Args: `/grind` (infinite, 2 implementers) · `/grind {rounds:1}`
