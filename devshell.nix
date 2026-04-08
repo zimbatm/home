@@ -9,7 +9,6 @@ pkgs.mkShellNoCC {
     pkgs.age
     pkgs.hcloud
     pkgs.sbctl
-    pkgs.sops
     pkgs.ssh-to-age
     inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.formatter
   ];

@@ -34,8 +34,6 @@
       # inputs.nixpkgs.follows = "nixpkgs"; # error: postgres-language-server cannot be found in pkgs
       inputs.systems.follows = "systems";
     };
-    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
-    sops-nix.url = "github:Mic92/sops-nix";
     iroh-nix.inputs.nixpkgs.follows = "nixpkgs";
     iroh-nix.url = "github:zimbatm/iroh-nix/upload-client-oidc-auth";
     subportal.inputs.blueprint.follows = "blueprint";

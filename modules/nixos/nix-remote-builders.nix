@@ -1,31 +1,18 @@
-{ config, ... }:
+{ kin, ... }:
+let
+  key = kin.gen."user/nix-remote-builder-key".key;
+  builder = host: user: system: {
+    hostName = host; sshUser = user; sshKey = key;
+    protocol = "ssh-ng"; inherit system; maxJobs = 8;
+  };
+in
 {
   nix.distributedBuilds = true;
   nix.buildMachines = [
-    {
-      hostName = "mac01.numtide.com";
-      sshUser = "hetzner";
-      protocol = "ssh-ng";
-      sshKey = config.sops.secrets.nix-remote-builder-key.path;
-      system = "aarch64-darwin";
-      maxJobs = 8;
-    }
-    {
-      hostName = "mac01.numtide.com";
-      sshUser = "hetzner";
-      protocol = "ssh-ng";
-      sshKey = config.sops.secrets.nix-remote-builder-key.path;
-      system = "x86_64-darwin";
-      maxJobs = 8;
-    }
-    {
-      hostName = "bld3.numtide.com";
-      sshUser = "nix-remote-builder";
-      protocol = "ssh-ng";
-      sshKey = config.sops.secrets.nix-remote-builder-key.path;
-      system = "aarch64-linux";
-      maxJobs = 8;
-    }
+    (builder "mac01.numtide.com" "hetzner" "aarch64-darwin")
+    (builder "mac01.numtide.com" "hetzner" "x86_64-darwin")
+    (builder "bld3.numtide.com" "nix-remote-builder" "aarch64-linux")
   ];
-  sops.secrets.nix-remote-builder-key = { };
+  # Pubkey at gen/user/nix-remote-builder-key/_shared/pubkey — install on the
+  # numtide builders' authorized_keys (key was regenerated; old sops one is gone).
 }

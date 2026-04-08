@@ -17,15 +17,12 @@
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
     inputs.self.nixosModules.nix-remote-builders
-    inputs.sops-nix.nixosModules.default
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.allowInsecurePredicate = pkg: lib.getName pkg == "broadcom-sta";
-
-  sops.defaultSopsFile = ./secrets.yaml;
 
   boot.initrd.systemd.enable = true;
 

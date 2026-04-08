@@ -19,6 +19,7 @@ in
     nv1 = { host = "nv1.zt"; tags = [ "desktop" ]; profile = "none"; };
     p1 = { host = "p1.local"; tags = [ "laptop" ]; profile = "none"; };
     web2 = { host = "89.167.46.118"; tags = [ "server" ]; profile = "hetzner-cloud"; };
+    relay = { host = "5.161.211.65"; tags = [ "server" ]; profile = "hetzner-cloud"; };
   };
 
   services.identity = { domain = "ztm"; hosts = [ "all" ]; };
@@ -27,7 +28,13 @@ in
   gen.nix-remote-builder-key = {
     for = [ "builder" ];
     perMachine = false;
+    inputs = [ "openssh" ];
+    script = ''
+      ssh-keygen -t ed25519 -N "" -C "kin-remote-builder" -f $out/key
+      mv $out/key.pub $out/pubkey
+    '';
     files.key.secret = true;
+    files.pubkey.secret = false;
   };
   gen.gotosocial-restic-password = {
     for = [ "server" ];
