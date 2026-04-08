@@ -12,7 +12,7 @@ in
     uid = 1000;
     groups = [ "audio" "docker" "input" "libvirtd" "networkmanager" "video" ];
   };
-  users.migration-test = { admin = true; };
+  users.migration-test = { admin = true; uid = 1001; };
 
   machines = {
     no1 = { host = "no1.zt"; tags = [ "desktop" "builder" ]; profile = "none"; };
