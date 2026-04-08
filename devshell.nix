@@ -5,6 +5,7 @@ pkgs.buildEnv {
   name = "home-devshell";
   paths = [
     inputs.kin.packages.${pkgs.stdenv.hostPlatform.system}.kin
+    inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.iets
     pkgs.age
     pkgs.age-plugin-tpm
     pkgs.hcloud
