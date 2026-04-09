@@ -341,7 +341,11 @@ rm'd and restored ≥2 times. Break smaller, or move to backlog/tried/ with
 **Contention misses** — \`git log --merges -5 --stat\`. Same files keep
 conflicting → propose tightening triage rules in backlog/meta-contention.md.
 ${CONFIG.metaExtra ? CONFIG.metaExtra(ctx) : ''}
-**Stop signal** — if \`.grind-stop\` exists, remove it and report
+**Stop signal** — if \`.grind-stop\` exists: first check
+\`git ls-files --error-unmatch .grind-stop 2>/dev/null\`. If tracked, it's
+a commit artifact (restored by reset, not a real signal) — log
+"ignoring tracked .grind-stop" in fixes_applied and continue with
+stop_requested:false. If untracked, remove it and report
 stop_requested:true.
 
 Fix directly what you can. File backlog/meta-<slug>.md for human-input
