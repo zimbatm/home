@@ -10,8 +10,6 @@ Jonas's personal machines, deployed with [`../kin`](../kin) over the [`../maille
 | `web2` | 89.167.46.118 | server | hetzner-cloud; runs gotosocial |
 | `relay1` | 95.216.188.155 | server, relay | hetzner-cloud; the maille relay |
 
-`no1` and `p1` have host configs but aren't kin-managed yet.
-
 All kin-managed machines are on the `ztm` identity domain and the maille mesh.
 
 ## Layout

@@ -66,9 +66,9 @@ branches:
         # Required. The list of status checks to require in order to merge into this branch
         contexts:
           - "Evaluate flake.nix"
-          - "nixosConfig no1"
-          - "nixosConfig silent1"
-          - "nixosConfig x1"
+          - "nixosConfig nv1"
+          - "nixosConfig relay1"
+          - "nixosConfig web2"
       # Required. Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators. Set to null to disable.
       enforce_admins: null
       # Prevent merge commits from being pushed to matching branches
