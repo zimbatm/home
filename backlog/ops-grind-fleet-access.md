@@ -39,3 +39,13 @@ out of grind's remit.
 
 **Falsifies:** once landed, `kin status` from grind should show real
 toplevel hashes for relay1/web2 instead of `?  —`.
+**Re-check (drift-check 2026-04-09 @ e10abeb, homespace):** still
+blocked — relay1/web2 `Permission denied (publickey)`, nv1
+`Network is unreachable` (mesh-only). The homespace grind container
+offers a *different* key than the kin-infra one above:
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGYeUGfaTosjlkPT/DVb3nuvPcw1ivEtIx5bcxIyqpd/ coder@homespace
+```
+Enroll **both** (or whichever env runs drift going forward) — adding
+only the kin-infra key won't unblock the homespace runner. nv1 desired
+toplevel at this HEAD: drv `g1allrvy…-nixos-system-nv1-26.05.20260405`.
