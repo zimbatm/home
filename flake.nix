@@ -49,6 +49,7 @@
         config = import ./kin.nix;
         nixpkgsConfig.allowUnfree = true;
         specialArgs = { inherit inputs; flake = inputs.self; };
+        extraServices = { attest = import ./services/attest.nix; };
       };
     in
     {
