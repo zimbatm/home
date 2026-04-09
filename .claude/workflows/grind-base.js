@@ -71,6 +71,14 @@ git add <your files> && git commit -m "..."
 git pull --rebase origin main  # specialist and merge queue both push; rebase past any race
 git push origin HEAD:main
 \`\`\`
+
+## Epilogue — clean-tree guard (REQUIRED)
+
+After push, \`git status --porcelain\` MUST be empty. Non-empty = your
+output didn't land on main (r5 harvester: runs/ + 3 backlog files left
+untracked, ✓ was a lie). Report \`clean_tree:false\` and list each
+porcelain line in \`uncommitted\` — the round summary renders ✗ not ✓
+and META can salvage. Report \`clean_tree:true\` only on empty output.
 `
 
 while (round < MAX_ROUNDS && dryStreak < DRY_LIMIT) {
@@ -276,11 +284,20 @@ ${g.instructions}
 
   const specName = CONFIG.forceSpecialist?.(triage)
     ?? SPECIALIST_NAMES[(round - 1) % SPECIALIST_NAMES.length]
+  const specSchema = {
+    type: 'object',
+    properties: {
+      clean_tree: { type: 'boolean' },
+      uncommitted: { type: 'array', items: { type: 'string' } },
+      notes: { type: 'string' },
+    },
+    required: ['clean_tree'],
+  }
   const specTask = () => agent(CONFIG.specialists[specName](ctx),
-    { label: `${specName}-r${round}`, phase: 'Work' })
+    { label: `${specName}-r${round}`, phase: 'Work', schema: specSchema })
   const runArch = CONFIG.architect && round % ARCH_CADENCE === 0
   const archTask = () => agent(CONFIG.architect(ctx),
-    { label: `architect-r${round}`, phase: 'Work' })
+    { label: `architect-r${round}`, phase: 'Work', schema: specSchema })
 
   const [specOut, archOut] = await parallel([
     specTask,
@@ -289,7 +306,9 @@ ${g.instructions}
   ])
   await mergeChain
 
-  const ok = x => x ? '✓' : '—'
+  const ok = x => !x ? '—'
+    : x.clean_tree ? '✓'
+    : `✗ uncommitted:[${(x.uncommitted ?? []).slice(0, 5).join(' ')}]`
   log(`${specName} ${ok(specOut)}${runArch ? ` architect ${ok(archOut)}` : ''} · Merged ${mergedThisRound}/${picks.length}, Abandoned ${abandonedThisRound}`)
 
   if (mergedThisRound > 0 && CONFIG.benchFinal) {
