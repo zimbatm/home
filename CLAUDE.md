@@ -31,7 +31,7 @@ Don't open GitHub issues; don't keep local notes. The sibling's own `/grind` tri
 - `hosts/<name>/configuration.nix` — per-host NixOS (hardware, machine-local quirks). `machines/` is a symlink to `hosts/`.
 - `modules/nixos/*.nix`, `modules/home/*` — shared modules. Listed explicitly in `flake.nix` (no auto-discovery, ADR-0006).
 - `gen/` — **don't hand-edit.** `kin gen` rewrites it from `kin.nix`. If `gen/` is stale, run `kin gen`, don't patch.
-- `flake-shim.nix` — the non-flake entrypoint for `iets eval`. Tracks `flake.lock` via `fetchTarball`.
+- `default.nix` — the non-flake entrypoint for `iets eval`. Bootstraps kin's upstreamed flake-shim from `flake.lock`.
 
 ## /grind
 
