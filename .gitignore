@@ -9,3 +9,4 @@ result-*
 /site
 /.cache
 keys/**/*.key
+.grind-stop
