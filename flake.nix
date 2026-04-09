@@ -53,7 +53,7 @@
     in
     {
       inherit nixosModules homeModules packages;
-      inherit (kinOut) nixosConfigurations kinManifest kinStatus;
+      inherit (kinOut) nixosConfigurations kinManifest;
 
       devShells = forAllSystems (system: {
         default = import ./devshell.nix { pkgs = pkgsFor system; inherit inputs; };
