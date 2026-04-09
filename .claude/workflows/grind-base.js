@@ -30,7 +30,9 @@
 // is how security-research files `sec-*` into the audited repo, mutator files
 // nixpkgs patches, curator files UX items into kin/iets, etc. Before pushing
 // into a sibling, run that sibling's fast-check (see CONFIG.siblingCheck or
-// the per-project guard).
+// the per-project guard). After pushing, verify origin/main has the file —
+// grind reads origin/main, not the user tree; triage step 0 sweeps for
+// orphans left untracked/unpushed there but the writer should not rely on it.
 
 const MAX_ROUNDS = args?.rounds ?? Infinity
 const IMPLEMENTERS = args?.implementers ?? CONFIG.implementers ?? 6
@@ -82,8 +84,21 @@ while (round < MAX_ROUNDS && dryStreak < DRY_LIMIT) {
 Triage backlog/ for the ${CONFIG.name} project — pick up to ${IMPLEMENTERS} items
 for parallel implementation.
 ${BASE_SETUP}
-0. **Salvage orphaned work** — any grind/* worktree is from an interrupted
-   prior session. For each: \`git rev-list --count main..<branch>\`
+0. **Salvage orphaned work** — two sources:
+
+   *User-tree backlog orphans* — cross-repo dispatch writes to the user's
+   checkout, which grind never reads. From inside \`_base\`:
+   \`\`\`sh
+   UT="\$(git worktree list --porcelain | sed -n '1s/^worktree //p')"
+   git -C "\$UT" status --porcelain -- 'backlog/*.md'          # untracked
+   git -C "\$UT" log --name-only origin/main..HEAD -- backlog/ # unpushed
+   \`\`\`
+   For each \`backlog/<f>.md\` surfaced that does NOT already exist in
+   \`_base/backlog/\`: \`cp "\$UT/backlog/<f>.md" backlog/\`, commit, and
+   \`git push origin HEAD:main\` (recovery). Log each as a warning in your
+   report. Idempotent — skip files origin already has.
+
+   *Interrupted grind/* worktrees* — for each: \`git rev-list --count main..<branch>\`
    - **0 commits** → remove worktree + branch
    - **Has commits, backlog file deleted** → completed; merge it
    - **Has commits, backlog file present** → partial work; KEEP worktree,
