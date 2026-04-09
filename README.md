@@ -24,7 +24,7 @@ modules/nixos/       # shared NixOS modules (common, desktop, server, …)
 modules/home/        # home-manager modules
 gen/                 # generated: identity certs, mesh, manifest.lock — `kin gen` rewrites this
 keys/                # age recipients for machines and users
-flake-shim.nix       # non-flake entrypoint for `iets eval` (A3)
+default.nix          # non-flake entrypoint for `iets eval` (A3) — bootstraps kin's flake-shim from flake.lock
 ```
 
 The flake is explicit (no auto-discovery) per ADR-0006 — every module and host is listed in `flake.nix`.
