@@ -23,6 +23,7 @@ in
 
   services.identity = { domain = "ztm"; hosts = [ "all" ]; };
   services.mesh.member = [ "all" ];
+  services.mesh.relay = [ "relay1" ];
 
   gen.gotosocial-restic-password = {
     for = [ "server" ];
