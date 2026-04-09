@@ -15,6 +15,16 @@ non-relay item in assise next.md A2-remaining.
 
 **Blockers:** none. Human-in-the-loop (needs the actual Hetzner creds).
 
+**Escalation (drift-check 2026-04-09 @ ad09bae):** since the kin bump
+to ≥0d5df8f (landed via a12d1ce, now at b643e9c), the missing
+`gen/user/gotosocial-storagebox-credentials/_shared/credentials.age`
+hard-fails eval for **relay1 and web2** — `kin status` and
+`nix eval .#nixosConfigurations.{relay1,web2}...toplevel` both error
+out. Gate is RED on main for 2/3 hosts; only nv1 evals (drv
+`09jlk4zk…`). Until this closes, grind specialists can't pass the
+all-hosts-eval gate and drift-checker can't compute desired state for
+the two servers.
+
 **Falsifies:** "external generators via `kin set` work end-to-end" — if
 the gen schema needs an `external = true` marker that isn't there,
 that's a tiny kin fix first.
