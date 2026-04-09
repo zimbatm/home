@@ -98,7 +98,12 @@ ${BASE_SETUP}
    \`git push origin HEAD:main\` (recovery). Log each as a warning in your
    report. Idempotent — skip files origin already has.
 
-   *Interrupted grind/* worktrees* — for each: \`git rev-list --count main..<branch>\`
+   *Interrupted grind/* worktrees* — for each, FIRST check for untracked WIP:
+   \`git -C <wt> status --porcelain | grep -q '^??'\` → if true, KEEP worktree
+   regardless of commit count, log "orphan with WIP — salvage manually" as a
+   warning in your report, and skip to the next worktree (do NOT remove —
+   uncommitted work would be lost). Otherwise
+   \`git rev-list --count main..<branch>\`:
    - **0 commits** → remove worktree + branch
    - **Has commits, backlog file deleted** → completed; merge it
    - **Has commits, backlog file present** → partial work; KEEP worktree,
@@ -305,7 +310,10 @@ Merged: ${mergedThisRound}/${picks.length}, Abandoned: ${abandonedThisRound}
 ## Checks
 
 **Leftover worktrees** — any grind/* worktree that survived the merge queue:
-merge if commits ahead, remove if empty.
+merge if commits ahead. Remove ONLY if no commits ahead AND
+\`git -C <wt> status --porcelain\` is clean. If untracked files are present,
+LEAVE the worktree and report it in user_attention as "orphan with WIP —
+salvage manually" — do NOT remove (uncommitted work would be lost).
 
 **Chronic deferrals** — \`git log --all --oneline -- backlog/\` for items
 rm'd and restored ≥2 times. Break smaller, or move to backlog/tried/ with
