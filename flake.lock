@@ -141,6 +141,27 @@
         "url": "ssh://git@github.com/jonasc-ant/iets"
       }
     },
+    "iets_2": {
+      "inputs": {
+        "nixpkgs": [
+          "kin",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1775763907,
+        "narHash": "sha256-RAOqDnWHLYJrA5BmNz+D52NBqyOQmJtVPeO5sQpuYNo=",
+        "ref": "refs/heads/main",
+        "rev": "075916320b99b867fc1af91e6bd96dcfcdae78ea",
+        "revCount": 3642,
+        "type": "git",
+        "url": "ssh://git@github.com/jonasc-ant/iets"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/jonasc-ant/iets"
+      }
+    },
     "import-tree": {
       "locked": {
         "lastModified": 1763762820,
@@ -158,17 +179,18 @@
     },
     "kin": {
       "inputs": {
+        "iets": "iets_2",
         "maille": "maille",
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1775765665,
-        "narHash": "sha256-CqMdtL3TLTBZA8b7PVCbsivNRFoIFall3rpC6b2v5/8=",
+        "lastModified": 1775767108,
+        "narHash": "sha256-NtzQUmuNYhbN9+UwR9btNr5TzxdZKlcBw+VmWwxu9XM=",
         "ref": "refs/heads/main",
-        "rev": "b643e9cacaf666cd8c3ff389c342beacf3d92e2e",
-        "revCount": 614,
+        "rev": "88daf880b836ca7268a692f73034a07d420e7c70",
+        "revCount": 636,
         "type": "git",
         "url": "ssh://git@github.com/assise/kin"
       },
