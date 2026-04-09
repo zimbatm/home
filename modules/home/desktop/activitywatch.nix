@@ -1,4 +1,4 @@
-{ pkgs, inputs, ... }:
+{ pkgs, ... }:
 {
   # ActivityWatch time tracker
   services.activitywatch = {
