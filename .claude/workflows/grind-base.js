@@ -169,6 +169,15 @@ Prefer: regressions > bugs > correctness > arch > features.
   })
 
   const picks = triage?.picks ?? []
+  {
+    const seen = {}
+    for (const p of picks) {
+      p.file = p.file.replace(/^.*?(backlog\/)/, '$1')
+      const base = p.subslug ?? p.file.replace(/^backlog\//, '').replace(/\.md$/, '')
+      seen[base] = (seen[base] ?? 0) + 1
+      p.slug = seen[base] > 1 ? `${base}-p${seen[base]}` : base
+    }
+  }
   const backlogBefore = triage?.backlog_count ?? 0
   if (picks.length === 0) log('Backlog empty or all in-flight — specialist-only round')
   else log(`Picked ${picks.length} items for implementers`)
@@ -183,7 +192,7 @@ Prefer: regressions > bugs > correctness > arch > features.
       return Promise.resolve(null)
     }
     const file = pick.file.replace(/^.*\//, '')
-    const slug = file.replace(/\.md$/, '')
+    const slug = pick.slug
     return agent(`
 You are an IMPLEMENTER for the ${CONFIG.name} project. Item: backlog/${file}.
 
@@ -395,6 +404,13 @@ rm'd and restored ≥2 times. Break smaller, or move to backlog/tried/ with
 **Contention misses** — \`git log --merges -5 --stat\`. Same files keep
 conflicting → propose tightening triage rules in backlog/meta-contention.md.
 ${CONFIG.metaExtra ? CONFIG.metaExtra(ctx) : ''}
+**Token cost** — \`.claude/workflows/token-cost.sh --by-role\` for the
+per-role table (paste into your commit message so the trend is in git);
+then \`--notes\` to attach per-merge cost as \`refs/notes/tokens\`; then
+\`git push origin refs/notes/tokens\`. Act on flags: WIDE (med ≥2× impl_med)
+→ file backlog/meta-split-<role>.md; DRY (≥3 runs, <0.5 filed/run) →
+file backlog/meta-retire-<role>.md or note expected (refactor/direct-commit roles).
+
 **Stop signal** — if \`.grind-stop\` exists: first check
 \`git ls-files --error-unmatch .grind-stop 2>/dev/null\`. If tracked, it's
 a commit artifact (restored by reset, not a real signal) — log
