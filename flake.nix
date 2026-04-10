@@ -20,6 +20,7 @@
       pkgsFor = system: import inputs.nixpkgs { inherit system; config.allowUnfree = true; overlays = [ ]; };
 
       # Explicit — no auto-discovery. ADR-0006: locality over abstraction.
+      # Canonical inventory of every modules/ file (entrypoints + internals) — intentionally exhaustive.
       nixosModules = {
         common = ./modules/nixos/common.nix;
         desktop = ./modules/nixos/desktop.nix;
