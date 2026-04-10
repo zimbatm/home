@@ -270,6 +270,7 @@ Return each line as one entry of \`files\`. Nothing else.`, {
       const isBump = /^backlog\/bump-/.test(impl.pick?.file ?? '')
       const deny = isBump ? MERGE_DENY : [...MERGE_DENY, /(^|\/)flake\.lock$/]
       const bad = actualFiles.find(f => deny.some(re => re.test(f)))
+      const pickFile = /^backlog\/[\w.-]+\.md$/.test(impl.pick?.file ?? '') ? impl.pick.file : null
       if (bad) {
         log(`SKIP merge: scope violation ${bad} on ${impl.branch}`)
         abandonedThisRound++; done()
@@ -277,10 +278,14 @@ Return each line as one entry of \`files\`. Nothing else.`, {
 Abandon ${impl.branch}: scope violation (touched ${bad}). In _base:
 \`\`\`sh
 git worktree remove -f ${impl.worktree} 2>/dev/null; git branch -D ${impl.branch} 2>/dev/null
+${pickFile ? `mkdir -p backlog/needs-human
+git checkout origin/main -- ${pickFile} 2>/dev/null
+git mv ${pickFile} backlog/needs-human/ 2>/dev/null` : '# pick.file failed re-validation; skip reroute'}
 \`\`\`
 Write \`backlog/tried/${impl.branch.replace(/.*\//, '')}.md\` recording: scope violation,
-file ${bad}, denylist hit. Restore the original \`${impl.pick?.file ?? 'backlog item'}\`
-from origin/main if it was deleted. Commit + push to main.`, {
+file ${bad}, denylist hit, item rerouted to \`backlog/needs-human/\` (triage skips
+subdirs; human reviews and either applies the denylisted change directly,
+re-scopes + moves back, or deletes). Commit + push to main.`, {
           label: `abandon-${impl.branch.replace(/.*\//, '')}`, phase: 'Merge',
         }).then(() => null)
       }
@@ -400,6 +405,10 @@ salvage manually" — do NOT remove (uncommitted work would be lost).
 **Chronic deferrals** — \`git log --all --oneline -- backlog/\` for items
 rm'd and restored ≥2 times. Break smaller, or move to backlog/tried/ with
 "needs-design-decision".
+
+**needs-human/** — \`ls backlog/needs-human/*.md 2>/dev/null | wc -l\`.
+Report the count + filenames in user_attention if >0. These are
+denylist-rerouted items waiting on a human to apply, re-scope, or delete.
 
 **Contention misses** — \`git log --merges -5 --stat\`. Same files keep
 conflicting → propose tightening triage rules in backlog/meta-contention.md.
