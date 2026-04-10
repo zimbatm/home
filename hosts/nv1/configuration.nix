@@ -50,9 +50,12 @@
 
   nix.settings.trusted-users = [ "zimbatm" ];
 
-  # sudo via YubiKey touch (FIDO2). Enroll: pamu2fcfg > ~/.config/Yubico/u2f_keys
+  # sudo/login/unlock via YubiKey touch (FIDO2). Enroll: pamu2fcfg > ~/.config/Yubico/u2f_keys
   security.pam.u2f = { enable = true; settings.cue = true; };
   security.pam.services.sudo.u2fAuth = true;
+  security.pam.services.gdm-password.u2fAuth = true;
+  security.pam.services.login.u2fAuth = true;
+  security.pam.services.polkit-1.u2fAuth = true;
 
   time.timeZone = "Europe/Zurich";
 
