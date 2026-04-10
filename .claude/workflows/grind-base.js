@@ -49,6 +49,11 @@ let allCommits = []
 const BASE_SETUP = `
 ## Setup — work in the grind base worktree, not the user's tree
 
+Invoke shell via the **Bash tool directly**, never inside REPL — workflow
+subagents lack REPL; the call gets denied and the round dies. For long
+commands (>2min): \`run_in_background: true\` + poll with separate Bash
+calls so the runtime's 180s no-progress watchdog sees activity.
+
 \`\`\`sh
 BASE="${BASE}"
 git fetch origin main
