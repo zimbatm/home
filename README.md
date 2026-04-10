@@ -30,8 +30,8 @@ The flake is explicit (no auto-discovery) per ADR-0006 — every module and host
 ## Deploy
 
 ```sh
-python3 ../kin/cli/kin.py gen          # regenerate gen/ from kin.nix
-python3 ../kin/cli/kin.py deploy <machine>
+kin gen          # regenerate gen/ from kin.nix
+kin deploy <machine>
 ```
 
 **Deploy is human-gated.** These are real machines (one's a desktop). The `/grind` loop and CI commit changes but never apply them — `kin deploy` is run by a person after reviewing the diff and confirming SSH access stays intact.
