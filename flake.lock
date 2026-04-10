@@ -149,11 +149,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775763907,
-        "narHash": "sha256-RAOqDnWHLYJrA5BmNz+D52NBqyOQmJtVPeO5sQpuYNo=",
+        "lastModified": 1775836899,
+        "narHash": "sha256-lD7tdDoJhNwmkgsPmeiPhu4BhGlxWncoGli5nE+Wwg8=",
         "ref": "refs/heads/main",
-        "rev": "075916320b99b867fc1af91e6bd96dcfcdae78ea",
-        "revCount": 3642,
+        "rev": "28809de7096da2e0916d6896173d7b67a6731f1e",
+        "revCount": 3869,
         "type": "git",
         "url": "ssh://git@github.com/jonasc-ant/iets"
       },
@@ -186,11 +186,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775839034,
-        "narHash": "sha256-Jxii0VIZhwH3ke5seK3F5FNWAU2DEqSUFP/pnUVcV0k=",
+        "lastModified": 1775840592,
+        "narHash": "sha256-Nh2OWhYlnop+fzZkrRlk+l5dbj83b/w/5CeE5DzJiQ4=",
         "ref": "refs/heads/main",
-        "rev": "93259e04cd1ca52415b05c02c7c081169e58b7db",
-        "revCount": 931,
+        "rev": "4be4c1641524914bf8e1cc8cc6e02aacafa175b0",
+        "revCount": 944,
         "type": "git",
         "url": "ssh://git@github.com/assise/kin"
       },
