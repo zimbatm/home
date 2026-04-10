@@ -16,7 +16,7 @@ Meta phase reminds you to `kin deploy` if hosts/ or kin.nix changed.
 
 1. Check `ls ../home-grind/_base/.git 2>/dev/null` — if it exists, that may be stale from a killed session (the workflow will sync it). Only STOP if you see another /grind Workflow task actively running for this repo.
 2. `rm -f .grind-stop`
-3. Read `.claude/workflows/home-grind.js` and `.claude/workflows/grind-base.js`
+3. Read `.claude/grind.config.js` and `.claude/workflows/grind-base.js`
 4. `Workflow({script: project + "\n" + base, args: ${ARGUMENTS:-{}}})`
 
 Args: `/grind` (infinite, 2 implementers) · `/grind {rounds:1}`
