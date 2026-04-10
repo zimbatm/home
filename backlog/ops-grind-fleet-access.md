@@ -66,3 +66,13 @@ observed keys in `users.claude.sshKeys`. Desired toplevels at this
 HEAD (all 3 hosts eval clean): nv1 drv `1hs9dndp…`, relay1 drv
 `m9knhz82…`, web2 drv `k31jzxp5…` (`nixos-system-*-26.05.20260405`).
 flake.lock: all direct inputs ≤7d old, no bump needed.
+
+**Re-check (drift-check 2026-04-10 @ a8f859b):** unchanged — relay1/
+web2 `Permission denied (publickey)` (claude@ and root@), nv1 `Network
+is unreachable`. Same `~/.ssh/kin_ed25519` key as prior re-check
+(`…C1E6 claude@kin-infra`), so the key has stabilised — enroll *that
+one* in `users.claude.sshKeys` and deploy relay1+web2 to unblock.
+Desired toplevels at this HEAD (all 3 eval clean, `26.05.20260409.
+4c1018d`): nv1 drv `d5ac6l2z…`, relay1 drv `v1l4wql0…`, web2 drv
+`2fbhhfgr…`. flake.lock: all direct inputs ≤7d (oldest nixvim 6d), no
+bump-* filed.
