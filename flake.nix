@@ -37,6 +37,7 @@
       };
       packages = forAllSystems (system:
         let pkgs = pkgsFor system; call = p: pkgs.callPackage p { inherit inputs system; }; in {
+          inherit (kinOut.packages.${system}) devshell;
           core = call ./packages/core;
           myvim = call ./packages/myvim;
           nvim = call ./packages/nvim;
@@ -50,6 +51,7 @@
         nixpkgsConfig.allowUnfree = true;
         specialArgs = { inherit inputs; flake = inputs.self; };
         extraServices = { attest = import ./services/attest.nix; };
+        devShell.systems = [ "x86_64-linux" "aarch64-linux" ];
         devShell.extraPackages = pkgs: [
           pkgs.age-plugin-tpm
           pkgs.hcloud
