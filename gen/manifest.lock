@@ -1,60 +1,58 @@
 {
   "generators": {
+    "_fleet/_shared": {
+      "files": {},
+      "inputHash": "e21d3c1859392cf92f6a6cc8e943f14b50037b1796498d0b36a9b2766198358b"
+    },
     "identity/ca/_shared": {
       "files": {
         "ssh-ca": "e7a0df763bb51cf55a257f058cc9c4c87abcd092d08a6260903296a91fd06e44",
         "tls-ca.key": "e7a0df763bb51cf55a257f058cc9c4c87abcd092d08a6260903296a91fd06e44"
       },
-      "inputHash": "0eb2414123f84b025dc319aa41d53bbeeb20e7593b926ffd97b6b40d95705d40"
+      "inputHash": "f6f4665e4db62d20b98166bfd1093964f8cdcb62c6a5a9cc22a5dafb6d78297b"
     },
     "identity/machine/nv1": {
       "files": {
         "ssh-host": "424358aef321e5cbf3a7d304ad1e20374307759d7ed5a8087d46ca011e514eb4",
         "tls.key": "424358aef321e5cbf3a7d304ad1e20374307759d7ed5a8087d46ca011e514eb4"
       },
-      "inputHash": "12641058394bdf4f5d938acc78b344d7426386e3aa4b7a04e1151934d1780645"
+      "inputHash": "75783f5d6a89494f3f3c391c9377c6eca0fc1e62ecbf926beaf0e9a7d05ecbd8"
     },
     "identity/machine/relay1": {
       "files": {
         "ssh-host": "f75590261eaefbf628f4f263e680645b5300a8d0ba11917bc78092d6ec3e22d0",
         "tls.key": "f75590261eaefbf628f4f263e680645b5300a8d0ba11917bc78092d6ec3e22d0"
       },
-      "inputHash": "4605d0ce6da2c9a7cef14dfdb7d2e150a847141d552e94d011870a8a5ca390ea"
+      "inputHash": "4da0dd780b2cc05f740cc12568dced40d14e4f804f01091307f518c7420c2a20"
     },
     "identity/machine/web2": {
       "files": {
         "ssh-host": "edb4d8534e895a55bdcfe07664c40e3e7dd56b7b17452070e5ce9e34191f7f13",
         "tls.key": "edb4d8534e895a55bdcfe07664c40e3e7dd56b7b17452070e5ce9e34191f7f13"
       },
-      "inputHash": "61c06eee8405b4c28b86d9e7f89d09895ab627ad6f3f81a8852d8f5da47a0b9f"
+      "inputHash": "10225a0d9c0a515e246ddf69255b1943c8eb5c8a14ce3e8e897d790b8b7a7ac1"
     },
     "identity/user-zimbatm/_shared": {
       "files": {},
-      "inputHash": "4c2fea86eb7fe456089cd791104ca2ec097ad7fc8b81edadf77f5f36fd2e35cd"
+      "inputHash": "327dcb25603cf9789fde51b2e07ae4ea9e85c638bf1cbf07f0f6e0f749387e78"
     },
     "mesh/fingerprints/_shared": {
       "files": {},
-      "inputHash": "0f85a67437c25fa6f3600879050f503dd79a1327948e85025db0dcd71ba5fd09"
-    },
-    "user/gotosocial-restic-password/_shared": {
-      "files": {
-        "password": "2e773aa68a2ad9a0365a62670ab48fd4fc1464c66dc86195dfce713f60c6e854"
-      },
-      "inputHash": "83df651df587d3ef05e30ae68d2b8e86fa99ee3cc628d2c090b8ade8c422ebf1"
+      "inputHash": "16f0940c3b45aac779a0bd013133f71cf2fd4367c1e7b8f1839a8268b4703b0b"
     },
     "users/password-migration-test/_shared": {
       "files": {
         "hash": "a3a284d92571e8c653db510920ca2830e97789d15450d4708e3c90b7317c12cd",
         "plain": "a3a284d92571e8c653db510920ca2830e97789d15450d4708e3c90b7317c12cd"
       },
-      "inputHash": "65978e2598bd2c24746a35512de80d79b2ffca7e4b985628796ed61b3e72840e"
+      "inputHash": "c0f5a6e6a677e3e97920f221f43affe3b49884fd44abe9346585415c48de9e1f"
     },
     "users/password-zimbatm/_shared": {
       "files": {
         "hash": "a3a284d92571e8c653db510920ca2830e97789d15450d4708e3c90b7317c12cd",
         "plain": "a3a284d92571e8c653db510920ca2830e97789d15450d4708e3c90b7317c12cd"
       },
-      "inputHash": "65978e2598bd2c24746a35512de80d79b2ffca7e4b985628796ed61b3e72840e"
+      "inputHash": "c0f5a6e6a677e3e97920f221f43affe3b49884fd44abe9346585415c48de9e1f"
     }
   }
 }
