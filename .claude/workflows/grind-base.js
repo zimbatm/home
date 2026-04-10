@@ -12,7 +12,7 @@
 //   archCadence:  5
 //   implementers: 6
 //   wtParent:     '../<name>-grind'                        — worktree parent dir
-//   treeGuard:    'scripts/grind/tree-guard.sh'            — optional; run in BASE_SETUP
+//   treeGuard:    shell                                    — appended after the always-on user-tree-dirty guard
 //   triageExtra:  (ctx)=>'project-specific triage rules'   — contention guards, regression checks
 //   implGate:     (ctx)=>'shell + instructions'            — per-implementer gate (perf, etc.)
 //   mergeGate:    (impl)=>{needsGate,cmd,instructions}     — per-merge gate logic
@@ -55,7 +55,10 @@ git fetch origin main
 git worktree add -f --detach "$BASE" origin/main 2>/dev/null || \\
   (cd "$BASE" && git reset --hard origin/main)
 cd "$BASE"
-${CONFIG.treeGuard ? `${CONFIG.treeGuard}  # main tree dirty → loud fail` : ''}
+USER_TREE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
+DIRTY="$(git -C "$USER_TREE" status --porcelain)"
+[[ -z "$DIRTY" ]] || { echo "tree-guard: user tree $USER_TREE has uncommitted changes:" >&2; echo "$DIRTY" | sed 's/^/  /' >&2; exit 1; }
+${CONFIG.treeGuard ?? ''}
 \`\`\`
 `
 
@@ -424,5 +427,21 @@ issues. Report current backlog_count.
   if (dryStreak > 0) log(`Dry round (${dryStreak}/${DRY_LIMIT})`)
 }
 
+const sync = await agent(`
+Sync the user's checkout to origin/main now that the grind has finished pushing.
+\`\`\`sh
+git fetch -q origin main
+USER_TREE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
+git -C "$USER_TREE" merge --ff-only origin/main 2>&1 || true
+echo "behind=$(git -C "$USER_TREE" rev-list --count HEAD..origin/main)"
+echo "ahead=$(git -C "$USER_TREE" rev-list --count origin/main..HEAD)"
+git -C "$USER_TREE" status --porcelain | head -5
+\`\`\`
+Report \`user_tree\`: "synced" if behind=0, else "N behind (dirty|ahead M)" with the reason ff-only refused.`, {
+  label: 'user-tree-sync', phase: 'Meta',
+  schema: { type: 'object', properties: { user_tree: { type: 'string' } }, required: ['user_tree'] },
+})
+log(`user-tree: ${sync?.user_tree ?? '?'}`)
+
 const stopped = dryStreak >= DRY_LIMIT ? 'dry-streak' : 'round-cap'
-return { rounds: round, commits: allCommits, stopped }
+return { rounds: round, commits: allCommits, stopped, user_tree: sync?.user_tree }
