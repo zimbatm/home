@@ -16,7 +16,7 @@
         "ssh-host": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63",
         "tls.key": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63"
       },
-      "inputHash": "75783f5d6a89494f3f3c391c9377c6eca0fc1e62ecbf926beaf0e9a7d05ecbd8"
+      "inputHash": "7e5fe662d81b6b30969953f9980c46a76d7d7afb4ca9d19cf9f1cbbd99996351"
     },
     "identity/machine/relay1": {
       "files": {
