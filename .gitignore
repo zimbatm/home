@@ -10,3 +10,4 @@ result-*
 /.cache
 keys/**/*.key
 .grind-stop
+.claude/workflows/.grind-assembled.js

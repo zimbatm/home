@@ -1,22 +1,9 @@
 # Grind drift-checker has no fleet access
 
-**Status (2026-04-10 @ 4fca942):** `users.claude` declared in kin.nix
-(ssh key `…C1E6 claude@kin-infra` = `~/.ssh/kin_ed25519` on grind
-runners). `kin gen` materialized password-claude + rekeyed. Gate GREEN.
-Remaining: deploy.
+**Status (2026-04-10, post-deploy):** RESOLVED for relay1/web2 —
+`ssh claude@{relay1,web2}` works (uid 1002, wheel); `kin status`
+returns real toplevels. nv1 remains mesh-only/unreachable from the
+container (acceptable — desktop, often off).
 
-**What's left (human):**
-1. `kin deploy nv1 relay1 web2` — applies the new authorized_key (and
-   the host-key rotation from `2a87efa`). After this, `kin status` from
-   the grind container shows real toplevel hashes for relay1/web2.
-2. nv1 (`fd0c:3964:8cda::…`) stays mesh-only and unreachable from the
-   grind container even after deploy. Acceptable (desktop, often off) —
-   or enroll the container as a maille member if nv1 drift matters.
-
-**Falsifies:** post-deploy, `ssh -i ~/.ssh/kin_ed25519
-claude@95.216.188.155 true` exits 0 from the grind container.
-
-**History:** earlier re-checks (2026-04-08…04-10) recorded three
-distinct keys observed across runners; `…C1E6` stabilised and is the
-one enrolled. ssh config on the runner has the Host block + HostName
-mappings.
+**Optional follow-up:** enroll the grind container as a maille member
+if nv1 drift starts mattering. Otherwise close this.
