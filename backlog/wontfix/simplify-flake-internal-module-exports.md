@@ -49,3 +49,14 @@ for h in nv1 web2 relay1; do nix build --dry-run .#nixosConfigurations.$h.config
 
 None — pure flake.nix edit, no `gen/` or deploy impact. Decide ADR-0006
 intent first (5min), then either drop the 5 lines or comment-and-wontfix.
+## Resolution (2026-04-10, wontfix)
+
+ADR-0006 intent is **canonical inventory**, not entrypoints-only.
+README.md:28 — "every module and host is listed in `flake.nix`" —
+and the attrset is exhaustive today (9/9 `modules/nixos/*.nix`,
+2/2 `modules/home/*`). Dropping the 5 internal exports would break
+that invariant and make the next reader `ls modules/` to discover
+what exists — exactly the locality loss ADR-0006 forbids.
+
+Kept all 11 exports. Added a one-line comment at the attrset
+(flake.nix:23) saying so, so future simplifier rounds skip.
