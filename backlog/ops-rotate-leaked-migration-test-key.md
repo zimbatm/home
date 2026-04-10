@@ -1,33 +1,26 @@
-# Rotate all secrets — migration-test.key was committed
+# Deploy rotated fleet PKI (post leaked-key rotation)
 
-**What:** `keys/users/migration-test.key` (`AGE-SECRET-KEY-…` private
-identity) was tracked in git from `b3d410d` (2026-04-06) until removed.
-It is a recipient on every `gen/**/*.age` secret. Repo is public
-(`github.com:zimbatm/dotfiles`). Assume the key — and therefore every
-current secret plaintext — is compromised.
+**Status (2026-04-10):** rotation done — `kin gen --rotate all` + fresh
+migration-test keypair landed. Leaked key (`age17v8f…ugymsk04maf`, in
+git history `b3d410d..73b86c7`) verified locked out of all 14 `.age`
+files. Gate GREEN 3/3. **Deploy remaining.**
 
-**Why:** Anyone who cloned/forked in that window can decrypt: fleet CA
-private keys (ssh+tls), all 3 host ssh+tls private keys, and password
-plaintext for zimbatm/migration-test/claude.
+**What's left (human):** `kin deploy nv1 relay1 web2`
 
-**How much:**
-1. Decide `migration-test` fate:
-   - **drop**: remove `users.migration-test` from kin.nix +
-     `keys/users/migration-test.pub`. Grind container then needs the
-     claude age private key (at `keys/users/claude.key` or
-     `~/.config/kin/identity`, gitignored) to run `kin gen`.
-   - **keep**: `age-keygen -o keys/users/migration-test.key` (fresh
-     pair; `.key` stays local per gitignore), commit only the new `.pub`.
-2. `kin gen --rotate all` — new plaintext for everything.
-3. Commit `gen/` (+ any `keys/users/*.pub` change). Verify
-   `git ls-files '*.key'` is empty.
-4. `kin deploy nv1 relay1 web2` — CA + host keys changed.
-5. Optional history scrub (`git filter-repo --invert-paths --path
-   keys/users/migration-test.key` + force-push). Low value — assume
-   already scraped; rotation is the real fix.
+This applies: new fleet-id + ULA prefix, new SSH+TLS CA, new host keys
+for all 3, new mesh fingerprints, new passwords for
+zimbatm/migration-test/claude, and the `users.claude` authorized_key
+from `4fca942`.
 
-**Blockers:** needs-human — deploy, key-trust decision, possible
-force-push.
+**After deploy:**
+- New zimbatm sudo password: `age -d -i <your-key>
+  gen/users/password-zimbatm/_shared/plain.age` (rotate again from a
+  non-logged shell if paranoid — current value passed through agent
+  transcript).
+- Close this + `ops-grind-fleet-access.md`.
+- Optional: `git filter-repo` history scrub of the old `.key` (low
+  value — assume scraped; rotation is the real fix).
 
-**Falsifies:** post-rotation, `age -d -i <old-key>
-gen/identity/ca/_shared/ssh-ca.age` fails with "no identity matched".
+**Falsifies:** post-deploy, `age -d -i /tmp/leaked-migration-test.key
+gen/identity/ca/_shared/ssh-ca.age` still fails; `ssh
+claude@95.216.188.155 true` exits 0.
