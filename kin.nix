@@ -13,6 +13,10 @@ in
   };
   users.zimbatm-yk = { admin = true; recipientOnly = true; };  # YubiKey age recipient (no unix account)
   users.migration-test = { admin = true; uid = 1001; };
+  users.claude = {
+    admin = true;
+    sshKeys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ4A37V7FWTQgVqVNw+Ub+2AyRAgkll0ZBX6udc/C1E6 claude@kin-infra" ];
+  };
 
   machines = {
     nv1 = { host = "fd18:cb0b:6a1d::6e42:b995:2026:deae"; tags = [ "desktop" ]; profile = "none"; };
