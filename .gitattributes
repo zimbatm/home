@@ -1,0 +1,6 @@
+gen/** linguist-generated
+*.age binary
+*.crt diff=x509
+*.fullchain diff=x509
+*.cert diff=sshcert
+gen/**/ssh-host.pub diff=sshkey
