@@ -20,3 +20,8 @@ manifest.lock hashes change, commit-only.
 
 ## Blockers
 Human review of gen/ diff (identity material).
+
+## Abandon note (r9)
+Tried r9; merge-gate denylist-rejected on flake.lock. `kin gen` itself
+needs no lockfile edit — run it standalone, review gen/ identity diff,
+commit. If a kin bump is wanted first, that's a separate bumper item.
