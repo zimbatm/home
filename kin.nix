@@ -8,7 +8,6 @@ in
   users.zimbatm = {
     admin = true;
     inherit sshKeys;
-    profile = "github:zimbatm/home#homeConfigurations.zimbatm";
     uid = 1000;
     groups = [ "audio" "docker" "input" "libvirtd" "networkmanager" "video" ];
   };
