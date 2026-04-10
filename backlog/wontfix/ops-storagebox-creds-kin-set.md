@@ -1,3 +1,5 @@
+> **Wontfix (2026-04-10):** storagebox u351392 no longer exists. Config removed; see backlog/ops-gotosocial-backup-target.md for the replacement story.
+
 # Provide storagebox creds via `kin set`
 
 **What:** Run `kin set gotosocial-storagebox-credentials` with the

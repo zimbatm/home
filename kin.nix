@@ -27,17 +27,4 @@ in
   # services.attest.on = [ "web2" ];  # needs-human: `kin gen` (zimbatm-yk
   # age-plugin-yubikey) before enabling — eval fails on web2 without
   # gen/attest/signing-key/key.age. See backlog/adopt-attest-second-builder.md.
-
-  gen.gotosocial-restic-password = {
-    for = [ "server" ];
-    perMachine = false;
-    script = ''head -c 32 /dev/urandom | base64 > $out/password'';
-    files.password.secret = true;
-  };
-  gen.gotosocial-storagebox-credentials = {
-    for = [ "server" ];
-    perMachine = false;
-    # CIFS credentials file format: "username=...\npassword=..."
-    files.credentials.secret = true;
-  };
 }
