@@ -243,7 +243,7 @@ Report: branch, worktree, commits, files touched, worst_regression_pct.
   // Serialized merge queue: promise chain is the mutex.
   let mergeChain = Promise.resolve()
   let mergedThisRound = 0, abandonedThisRound = 0
-  const MERGE_DENY = CONFIG.mergeDenylist ?? [/^\.claude\//, /^\.git/, /grind-base\.js$/]
+  const MERGE_DENY = CONFIG.mergeDenylist ?? [/^\.claude\/workflows\//, /^\.git\//, /grind-base\.js$/, /token-cost\.sh$/]
   const mergeOne = impl => {
     if (!/^grind\/[\w.-]+$/.test(impl.branch ?? '')) {
       log(`SKIP merge: unsafe branch ${JSON.stringify(impl.branch)}`)

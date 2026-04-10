@@ -11,4 +11,4 @@ result-*
 keys/**/*.key
 .grind-stop
 .claude/workflows/.grind-assembled.js
-.claude/workflows/_grind-*.js
+_grind-*.js
