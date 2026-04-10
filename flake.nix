@@ -51,12 +51,13 @@
         specialArgs = { inherit inputs; flake = inputs.self; };
         extraServices = { attest = import ./services/attest.nix; };
         devShell.extraPackages = pkgs: [
-          inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.iets
-          inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.formatter
           pkgs.age-plugin-tpm
           pkgs.hcloud
           pkgs.sbctl
           pkgs.ssh-to-age
+        ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+          inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.iets
+          inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.formatter
         ];
       };
     in
