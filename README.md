@@ -6,7 +6,7 @@ Jonas's personal machines, deployed with [`../kin`](../kin) over the [`../maille
 
 | machine | host | tags | notes |
 |---|---|---|---|
-| `nv1` | `fd18:cb0b:6a1d::…:deae` (mesh ULA) | desktop | NAT'd; reachable via maille only |
+| `nv1` | `fd0c:3964:8cda::…:deae` (mesh ULA) | desktop | NAT'd; reachable via maille only |
 | `web2` | 89.167.46.118 | server | hetzner-cloud; runs gotosocial |
 | `relay1` | 95.216.188.155 | server, relay | hetzner-cloud; the maille relay |
 

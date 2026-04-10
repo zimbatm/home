@@ -9,7 +9,7 @@ Remaining: deploy.
 1. `kin deploy nv1 relay1 web2` — applies the new authorized_key (and
    the host-key rotation from `2a87efa`). After this, `kin status` from
    the grind container shows real toplevel hashes for relay1/web2.
-2. nv1 (`fd18:cb0b:6a1d::…`) stays mesh-only and unreachable from the
+2. nv1 (`fd0c:3964:8cda::…`) stays mesh-only and unreachable from the
    grind container even after deploy. Acceptable (desktop, often off) —
    or enroll the container as a maille member if nv1 drift matters.
 
