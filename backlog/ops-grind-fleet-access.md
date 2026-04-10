@@ -49,3 +49,20 @@ ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGYeUGfaTosjlkPT/DVb3nuvPcw1ivEtIx5bcxIyqpd/
 Enroll **both** (or whichever env runs drift going forward) — adding
 only the kin-infra key won't unblock the homespace runner. nv1 desired
 toplevel at this HEAD: drv `g1allrvy…-nixos-system-nv1-26.05.20260405`.
+
+**Re-check (drift-check 2026-04-10 @ 8e60ab1):** still blocked —
+relay1/web2 `Permission denied (publickey)` (both `claude@` and
+`root@`), nv1 `Network is unreachable`. `~/.ssh/config` now has
+`Host nv1 relay1 web2 … User claude IdentityFile ~/.ssh/kin_ed25519`,
+so grind-side wiring is ready; only the fleet-side `users.claude`
+enroll (`ops-add-claude-deployer.md`) remains. **But** this container's
+`~/.ssh/kin_ed25519` is a *third* distinct key:
+```
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ4A37V7FWTQgVqVNw+Ub+2AyRAgkll0ZBX6udc/C1E6 claude@kin-infra
+```
+→ the parked branch's `keys/users/claude.pub` is likely already stale.
+Either pin one stable key across grind runners, or enroll all three
+observed keys in `users.claude.sshKeys`. Desired toplevels at this
+HEAD (all 3 hosts eval clean): nv1 drv `1hs9dndp…`, relay1 drv
+`m9knhz82…`, web2 drv `k31jzxp5…` (`nixos-system-*-26.05.20260405`).
+flake.lock: all direct inputs ≤7d old, no bump needed.
