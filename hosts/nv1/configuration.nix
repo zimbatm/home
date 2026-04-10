@@ -39,6 +39,7 @@
     pkgs.sbctl
 
     pkgs.perf
+    pkgs.pam_u2f  # provides pamu2fcfg for enrolling the YubiKey
   ];
 
   # Debugging tools
@@ -48,6 +49,10 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   nix.settings.trusted-users = [ "zimbatm" ];
+
+  # sudo via YubiKey touch (FIDO2). Enroll: pamu2fcfg > ~/.config/Yubico/u2f_keys
+  security.pam.u2f = { enable = true; settings.cue = true; };
+  security.pam.services.sudo.u2fAuth = true;
 
   time.timeZone = "Europe/Zurich";
 
