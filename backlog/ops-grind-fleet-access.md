@@ -76,3 +76,14 @@ Desired toplevels at this HEAD (all 3 eval clean, `26.05.20260409.
 4c1018d`): nv1 drv `d5ac6l2z…`, relay1 drv `v1l4wql0…`, web2 drv
 `2fbhhfgr…`. flake.lock: all direct inputs ≤7d (oldest nixvim 6d), no
 bump-* filed.
+
+**Re-check (drift-check 2026-04-10 @ 2290480):** still blocked. relay1/
+web2 `Permission denied (publickey)` (claude@ via IP), nv1 `Network is
+unreachable` (mesh-only). Key unchanged: `…C1E6 claude@kin-infra`. Note
+`~/.ssh/config` matches `Host nv1 relay1 web2` but sets no `HostName`,
+so bare `ssh relay1` fails DNS resolve — grind-side wiring needs the IP
+mappings too (or `kin status` which reads kin.nix hosts). Desired
+toplevels at this HEAD (3/3 eval clean, `26.05.20260409.4c1018d`,
+post profile-drop a081d36 + iets-bump 7593e4e): nv1 drv `9y2ybhj4…`,
+relay1 drv `3a1x8glv…`, web2 drv `a9frswyf…`. flake.lock: all 9 direct
+inputs ≤7d (oldest nixvim 6d), no bump-* filed.
