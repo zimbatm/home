@@ -16,8 +16,7 @@ All kin-managed machines are on the `ztm` identity domain and the maille mesh.
 
 ```
 kin.nix              # the fleet declaration — users, machines, services, gen
-hosts/<name>/        # per-host NixOS config (hardware, machine-local)
-machines/            # symlink → hosts/ (kin's naming convention)
+machines/<name>/     # per-host NixOS config (hardware, machine-local)
 modules/nixos/       # shared NixOS modules (common, desktop, server, …)
 modules/home/        # home-manager modules
 gen/                 # generated: identity certs, mesh, manifest.lock — `kin gen` rewrites this

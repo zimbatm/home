@@ -32,7 +32,7 @@ fails, the change broke that machine's config — abandon, don't partially merge
   }),
 
   metaExtra: () => `
-If any \`hosts/\` or \`kin.nix\` was touched this round, remind: changes
+If any \`machines/\` or \`kin.nix\` was touched this round, remind: changes
 are committed but NOT deployed. \`kin deploy <machine>\` to actually
 apply (with the deploy-safety check from feedback_deploy_safety.md).`,
 

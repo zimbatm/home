@@ -6,7 +6,7 @@ The home fleet grind. Implementers consume `backlog/`; rotating specialist
 (drift / simplifier / bumper) refills it. Gate: every host evals + dry-builds.
 
 **Deploy is NOT automatic.** Merged changes are committed, not applied.
-Meta phase reminds you to `kin deploy` if hosts/ or kin.nix changed.
+Meta phase reminds you to `kin deploy` if machines/ or kin.nix changed.
 
 ## Stopping
 
