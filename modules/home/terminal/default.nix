@@ -233,6 +233,16 @@
       character.success_symbol = "[\\$](bold green)";
       character.error_symbol = "[\\$](bold red)";
       character.vicmd_symbol = "[❮](bold green)";
+      # API spend + Arc/NPU/queue on one line. Opt-in: probes take ~2s
+      # (intel_gpu_top sample + npu delta), too slow for every prompt.
+      # Flip disabled=false on nv1 when you want the dial visible.
+      custom.agent_meter = {
+        disabled = true;
+        command = "agent-meter --line";
+        when = "command -v agent-meter";
+        shell = [ "bash" "--noprofile" "--norc" ];
+        style = "dimmed white";
+      };
     };
   };
 

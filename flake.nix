@@ -49,6 +49,7 @@
           ask-local = call ./packages/ask-local;
           kin-opts = call ./packages/kin-opts;
           infer-queue = call ./packages/infer-queue;
+          agent-meter = call ./packages/agent-meter;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         });
 
