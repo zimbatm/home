@@ -44,6 +44,7 @@
           myvim = call ./packages/myvim;
           nvim = call ./packages/nvim;
           gitbutler-cli = call ./packages/gitbutler-cli;
+          ptt-dictate = call ./packages/ptt-dictate;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         });
 

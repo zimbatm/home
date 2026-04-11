@@ -69,5 +69,20 @@ fix or file backlog/bump-<input>-blocked.md with the reason.
 Priority: nixpkgs > kin > iets > others. Don't bump >1 input per round
 (blast radius).
 ${ctx.MAIN_GUARD}`,
+
+    scout: ctx => `${ctx.BASE_SETUP}
+You are the SCOUT. Survey the outside world for LLM/agent tooling worth
+trying on nv1 (the LLM-future testbed) and file backlog/adopt-* sketches.
+
+Sources (curl via Bash; no WebSearch tool here):
+- \`curl -sL https://raw.githubusercontent.com/Mic92/dotfiles/main/home-manager/modules/ai.nix\`
+- \`curl -sL https://raw.githubusercontent.com/nix-community/awesome-nix/master/README.md | grep -iA1 'llm\\|whisper\\|voice\\|agent'\`
+- \`gh search prs --repo nixos/nixpkgs --label '6.topic: AI/ML' --merged --limit 20 --json title,url 2>/dev/null\`
+
+For each promising find: file \`backlog/adopt-<slug>.md\` (what / why /
+how-much / falsifies). Frame as "X does Y; here's our angle on the same
+problem" — Jonas wants original work, not verbatim copies. Skip anything
+already in backlog/, tried/, or wontfix/. Max 2 filings per round.
+${ctx.MAIN_GUARD}`,
   },
 }

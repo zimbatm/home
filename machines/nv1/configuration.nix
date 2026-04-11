@@ -23,6 +23,10 @@
   # Intel Arc (Meteor Lake) handles display.
   # NVIDIA RTX 4060 Max-Q reserved for VFIO passthrough (CROPS VM).
   hardware.graphics.enable = true;
+  hardware.graphics.extraPackages = with pkgs; [ intel-compute-runtime intel-media-driver ];
+
+  # uinput access for ptt-dictate (ydotool type)
+  programs.ydotool.enable = true;
 
   # Claim NVIDIA GPU + audio for vfio-pci at boot, before nvidia driver loads.
   boot.kernelParams = [ "intel_iommu=on" "iommu=pt" ];

@@ -27,3 +27,12 @@ Verify `llm-agents.nix` actually exports these (check
 `inputs.llm-agents.packages.*` and `homeModules.*`).
 
 [Mic92/dotfiles `ai.nix`]: https://github.com/Mic92/dotfiles/blob/main/home-manager/modules/ai.nix
+
+## Wontfix (2026-04-11)
+
+Jonas: "we don't want to straight-up copy Mic92, let's do our own
+stuff." Survey his work for ideas (the scout specialist does this),
+but build our own equivalents rather than importing his modules
+verbatim. The signature-outline idea (zat) and local-CLIs-as-skills
+pattern remain interesting — file fresh adopt-* items if/when we
+design our own take.
