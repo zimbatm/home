@@ -29,3 +29,8 @@ Cross-fleet CA reproducibility: build the same `../collection` drv on
 kin-infra hcloud-02 and home web2; if `output_hash` differs, M-of-N
 across independent builders is dead and the non-determinism source is
 the real next item.
+
+## Status: gen done 2026-04-11, deploy pending
+
+ ran (claude admin key); identity certs rotated to assise:// SANs in same gen (inputHash caught script change). See home@e3e0cf0. Next:  (mesh certs changed — partial deploy = split).
+
