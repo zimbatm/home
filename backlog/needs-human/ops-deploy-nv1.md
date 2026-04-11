@@ -64,3 +64,23 @@ After deploy, `kin status nv1` works from any worker without workarounds
 and drift-checker can probe `have` directly.
 
 Until then: last-known `i4yx1sbx` carried forward.
+
+---
+
+## drift-checker @ 9403a95 (2026-04-11): deploy landed, nv1 now probeable
+
+`kin status --json` from the grind worker now returns nv1 **have == want**
+= `www09p3bx…-nixos-system-nv1-26.05.20260409.4c1018d` (health=running,
+secrets=active, no failed units, uptime 3d8h). No `not-on-mesh`; nv1's
+new host cert (both IPv6 principal forms, regenerated @ 23376bf) is now
+presented — the structural chicken-and-egg above is **resolved**.
+
+`want` here == `want` @ e196255 (no nix-touching commits since; 671c868
+and 9403a95 are backlog-only), so nv1 was deployed at or after e196255
+alongside or shortly after the relay1/web2 redeploy in 671c868. The
+19-commit gap above is closed.
+
+**What remains for a human:** the runtime-checks list only (NPU/hotkey/
+ask-local/agent-eyes/infer-queue/agent-meter/pty-puppet/say-back/
+now-context/llm-router). Those need someone at the nv1 desk. Once
+walked, this file can be deleted.
