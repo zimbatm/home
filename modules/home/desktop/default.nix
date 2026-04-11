@@ -36,7 +36,7 @@
     inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
     inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claudebox
     inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex
-    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.crush
+    # inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.crush  # FIXME: go-modules FOD 401s on artifactory GOPROXY (build-host env leak); see backlog/bug-crush-goproxy-leak
     inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode
     inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.pi
   ];
