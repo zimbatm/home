@@ -1,7 +1,7 @@
 { pkgs, ... }:
 pkgs.writeShellApplication {
   name = "kin-opts";
-  runtimeInputs = [ pkgs.nix pkgs.jq pkgs.git ];
+  runtimeInputs = [ pkgs.nix pkgs.jq pkgs.git pkgs.diffutils ];
   text = ''
     # Fleet-local NixOS option introspection. Answers from *this flake's*
     # evaluated module system (kin + maille + local modules), not upstream docs.
@@ -9,6 +9,8 @@ pkgs.writeShellApplication {
     #   kin-opts <host> <path>             → option leaf: {value,type,description,declared,defined}
     #                                        attrset: {children:[...]}
     #   kin-opts <host> --search <regex>   → option paths matching regex (full tree)
+    #   kin-opts <host> --pkgs             → flat list of environment.systemPackages names
+    #   kin-opts --diff <h1> <h2> <path>   → unified diff of config.<path> between two hosts
     # FLAKE override: KIN_OPTS_FLAKE (default: git toplevel, else .)
     flake="''${KIN_OPTS_FLAKE:-$(git rev-parse --show-toplevel 2>/dev/null || echo .)}"
 
@@ -16,6 +18,8 @@ pkgs.writeShellApplication {
       echo "usage: kin-opts --hosts" >&2
       echo "       kin-opts <host> <option.path>" >&2
       echo "       kin-opts <host> --search <regex>" >&2
+      echo "       kin-opts <host> --pkgs" >&2
+      echo "       kin-opts --diff <host1> <host2> <config.path>" >&2
       exit 2
     }
 
@@ -26,8 +30,22 @@ pkgs.writeShellApplication {
       exit
     fi
 
+    if [[ "$1" == "--diff" ]]; then
+      [[ $# -eq 4 ]] || usage
+      h1="$2"; h2="$3"; dpath="$4"
+      evalcfg() { nix eval "$flake#nixosConfigurations.$1.config.$dpath" --json 2>/dev/null | jq -S .; }
+      diff -u --label "$h1 $dpath" --label "$h2 $dpath" <(evalcfg "$h1") <(evalcfg "$h2") || true
+      exit
+    fi
+
     host="$1"; shift
     [[ $# -ge 1 ]] || usage
+
+    if [[ "$1" == "--pkgs" ]]; then
+      nix eval "$flake#nixosConfigurations.$host.config.environment.systemPackages" --json \
+        --apply 'map (p: p.name or p.pname or "?")' | jq -r '.[]'
+      exit
+    fi
 
     if [[ "$1" == "--search" ]]; then
       pat="''${2:?--search needs a regex}"
