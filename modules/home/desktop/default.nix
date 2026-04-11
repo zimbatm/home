@@ -64,6 +64,7 @@ in
 
     # AI
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.ptt-dictate
+    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.ask-local
     llm.claude-code
     llm.claudebox
     llm.codex

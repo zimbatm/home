@@ -46,6 +46,7 @@
           gitbutler-cli = call ./packages/gitbutler-cli;
           ptt-dictate = call ./packages/ptt-dictate;
           agent-eyes = call ./packages/agent-eyes;
+          ask-local = call ./packages/ask-local;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         });
 
