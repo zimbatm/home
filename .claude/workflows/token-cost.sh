@@ -22,17 +22,62 @@ ARG="${1:-}"
 WF_FILTER=""
 ATTACH_NOTES=false
 BY_ROLE=false
+BY_TOOL=false
 case "$ARG" in
   --workflow=*) WF_FILTER="${ARG#--workflow=}" ;;
   --notes) ATTACH_NOTES=true ;;
   --by-role) BY_ROLE=true ;;
+  --by-tool) BY_TOOL=true ;;
 esac
 
-python3 - "$SESSION_DIR" "$WF_FILTER" "$ATTACH_NOTES" "$BY_ROLE" <<'PY'
+python3 - "$SESSION_DIR" "$WF_FILTER" "$ATTACH_NOTES" "$BY_ROLE" "$BY_TOOL" <<'PY'
 import sys, json, re, subprocess, glob, os, statistics
 
-session_dir, wf_filter, attach, by_role = sys.argv[1], sys.argv[2], sys.argv[3] == "true", sys.argv[4] == "true"
+session_dir, wf_filter, attach, by_role, by_tool = sys.argv[1], sys.argv[2], sys.argv[3] == "true", sys.argv[4] == "true", sys.argv[5] == "true"
 pattern = f"{session_dir}/subagents/workflows/{wf_filter or '*'}/agent-*.jsonl"
+
+if by_tool:
+    # Per-shell-tool aggregate: which binaries agents invoke and how much
+    # output each puts in context. Attribute output to the LAST tool in the
+    # pipe (its stdout is what the agent reads). Correlate via tool_use_id.
+    from collections import Counter
+    SKIP = {'echo','cd','then','fi','do','done','else','elif','if','for','while',
+            'true','false','set','exit','return','local','export','test','['}
+    calls, out_b = Counter(), Counter()
+    pending = {}  # tool_use_id -> last-tool-in-pipe
+    for path in sorted(glob.glob(pattern)):
+        with open(path) as f:
+            for line in f:
+                try: d = json.loads(line)
+                except: continue
+                for c in d.get('message', {}).get('content', []) or []:
+                    if not isinstance(c, dict): continue
+                    if c.get('type') == 'tool_use' and c.get('name') == 'Bash':
+                        cmd = c.get('input', {}).get('command', '')
+                        last = None
+                        for seg in re.split(r'[|;&\n]+|&&|\|\|', cmd):
+                            m = re.match(r'\s*(?:[\w_]+=\S+\s+)*([a-zA-Z][\w.+-]*)', seg)
+                            if m and m.group(1) not in SKIP:
+                                calls[m.group(1)] += 1
+                                last = m.group(1)
+                        if last: pending[c.get('id')] = last
+                    if c.get('type') == 'tool_result':
+                        t = pending.pop(c.get('tool_use_id'), None)
+                        if t:
+                            txt = c.get('content', '')
+                            if isinstance(txt, list):
+                                txt = ''.join(x.get('text','') for x in txt if isinstance(x,dict))
+                            out_b[t] += len(str(txt))
+    total_out = sum(out_b.values()) or 1
+    print(f"{'tool':<18} {'calls':>7} {'out_KB':>10} {'out_%':>6}")
+    print("-" * 44)
+    for t, kb in out_b.most_common(25):
+        print(f"{t:<18} {calls[t]:>7} {kb/1024:>10,.1f} {kb*100/total_out:>5.1f}%")
+    only_called = set(calls) - set(out_b)
+    if only_called:
+        print(f"\n(called but never last-in-pipe, so 0 out_KB: "
+              f"{', '.join(sorted(only_called, key=lambda t:-calls[t])[:10])})")
+    sys.exit(0)
 
 # Any all-caps role word after "You are [the/a/an] "; also match verb-first
 # helper prompts (merge-queue Merge/Triage/Abandon/Scope agents have no

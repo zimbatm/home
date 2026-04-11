@@ -54,6 +54,10 @@ subagents lack REPL; the call gets denied and the round dies. For long
 commands (>2min): \`run_in_background: true\` + poll with separate Bash
 calls so the runtime's 180s no-progress watchdog sees activity.
 
+**Keep output small** (\`.claude/workflows/tool-hints.md\`): prefer
+Read/Glob/Grep over \`cat\`/\`ls\`/\`grep -rn\`; \`git log --numstat\` over
+\`-p\`; cap with \`| head -N\`. The cost is output in context, not the call.
+
 \`\`\`sh
 BASE="${BASE}"
 git fetch origin main
