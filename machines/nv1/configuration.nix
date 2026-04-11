@@ -71,6 +71,4 @@
 
   # Auto-tune power management settings
   powerManagement.powertop.enable = true;
-
-  system.stateVersion = "23.05";
 }
