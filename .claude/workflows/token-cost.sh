@@ -34,9 +34,14 @@ import sys, json, re, subprocess, glob, os, statistics
 session_dir, wf_filter, attach, by_role = sys.argv[1], sys.argv[2], sys.argv[3] == "true", sys.argv[4] == "true"
 pattern = f"{session_dir}/subagents/workflows/{wf_filter or '*'}/agent-*.jsonl"
 
-# Any all-caps role word after "You are [the/a/an] "; Triage/Merge title-case as fallback.
-ROLE_RE = re.compile(r'You are (?:the |an? )?([A-Z][A-Z-]{2,}|Triage|Merge)\b')
-ITEM_RE = re.compile(r'Item: backlog/(?:\S*/)?([\w.-]+)\.md|grind/backlog/([\w.-]+)|Round (\d+)')
+# Any all-caps role word after "You are [the/a/an] "; also match verb-first
+# helper prompts (merge-queue Merge/Triage/Abandon/Scope agents have no
+# "You are" prefix — they open with the imperative).
+ROLE_RE = re.compile(
+    r'You are (?:the |an? )?([A-Z][A-Z-]{2,}|Triage|Merge)\b'
+    r'|^\s*(Merge) ONE\b|^\s*(Triage) backlog\b'
+    r'|^\s*(Abandon) grind/|^\s*Report the diff (scope)\b')
+ITEM_RE = re.compile(r'Item: backlog/(?:\S*/)?([\w.-]+)\.md|\bgrind/([\w.-]+)|Round (\d+)')
 
 rows = []
 for path in sorted(glob.glob(pattern)):
@@ -52,7 +57,8 @@ for path in sorted(glob.glob(pattern)):
                 content = msg.get("content", "")
                 if isinstance(content, list):
                     content = " ".join(c.get("text","") for c in content if isinstance(c,dict))
-                if m := ROLE_RE.search(content): role = m.group(1).upper()
+                if m := ROLE_RE.search(content):
+                    role = next(g for g in m.groups() if g).upper()
                 if m := ITEM_RE.search(content):
                     item = m.group(1) or m.group(2) or f"r{m.group(3)}"
             u = d.get("message", {}).get("usage")
@@ -76,7 +82,11 @@ if by_role:
     # An agent paying ≥2× the implementer median is spending its budget on
     # "decide what to do"; one filing 0 across multiple runs is dry.
     # `filed` counts backlog/* additions in commits whose subject names the
-    # role — proxy, but consistent (specialists commit "<role> rN: …").
+    # role — proxy, but consistent (specialists commit "<verb>(rN): …" or
+    # "<verb> rN: …"). Transcript role is the noun ("SIMPLIFIER"); commit
+    # subject is the verb ("simplify") — map explicitly.
+    VERB_ROLE = {"simplify": "SIMPLIFIER", "align": "ALIGNER", "sec": "SEC",
+                 "refactor": "REFACTOR", "meta": "META"}
     log = subprocess.run(
         ["git", "log", "--format=SUBJ %s", "--diff-filter=A", "--name-only",
          "origin/main", "--", "backlog/"],
@@ -85,8 +95,8 @@ if by_role:
     cur_role = None
     for line in log.splitlines():
         if line.startswith("SUBJ "):
-            m = re.match(r'SUBJ (\w+)[\s/-]+r\d+\b', line)
-            cur_role = m.group(1).upper() if m else None
+            m = re.match(r'SUBJ (\w+)\W+r\d+\b', line)
+            cur_role = (VERB_ROLE.get(m.group(1).lower()) or m.group(1).upper()) if m else None
         elif line.startswith("backlog/") and not line.startswith("backlog/tried/"):
             if cur_role: filed[cur_role] = filed.get(cur_role, 0) + 1
     by = {}
@@ -97,7 +107,7 @@ if by_role:
     print(f"{'role':<12} {'runs':>5} {'med_billable':>12} {'×impl_med':>9} "
           f"{'p90':>12} {'$total':>9} {'filed':>6} {'/run':>6}  flag")
     print("-" * 92)
-    NONFILERS = {"IMPLEMENTER","TRIAGE","META","MERGE","REFACTOR","?"}
+    NONFILERS = {"IMPLEMENTER","TRIAGE","META","MERGE","SCOPE","ABANDON","REFACTOR","CURATOR","?"}
     for role in sorted(by, key=lambda r: -statistics.median([t for t,_ in by[r]])):
         runs = by[role]; totals = sorted(t for t,_ in runs)
         med = statistics.median(totals)
