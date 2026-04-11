@@ -409,6 +409,11 @@ rm'd and restored ≥2 times. Break smaller, or move to backlog/tried/ with
 **needs-human/** — \`ls backlog/needs-human/*.md 2>/dev/null | wc -l\`.
 Report the count + filenames in user_attention if >0. These are
 denylist-rerouted items waiting on a human to apply, re-scope, or delete.
+For each, **re-read the body**: needs-human means *tried and refused*, not
+*looks like it might need a credential*. If the gating assumption was never
+tested (e.g. "needs hardware token" without an actual decrypt-fail), try
+the command and move the item back to \`backlog/\` if it works. A milestone
+once sat 4 rounds behind a credential gate that wasn't there.
 
 **Contention misses** — \`git log --merges -5 --stat\`. Same files keep
 conflicting → propose tightening triage rules in backlog/meta-contention.md.
@@ -420,12 +425,14 @@ then \`--notes\` to attach per-merge cost as \`refs/notes/tokens\`; then
 → file backlog/meta-split-<role>.md; DRY (≥3 runs, <0.5 filed/run) →
 file backlog/meta-retire-<role>.md or note expected (refactor/direct-commit roles).
 
-**Stop signal** — if \`.grind-stop\` exists: first check
-\`git ls-files --error-unmatch .grind-stop 2>/dev/null\`. If tracked, it's
-a commit artifact (restored by reset, not a real signal) — log
-"ignoring tracked .grind-stop" in fixes_applied and continue with
-stop_requested:false. If untracked, remove it and report
-stop_requested:true.
+**Stop signal** — derive the user tree
+(\`UT="$(git worktree list --porcelain | sed -n '1s/^worktree //p')"\`)
+and check \`"$UT/.grind-stop"\` (NOT \`_base/.grind-stop\` — _base is reset
+each round so an untracked stop file there is wiped before this check).
+First \`git -C "$UT" ls-files --error-unmatch .grind-stop 2>/dev/null\` —
+if tracked, it's a commit artifact, log "ignoring tracked .grind-stop"
+and continue with stop_requested:false. If untracked, \`rm "$UT/.grind-stop"\`
+and report stop_requested:true.
 
 Fix directly what you can. File backlog/meta-<slug>.md for human-input
 issues. Report current backlog_count.
