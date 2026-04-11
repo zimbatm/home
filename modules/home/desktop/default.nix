@@ -32,6 +32,20 @@ in
     };
   };
 
+  # Push-to-talk dictation hotkey (toggle: press to start, press to stop+type)
+  dconf.settings = {
+    "org/gnome/settings-daemon/plugins/media-keys" = {
+      custom-keybindings = [
+        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate/"
+      ];
+    };
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate" = {
+      name = "Push-to-talk dictate";
+      command = "ptt-dictate";
+      binding = "<Super>d";
+    };
+  };
+
   home.packages = with pkgs; [
     # Graphical
     brave
