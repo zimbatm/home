@@ -51,6 +51,7 @@
           kin-opts = call ./packages/kin-opts;
           infer-queue = call ./packages/infer-queue;
           agent-meter = call ./packages/agent-meter;
+          now-context = call ./packages/now-context;
           pty-puppet = call ./packages/pty-puppet;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         });
