@@ -64,6 +64,7 @@ git fetch origin main
 git worktree add -f --detach "$BASE" origin/main 2>/dev/null || \\
   (cd "$BASE" && git reset --hard origin/main)
 cd "$BASE"
+nix build .#agentshell --out-link .claude/profile 2>/dev/null && PATH=".claude/profile/bin:$PATH" || true
 USER_TREE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
 DIRTY="$(git -C "$USER_TREE" status --porcelain | grep -Fvx '?? .grind-stop')"
 [[ -z "$DIRTY" ]] || { echo "tree-guard: user tree $USER_TREE has uncommitted changes:" >&2; echo "$DIRTY" | sed 's/^/  /' >&2; exit 1; }
