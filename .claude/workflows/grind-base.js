@@ -244,6 +244,30 @@ Report: branch, worktree, commits, files touched, worst_regression_pct.
   let mergeChain = Promise.resolve()
   let mergedThisRound = 0, abandonedThisRound = 0
   const MERGE_DENY = CONFIG.mergeDenylist ?? [/^\.claude\/workflows\//, /^\.git\//, /grind-base\.js$/, /token-cost\.sh$/]
+  // Batched scope-probe: one agent for all branches, lazy on first mergeOne.
+  // mergeChain serializes anyway so the barrier (wait for all impls) costs
+  // ~nothing vs serialized per-impl probes. T10/harness-batch-scope-probe.
+  let scopeMap = null
+  const scopeProbe = impls => {
+    const branches = impls.map(i => i.branch).filter(b => /^grind\/[\w.-]+$/.test(b))
+    if (!branches.length) return Promise.resolve(new Map())
+    return agent(`
+Report the diff scope of each branch. Do exactly:
+\`\`\`sh
+git fetch -q origin main
+for b in ${branches.join(' ')}; do
+  echo "## $b"; git diff --name-only "origin/main...$b"
+done
+\`\`\`
+Return one entry per branch with its file list.`, {
+      label: `scope-r${round}`, phase: 'Merge',
+      schema: { type: 'object', properties: {
+        scopes: { type: 'array', items: { type: 'object', properties: {
+          branch: { type: 'string' }, files: { type: 'array', items: { type: 'string' } },
+        }, required: ['branch', 'files'] } },
+      }, required: ['scopes'] },
+    }).then(r => new Map((r?.scopes ?? []).map(s => [s.branch, s.files])))
+  }
   const mergeOne = impl => {
     if (!/^grind\/[\w.-]+$/.test(impl.branch ?? '')) {
       log(`SKIP merge: unsafe branch ${JSON.stringify(impl.branch)}`)
@@ -256,17 +280,8 @@ Report: branch, worktree, commits, files touched, worst_regression_pct.
     const prev = mergeChain
     let done
     mergeChain = new Promise(r => { done = r })
-    return prev.then(() => agent(`
-Report the diff scope of branch ${impl.branch}. Do exactly:
-\`\`\`sh
-git fetch -q origin main
-git diff --name-only origin/main...${impl.branch}
-\`\`\`
-Return each line as one entry of \`files\`. Nothing else.`, {
-      label: `scope-${impl.branch.replace(/.*\//, '')}`, phase: 'Merge',
-      schema: { type: 'object', properties: { files: { type: 'array', items: { type: 'string' } } }, required: ['files'] },
-    })).then(scope => {
-      const actualFiles = (scope?.files ?? []).filter(f => /^[\w./-]+$/.test(f))
+    return prev.then(() => {
+      const actualFiles = (scopeMap.get(impl.branch) ?? []).filter(f => /^[\w./-]+$/.test(f))
       const isBump = /^backlog\/bump-/.test(impl.pick?.file ?? '')
       const deny = isBump ? MERGE_DENY : [...MERGE_DENY, /(^|\/)flake\.lock$/]
       const bad = actualFiles.find(f => deny.some(re => re.test(f)))
@@ -367,11 +382,13 @@ ${g.instructions}
   const archTask = () => agent(CONFIG.architect(ctx),
     { label: `architect-r${round}`, phase: 'Work', schema: specSchema })
 
-  const [specOut, archOut] = await parallel([
+  const [specOut, archOut, impls] = await parallel([
     specTask,
     ...(runArch ? [archTask] : [() => null]),
-    () => pipeline(picks, implStage, impl => impl ? mergeOne(impl) : null),
+    () => parallel(picks.map(p => () => implStage(p))),
   ])
+  scopeMap = await scopeProbe(impls.filter(Boolean))
+  for (const impl of impls) if (impl) mergeOne(impl)
   await mergeChain
 
   const ok = x => !x ? '—'
