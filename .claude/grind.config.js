@@ -1,6 +1,6 @@
 export const meta = {
   name: 'home-grind',
-  description: 'Dogfood-repo grind: drift-check, simplify, bump inputs; gate = all hosts eval+build',
+  description: 'Dogfood-repo grind: drift-check, simplify, bump inputs, scout external tooling; gate = all hosts eval+build',
   whenToUse: 'When the user wants autonomous progress on the home fleet config',
   phases: [
     { title: 'Triage', detail: 'pick items; drift-check first if stale' },

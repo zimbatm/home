@@ -1,9 +1,9 @@
 ---
-description: Dogfood grind — drift-check, simplify, bump inputs; gate = all hosts eval+build
+description: Dogfood grind — drift-check, simplify, bump inputs, scout external tooling; gate = all hosts eval+build
 ---
 
 The home fleet grind. Implementers consume `backlog/`; rotating specialist
-(drift / simplifier / bumper) refills it. Gate: every host evals + dry-builds.
+(drift / simplifier / bumper / scout) refills it. Gate: every host evals + dry-builds.
 
 **Deploy is NOT automatic.** Merged changes are committed, not applied.
 Meta phase reminds you to `kin deploy` if machines/ or kin.nix changed.
