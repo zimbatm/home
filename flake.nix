@@ -47,6 +47,7 @@
           ptt-dictate = call ./packages/ptt-dictate;
           agent-eyes = call ./packages/agent-eyes;
           ask-local = call ./packages/ask-local;
+          kin-opts = call ./packages/kin-opts;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         });
 
@@ -65,7 +66,10 @@
           inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.iets
           inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.formatter
         ];
-        devShell.extraAgentPackages = pkgs: [ (pkgs.callPackage ./packages/agent-eyes { }) ];
+        devShell.extraAgentPackages = pkgs: [
+          (pkgs.callPackage ./packages/agent-eyes { })
+          (pkgs.callPackage ./packages/kin-opts { })
+        ];
       };
     in
     {
