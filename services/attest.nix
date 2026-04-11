@@ -83,11 +83,12 @@ iets:
               # is explicit that signing the unresolved hash is unsound) and
               # extracting each CA output_hash, then sign_attestation +
               # Append to the local log.
+              nix.settings.extra-experimental-features = [ "ca-derivations" ];
               nix.settings.post-build-hook = toString (pkgs.writeShellScript "kin-attest-publish" ''
-                exec ${package}/bin/ietsd attest-log publish \
+                ${package}/bin/ietsd attest-log publish \
                   --key "''${CREDENTIALS_DIRECTORY:-/run/credentials/nix-daemon.service}/builder-key" \
                   --log grpc://[::1]:${toString cfg.logPort} \
-                  --drv "$DRV_PATH" $OUT_PATHS
+                  --drv "$DRV_PATH" $OUT_PATHS || true
               '');
               # Hook runs as a child of nix-daemon; deliver the raw seed via
               # LoadCredential so it never touches disk world-readable.
