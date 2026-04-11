@@ -11,6 +11,7 @@
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixvim.url = "github:nix-community/nixvim";
     llm-agents = { url = "github:numtide/llm-agents.nix"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nix-skills = { url = "git+ssh://git@github.com/assise/nix-skills"; inputs.nixpkgs.follows = "nixpkgs"; };
   };
 
   outputs = inputs:
@@ -42,8 +43,7 @@
           core = call ./packages/core;
           myvim = call ./packages/myvim;
           nvim = call ./packages/nvim;
-          alpacasay = call ./packages/alpacasay;
-          svg-term = call ./packages/svg-term;
+          inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         });
 
       kinOut = inputs.kin.lib.mkFleet {
