@@ -61,7 +61,7 @@
         root = ./.;
         config = import ./kin.nix;
         nixpkgsConfig.allowUnfree = true;
-        specialArgs = { inherit inputs; flake = inputs.self; };
+        specialArgs = { inherit inputs; };
         devShell.systems = [ "x86_64-linux" "aarch64-linux" ];
         devShell.extraPackages = pkgs: [
           pkgs.age-plugin-tpm
