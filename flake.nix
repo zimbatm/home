@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    kin = { url = "git+ssh://git@github.com/assise/kin"; inputs.nixpkgs.follows = "nixpkgs"; inputs.iets.follows = "iets"; };
+    kin = { url = "git+ssh://git@github.com/assise/kin"; inputs.nixpkgs.follows = "nixpkgs"; inputs.iets.follows = "iets"; inputs.nix-skills.follows = "nix-skills"; };
     iets = { url = "git+ssh://git@github.com/jonasc-ant/iets"; inputs.nixpkgs.follows = "nixpkgs"; };
     home-manager = { url = "github:nix-community/home-manager"; inputs.nixpkgs.follows = "nixpkgs"; };
     srvos = { url = "github:numtide/srvos"; inputs.nixpkgs.follows = "nixpkgs"; };

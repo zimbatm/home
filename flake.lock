@@ -30,29 +30,6 @@
     "blueprint_2": {
       "inputs": {
         "nixpkgs": [
-          "kin",
-          "nix-skills",
-          "nixpkgs"
-        ],
-        "systems": "systems_2"
-      },
-      "locked": {
-        "lastModified": 1771437256,
-        "narHash": "sha256-bLqwib+rtyBRRVBWhMuBXPCL/OThfokA+j6+uH7jDGU=",
-        "owner": "numtide",
-        "repo": "blueprint",
-        "rev": "06ee7190dc2620ea98af9eb225aa9627b68b0e33",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "blueprint",
-        "type": "github"
-      }
-    },
-    "blueprint_3": {
-      "inputs": {
-        "nixpkgs": [
           "llm-agents",
           "nixpkgs"
         ],
@@ -75,13 +52,13 @@
         "type": "github"
       }
     },
-    "blueprint_4": {
+    "blueprint_3": {
       "inputs": {
         "nixpkgs": [
           "nix-skills",
           "nixpkgs"
         ],
-        "systems": "systems_4"
+        "systems": "systems_3"
       },
       "locked": {
         "lastModified": 1771437256,
@@ -310,7 +287,9 @@
           "iets"
         ],
         "maille": "maille",
-        "nix-skills": "nix-skills",
+        "nix-skills": [
+          "nix-skills"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -357,13 +336,13 @@
     },
     "llm-agents_2": {
       "inputs": {
-        "blueprint": "blueprint_3",
+        "blueprint": "blueprint_2",
         "bun2nix": "bun2nix_2",
         "flake-parts": "flake-parts_2",
         "nixpkgs": [
           "nixpkgs"
         ],
-        "systems": "systems_3",
+        "systems": "systems_2",
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
@@ -423,29 +402,7 @@
     },
     "nix-skills": {
       "inputs": {
-        "blueprint": "blueprint_2",
-        "nixpkgs": [
-          "kin",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1775870827,
-        "narHash": "sha256-Tx3FZ1Zj5OZBzii7FRtSHeX896eLCS2QyhMcy7AEtv0=",
-        "ref": "refs/heads/main",
-        "rev": "03074fc5177552d8d3f59e80b7c39c9915facfe4",
-        "revCount": 210,
-        "type": "git",
-        "url": "ssh://git@github.com/assise/nix-skills"
-      },
-      "original": {
-        "type": "git",
-        "url": "ssh://git@github.com/assise/nix-skills"
-      }
-    },
-    "nix-skills_2": {
-      "inputs": {
-        "blueprint": "blueprint_4",
+        "blueprint": "blueprint_3",
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -515,7 +472,7 @@
       "inputs": {
         "flake-parts": "flake-parts_3",
         "nixpkgs": "nixpkgs_2",
-        "systems": "systems_5"
+        "systems": "systems_4"
       },
       "locked": {
         "lastModified": 1775835645,
@@ -538,7 +495,7 @@
         "kin": "kin",
         "llm-agents": "llm-agents_2",
         "nix-index-database": "nix-index-database",
-        "nix-skills": "nix-skills_2",
+        "nix-skills": "nix-skills",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
@@ -611,21 +568,6 @@
       }
     },
     "systems_4": {
-      "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
-      }
-    },
-    "systems_5": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
