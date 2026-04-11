@@ -21,7 +21,7 @@
       # NAME:base64(raw 32-byte ed25519 pubkey) — the format
       # `ietsd substitute-proxy --trusted-key` parses (subst/proxy.rs
       # parse_trusted_key). Same typed-accessor shape kin-infra's services/ci.nix
-      # uses for cache: consumers read fleet.siblings.attest.publishes.publicKey.
+      # uses for cache: consumers read fleet.siblings.attest.publishes.extra.publicKey.
       # Inlined genPublic-with-null-fallback instead of `fleet.genPublic`:
       # `kin gen` JSON-forces kinManifest.services.*.publishes, so a hard
       # throw on the first run (before gen/attest/ exists) deadlocks
@@ -40,7 +40,7 @@
       # `grpc://[${machineIp6 host}]:${publishes.port}` for --attest-log.
       publishes = {
         port = cfg.logPort;
-        inherit publicKey;
+        extra = { inherit publicKey; };
         serverCert = false;
         statePaths = [ cfg.stateDir ];
       };
