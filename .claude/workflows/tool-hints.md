@@ -30,11 +30,14 @@ not the call. `token-cost.sh --by-tool` shows your profile.
 | Pull one field from any `--json` | `… --json \| gron \| grep KEY` | flatten-then-grep; avoids jq syntax for one-offs |
 | Hard-to-parse CLI output (`ip`, `ss`, `systemctl show`) | `cmd \| jc --cmd \| jq -r .FIELD` | only when text genuinely ambiguous — JSON envelope often costs more |
 | LoC by language | `tokei -o json` or plain `tokei` | replaces `find … \| xargs wc -l` |
+| "What does this module export?" (Rust/Go/TS) | `zat FILE` | symbols + line ranges, ~16× smaller than cat. No Nix support. |
+| Gate cmd: only show failures/errors | `rtk test CMD` / `rtk err CMD` | strips passing-test noise; what mergeGate.cmd wants |
 
-**Don't** use `rg --json` (4-7× larger than `rg -n`) or difftastic/nom (human-pretty = more bytes).
+**Don't** use `rg --json` (4-7× larger than `rg -n`), difftastic/nom (human-pretty = more bytes), or rtk's global hook (disciplined alternatives are tighter; use `rtk err`/`rtk test` standalone).
 
 ## Always
 
+- **Never install on the host.** No `apt-get`/`pip install`/`npm -g`/`curl|sh`. Use `nix shell nixpkgs#TOOL -c …`, add to the devshell, or package it. If a tool isn't in nixpkgs, write a derivation — don't reach for the system package manager.
 - Cap output: `\| head -N` or `\| tail -N` on anything that might be unbounded.
 - One dense Bash with a shell `for` loop, not N separate Bash calls (each call ≈ 2KB envelope).
 - Read what you need, not the whole file.
