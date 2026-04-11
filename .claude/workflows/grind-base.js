@@ -260,7 +260,7 @@ Report: branch, worktree, commits, files touched, worst_regression_pct.
 Report the diff scope of branch ${impl.branch}. Do exactly:
 \`\`\`sh
 git fetch -q origin main
-git diff --name-only origin/main..${impl.branch}
+git diff --name-only origin/main...${impl.branch}
 \`\`\`
 Return each line as one entry of \`files\`. Nothing else.`, {
       label: `scope-${impl.branch.replace(/.*\//, '')}`, phase: 'Merge',

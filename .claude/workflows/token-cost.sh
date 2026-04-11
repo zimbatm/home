@@ -9,7 +9,10 @@
 #   .claude/workflows/token-cost.sh --workflow=wf_xxx  # one workflow only
 set -euo pipefail
 
-PROJ_SLUG=$(pwd | tr / -)
+# Derive slug from the user tree (git common-dir parent), not pwd — META runs
+# from the _base worktree whose pwd-slug has no ~/.claude/projects entry.
+# 3-way converged: kin@4dac27e reported, triage@a31dbc6 + fleet@d2a211a applied.
+PROJ_SLUG=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)" | tr / -)
 # Pick session by newest agent transcript, not session-dir mtime — dir mtime
 # only updates on direct-child writes, so a long-running grind session loses
 # to a short side-workflow even when its transcripts are fresher.
