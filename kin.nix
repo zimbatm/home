@@ -19,7 +19,7 @@ in
   };
 
   machines = {
-    nv1 = { host = "fd0c:3964:8cda::6e42:b995:2026:deae"; tags = [ "desktop" ]; profile = "none"; stateVersion = "23.05"; };
+    nv1 = { host = "fd0c:3964:8cda::6e42:b995:2026:deae"; proxyJump = "relay1"; tags = [ "desktop" ]; profile = "none"; stateVersion = "23.05"; };
     web2 = { host = "89.167.46.118"; tags = [ "server" ]; profile = "hetzner-cloud"; stateVersion = "26.05"; };
     relay1 = { host = "95.216.188.155"; tags = [ "server" "relay" ]; profile = "hetzner-cloud"; stateVersion = "26.05"; };
   };
