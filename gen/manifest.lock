@@ -4,66 +4,72 @@
       "files": {},
       "inputHash": "e21d3c1859392cf92f6a6cc8e943f14b50037b1796498d0b36a9b2766198358b"
     },
+    "attest/signing-key/_shared": {
+      "files": {
+        "key": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc"
+      },
+      "inputHash": "8450742928d3b9c7102c3ef0eeb832b8374328d66f7e831aa5fe61f31b30cf11"
+    },
     "identity/ca/_shared": {
       "files": {
         "ssh-ca": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b",
         "tls-ca.key": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
       },
-      "inputHash": "f6f4665e4db62d20b98166bfd1093964f8cdcb62c6a5a9cc22a5dafb6d78297b"
+      "inputHash": "5865eeed09579b3c837471971ab328eefb6042433e89b3d68e83c9ab474ac7d1"
     },
     "identity/machine/nv1": {
       "files": {
         "ssh-host": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63",
         "tls.key": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63"
       },
-      "inputHash": "7e5fe662d81b6b30969953f9980c46a76d7d7afb4ca9d19cf9f1cbbd99996351"
+      "inputHash": "6315390c2f6b1566913d49ff53aa09b29d37e61aa9dd4d75543e2a34a07df695"
     },
     "identity/machine/relay1": {
       "files": {
         "ssh-host": "996aa73155bd2a5f8b4d97b4d747b03a47695ce5210364e49b7c9aed7dd36f2d",
         "tls.key": "996aa73155bd2a5f8b4d97b4d747b03a47695ce5210364e49b7c9aed7dd36f2d"
       },
-      "inputHash": "4da0dd780b2cc05f740cc12568dced40d14e4f804f01091307f518c7420c2a20"
+      "inputHash": "7a86379a663fedca17cfe9e0944753cbe174033e29deb91a54ac1ad850fb6bd3"
     },
     "identity/machine/web2": {
       "files": {
         "ssh-host": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc",
         "tls.key": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc"
       },
-      "inputHash": "10225a0d9c0a515e246ddf69255b1943c8eb5c8a14ce3e8e897d790b8b7a7ac1"
+      "inputHash": "ba4bf4e11f075e7b104d537541b245e2da10c178ef2fc95dc7fbe2b23a5ac707"
     },
     "identity/user-claude/_shared": {
       "files": {},
-      "inputHash": "62513e406165924a113b39dfcc2fd149f238499b3de882aa0c55f708636a0d0c"
+      "inputHash": "57abc270ab9a133e8394d752119acb3db4a39d916c20edabc2efa72e457a92ae"
     },
     "identity/user-zimbatm/_shared": {
       "files": {},
-      "inputHash": "327dcb25603cf9789fde51b2e07ae4ea9e85c638bf1cbf07f0f6e0f749387e78"
+      "inputHash": "15c91c170d1c988d215d1a5f3e70535a363dfb7581f35d1eb8a5ade139e97a54"
     },
     "mesh/fingerprints/_shared": {
       "files": {},
-      "inputHash": "16f0940c3b45aac779a0bd013133f71cf2fd4367c1e7b8f1839a8268b4703b0b"
+      "inputHash": "b2e9703ded6d55075807d7379fd93d1b7c77da15f6d386371cbf6ea5447c0135"
     },
     "users/password-claude/_shared": {
       "files": {
         "hash": "3b7f9360d826843099a8a47df2f9fcccb14aec6bef85b654b53d52e856f40ad7",
-        "plain": "3b7f9360d826843099a8a47df2f9fcccb14aec6bef85b654b53d52e856f40ad7"
+        "plain": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
       },
-      "inputHash": "c0f5a6e6a677e3e97920f221f43affe3b49884fd44abe9346585415c48de9e1f"
+      "inputHash": "1d8b3f25b40b74b21c4234b4f16c4b9a83e7cf78c193ee4d5ac6590541547e5a"
     },
     "users/password-migration-test/_shared": {
       "files": {
         "hash": "3b7f9360d826843099a8a47df2f9fcccb14aec6bef85b654b53d52e856f40ad7",
-        "plain": "3b7f9360d826843099a8a47df2f9fcccb14aec6bef85b654b53d52e856f40ad7"
+        "plain": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
       },
-      "inputHash": "c0f5a6e6a677e3e97920f221f43affe3b49884fd44abe9346585415c48de9e1f"
+      "inputHash": "1d8b3f25b40b74b21c4234b4f16c4b9a83e7cf78c193ee4d5ac6590541547e5a"
     },
     "users/password-zimbatm/_shared": {
       "files": {
         "hash": "3b7f9360d826843099a8a47df2f9fcccb14aec6bef85b654b53d52e856f40ad7",
-        "plain": "3b7f9360d826843099a8a47df2f9fcccb14aec6bef85b654b53d52e856f40ad7"
+        "plain": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
       },
-      "inputHash": "c0f5a6e6a677e3e97920f221f43affe3b49884fd44abe9346585415c48de9e1f"
+      "inputHash": "1d8b3f25b40b74b21c4234b4f16c4b9a83e7cf78c193ee4d5ac6590541547e5a"
     }
   }
 }
