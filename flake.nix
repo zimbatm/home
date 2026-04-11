@@ -45,6 +45,7 @@
           nvim = call ./packages/nvim;
           gitbutler-cli = call ./packages/gitbutler-cli;
           ptt-dictate = call ./packages/ptt-dictate;
+          say-back = call ./packages/say-back;
           agent-eyes = call ./packages/agent-eyes;
           ask-local = call ./packages/ask-local;
           kin-opts = call ./packages/kin-opts;
