@@ -1,16 +1,10 @@
+iets:
 {
   optionsType = { lib, ... }: lib.types.submodule {
     options = {
       logPort = lib.mkOption { type = lib.types.port; default = 7480; };
       keyName = lib.mkOption { type = lib.types.str; default = "attest.ztm-1"; };
       stateDir = lib.mkOption { type = lib.types.str; default = "/var/lib/iets-attest"; };
-      # iets flake's `packages.${system}.iets` (provides `ietsd`). Left null
-      # until ietsd grows `attest-log {serve,publish}` subcommands — the
-      # AttestationLogService server and sign_attestation are library-only
-      # at iets@5faa622 (see ../iets/backlog/feat-attest-log-cli.md). The
-      # gen key + publishes contract land now so consumers can name
-      # `fleet.siblings.attest.publishes.{port,publicKey}` and `kin gen`
-      # mints the builder identity ahead of the CLI shipping.
       package = lib.mkOption { type = lib.types.nullOr lib.types.package; default = null; };
     };
   };
@@ -18,6 +12,7 @@
   eval = { lib, pkgs, cfg, fleet }:
     let
       members = fleet._resolve cfg.on;
+      package = if cfg.package != null then cfg.package else iets.packages.${pkgs.stdenv.hostPlatform.system}.iets;
       # NAME:base64(raw 32-byte ed25519 pubkey) — the format
       # `ietsd substitute-proxy --trusted-key` parses (subst/proxy.rs
       # parse_trusted_key). Same typed-accessor shape kin-infra's services/ci.nix
@@ -69,13 +64,13 @@
           let key = genAccess."attest/signing-key".key; in
           lib.mkMerge [
             { networking.firewall.interfaces.kinq0.allowedTCPPorts = [ cfg.logPort ]; }
-            (lib.mkIf (cfg.package != null) {
+            ({
               systemd.services.iets-attest-log = {
                 description = "iets AttestationLogService (gRPC, append-only)";
                 wantedBy = [ "multi-user.target" ];
                 after = [ "network.target" ];
                 serviceConfig = {
-                  ExecStart = "${cfg.package}/bin/ietsd attest-log serve "
+                  ExecStart = "${package}/bin/ietsd attest-log serve "
                     + "--listen [::]:${toString cfg.logPort} --state-dir ${cfg.stateDir}";
                   StateDirectory = baseNameOf cfg.stateDir;
                   DynamicUser = true;
@@ -89,7 +84,7 @@
               # extracting each CA output_hash, then sign_attestation +
               # Append to the local log.
               nix.settings.post-build-hook = toString (pkgs.writeShellScript "kin-attest-publish" ''
-                exec ${cfg.package}/bin/ietsd attest-log publish \
+                exec ${package}/bin/ietsd attest-log publish \
                   --key "''${CREDENTIALS_DIRECTORY:-/run/credentials/nix-daemon.service}/builder-key" \
                   --log grpc://[::1]:${toString cfg.logPort} \
                   --drv "$DRV_PATH" $OUT_PATHS

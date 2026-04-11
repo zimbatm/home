@@ -52,7 +52,7 @@
         config = import ./kin.nix;
         nixpkgsConfig.allowUnfree = true;
         specialArgs = { inherit inputs; flake = inputs.self; };
-        extraServices = { attest = import ./services/attest.nix; };
+        extraServices = { attest = import ./services/attest.nix inputs.iets; };
         devShell.systems = [ "x86_64-linux" "aarch64-linux" ];
         devShell.extraPackages = pkgs: [
           pkgs.age-plugin-tpm
