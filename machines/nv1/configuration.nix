@@ -25,6 +25,14 @@
   hardware.graphics.enable = true;
   hardware.graphics.extraPackages = with pkgs; [ intel-compute-runtime intel-media-driver ];
 
+  # Meteor Lake NPU (Intel AI Boost) — exploration: OpenVINO Whisper offload off the iGPU.
+  # nixos module wires intel-npu-driver.firmware (intel/vpu/vpu_37xx_v1.bin) + libze_intel_npu.so
+  # into /run/opengl-driver, plus level-zero loader & npu validation tools in PATH.
+  # Kernel 6.18 ships ivpu (CONFIG_DRM_ACCEL_IVPU=m); load explicitly for first-boot enumeration.
+  # Verify post-deploy: `ls /dev/accel/` and `vpu-umd-test` / openvino Core().available_devices.
+  hardware.cpu.intel.npu.enable = true;
+  boot.kernelModules = [ "ivpu" ];
+
   # uinput access for ptt-dictate (ydotool type)
   programs.ydotool.enable = true;
 
@@ -41,6 +49,10 @@
   environment.systemPackages = [
     # For debugging and troubleshooting Secure Boot.
     pkgs.sbctl
+
+    # NPU exploration — OpenVINO runtime (built with ENABLE_INTEL_NPU) + python bindings.
+    pkgs.openvino
+    (pkgs.python3.withPackages (p: [ p.openvino ]))
 
     pkgs.perf
     pkgs.pam_u2f  # provides pamu2fcfg for enrolling the YubiKey
