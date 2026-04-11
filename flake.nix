@@ -9,7 +9,7 @@
     srvos = { url = "github:numtide/srvos"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nixvim.url = "github:nix-community/nixvim";
+    nixvim = { url = "github:nix-community/nixvim"; inputs.nixpkgs.follows = "nixpkgs"; };
     llm-agents = { url = "github:numtide/llm-agents.nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-skills = { url = "git+ssh://git@github.com/assise/nix-skills"; inputs.nixpkgs.follows = "nixpkgs"; };
   };
