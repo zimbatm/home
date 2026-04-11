@@ -1,4 +1,20 @@
 { pkgs, inputs, ... }:
+let
+  llm = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+  # nixpkgs buildGoModule puts GOPROXY in the go-modules FOD's impureEnvVars
+  # (so corp proxies work). On the ant build host GOPROXY points at an authed
+  # artifactory the FOD has no creds for → 401. Pin the public proxy and drop
+  # GOPROXY from impureEnvVars (impure wins over explicit drv env in Nix).
+  # Upstream fix belongs in numtide/llm-agents.nix (set env.GOPROXY explicitly).
+  crush =
+    let
+      goModules = llm.crush.goModules.overrideAttrs (old: {
+        GOPROXY = "https://proxy.golang.org,direct";
+        impureEnvVars = pkgs.lib.remove "GOPROXY" old.impureEnvVars;
+      });
+    in
+    llm.crush.overrideAttrs (_: { inherit goModules; });
+in
 {
   imports = [
     ../terminal
@@ -33,11 +49,11 @@
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.core
 
     # AI
-    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
-    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.claudebox
-    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex
-    # inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.crush  # FIXME: go-modules FOD 401s on artifactory GOPROXY (build-host env leak); see backlog/bug-crush-goproxy-leak
-    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.opencode
-    inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.pi
+    llm.claude-code
+    llm.claudebox
+    llm.codex
+    crush
+    llm.opencode
+    llm.pi
   ];
 }
