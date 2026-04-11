@@ -3,7 +3,7 @@
 **What:** `kin status` from the grind worker now returns
 `health=unreachable` for relay1 and web2. `kin ssh` shows the cause:
 `root@95.216.188.155: Permission denied (publickey)` (same for
-89.167.46.118). nv1 remains mesh-ULA-only (`Network is unreachable`;
+89.167.46.118). nv1 remains mesh-ULA-only (`health=not-on-mesh`;
 accepted per 723acbc).
 
 **Why it matters:** drift-checker can no longer read
@@ -14,23 +14,35 @@ Access broke between 7a651c4 and 2a6ea95 — the window where relay1/web2
 were redeployed with the assise:// identity rotation (e3e0cf0, b02ea88,
 709f1ed; "sibling deploy" per 7aea1fe).
 
-**Likely cause:** the grind worker's ssh-agent only carries the coder
-git-signing key (`SHA256:WBaMevQ2…`), not the `claude@kin-infra` key
-declared at kin.nix:18. Either the private half was never persisted to
-the worker env (and 7a651c4 ran from a session that had it loaded
-ad-hoc), or the redeploy dropped a previously-authorized key.
+**Root cause (re-diagnosed 2026-04-11 @ a68c5ed):** the worker's
+ssh-agent now *does* carry a `claude@kin-infra` key + CA cert (someone
+tried the fix) — but **both are from the wrong fleet**:
+
+- agent key `SHA256:d4hLpc9c…` ≠ kin.nix:18 declared key
+  `SHA256:q+vuWh4n…` — same comment string, different keypair.
+- agent cert is signed by CA `SHA256:tEcTOXmz…` for fleet-id
+  `dwqfzbq5…`; **home's** CA is `SHA256:K8GPw7x…` for fleet-id
+  `bir7vyhu…` (gen/identity/ca/_shared/ssh-ca.pub).
+
+`ssh -vv` confirms relay1/web2 reject all three offered keys for both
+root@ and claude@. The worker provisioning likely ran `kin login` from
+`../kin-infra` instead of `../home`.
 
 **How much (human, ~10 min):** pick one —
-- load the `claude@kin-infra` private key into the grind worker's
-  agent (and persist it via whatever provisions `~/.ssh/` here), or
-- add the coder key fingerprint to `kin.nix` `sshKeys` and redeploy, or
-- have grind-base.js `kin login` a CA-signed cert before drift-check.
+- run `kin login` **from the home repo** so the cert is signed by
+  home's CA `K8GPw7x…`, and persist that key+cert into the worker's
+  agent provisioning; or
+- replace kin.nix:18 with the agent's actual pubkey
+  `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJeTgAfmrKax1TAMTiv/D8IImSRfnELGamSJvDqfQt21`
+  then `kin gen` + `kin deploy relay1 web2` from a session that *can*
+  reach them (Jonas's key); or
+- load the original `q+vuWh4n…` private key if it still exists.
 
 **Verify fixed:** from `_base`, `kin status --json relay1 web2` shows
 non-empty `have` for both.
 
-**Meanwhile (inferred drift, unverified):** nv1 was deployed at
-`i4yx1sbx…` (7aea1fe, 2026-04-11 11:55); current want @ 2a6ea95 is
-`hmkplw77…` — stale by the 2a6ea95 kin bump (attest→builtin).
-relay1/web2 were deployed pre-2a6ea95 per 7aea1fe, so same applies.
-Reconcile once access is back: `kin deploy @all`.
+**Meanwhile (inferred drift, unverified — refreshed @ a68c5ed):**
+last known deploys per 7aea1fe were pre-2a6ea95. Current want:
+nv1=`81plk14m…` (was `hmkplw77…` @ 2a6ea95; +NPU/ptt-dictate/stateVersion),
+relay1=`2pr46yxn…` (unchanged since 2a6ea95), web2=`pp1zqfk6…`
+(was `z2linhh7…`). Reconcile once access is back: `kin deploy @all`.
