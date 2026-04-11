@@ -79,6 +79,9 @@
   home-manager.users.zimbatm = {
     imports = [ inputs.self.homeModules.desktop ];
     config.home.stateVersion = "22.11";
+    # infer-queue: device-tagged background inference (arc/npu/cpu lanes, nv1-only hardware).
+    config.home.packages = [ inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.infer-queue ];
+    config.services.pueue.enable = true;
   };
 
   # Auto-tune power management settings
