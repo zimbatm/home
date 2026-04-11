@@ -47,6 +47,7 @@
           ptt-dictate = call ./packages/ptt-dictate;
           say-back = call ./packages/say-back;
           agent-eyes = call ./packages/agent-eyes;
+          gsnap = call ./packages/gsnap;
           ask-local = call ./packages/ask-local;
           kin-opts = call ./packages/kin-opts;
           infer-queue = call ./packages/infer-queue;
