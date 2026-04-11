@@ -45,6 +45,7 @@
           nvim = call ./packages/nvim;
           gitbutler-cli = call ./packages/gitbutler-cli;
           ptt-dictate = call ./packages/ptt-dictate;
+          agent-eyes = call ./packages/agent-eyes;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         });
 
@@ -63,6 +64,7 @@
           inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.iets
           inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.formatter
         ];
+        devShell.extraAgentPackages = pkgs: [ (pkgs.callPackage ./packages/agent-eyes { }) ];
       };
     in
     {
