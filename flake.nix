@@ -50,6 +50,7 @@
           ask-local = call ./packages/ask-local;
           kin-opts = call ./packages/kin-opts;
           infer-queue = call ./packages/infer-queue;
+          llm-router = call ./packages/llm-router;
           agent-meter = call ./packages/agent-meter;
           now-context = call ./packages/now-context;
           pty-puppet = call ./packages/pty-puppet;

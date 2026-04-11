@@ -66,6 +66,7 @@ in
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.ptt-dictate
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.say-back
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.ask-local
+    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.llm-router
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.agent-eyes
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.agent-meter
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.now-context
