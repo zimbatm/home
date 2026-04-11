@@ -29,7 +29,7 @@
   services.udev.packages = [ pkgs.yubikey-personalization ];
 
   # for dconf in home-manager
-  services.dbus.packages = with pkgs; [ pkgs.dconf ];
+  services.dbus.packages = [ pkgs.dconf ];
 
   services.fwupd.enable = true;
 
