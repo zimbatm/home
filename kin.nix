@@ -28,4 +28,5 @@ in
   services.mesh.on = [ "all" ];
   services.mesh.relay = [ "relay1" ];
   services.attest.on = [ "web2" ];
+  services.attest.keyName = "attest.ztm-1";
 }

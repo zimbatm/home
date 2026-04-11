@@ -10,6 +10,7 @@ result-*
 /.cache
 keys/**/*.key
 .grind-stop
+.claude/profile
 .claude/workflows/.grind-assembled.js
 _grind-*.js
 .claude/commands/nix-*.md

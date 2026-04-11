@@ -1,8 +1,9 @@
 {
   "generators": {
     "_fleet/_shared": {
+      "ageHash": {},
       "files": {},
-      "inputHash": "e21d3c1859392cf92f6a6cc8e943f14b50037b1796498d0b36a9b2766198358b"
+      "inputHash": "eb1622e3ed23fc5a1b7235328df7aa975a57dec31be262542c1d4cc0fa976a9d"
     },
     "attest/signing-key/_shared": {
       "files": {
@@ -49,6 +50,11 @@
     "mesh/fingerprints/_shared": {
       "files": {},
       "inputHash": "1b26fc35d7f1eae18ce9958080b5de32004599b53e06bc148e5f5af5a224eb9a"
+    },
+    "ssh/_shared": {
+      "ageHash": {},
+      "files": {},
+      "inputHash": "bc328257dbd9bf96dfc1a1ff75aed57ff41bb9e279d2acfac27e947c2aa58d09"
     },
     "users/password-claude/_shared": {
       "files": {

@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    kin = { url = "git+ssh://git@github.com/assise/kin"; inputs.nixpkgs.follows = "nixpkgs"; };
+    kin = { url = "git+ssh://git@github.com/assise/kin"; inputs.nixpkgs.follows = "nixpkgs"; inputs.iets.follows = "iets"; };
     iets = { url = "git+ssh://git@github.com/jonasc-ant/iets"; inputs.nixpkgs.follows = "nixpkgs"; };
     home-manager = { url = "github:nix-community/home-manager"; inputs.nixpkgs.follows = "nixpkgs"; };
     srvos = { url = "github:numtide/srvos"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -39,7 +39,7 @@
       };
       packages = forAllSystems (system:
         let pkgs = pkgsFor system; call = p: pkgs.callPackage p { inherit inputs system; }; in {
-          inherit (kinOut.packages.${system}) devshell;
+          inherit (kinOut.packages.${system}) devshell agentshell;
           core = call ./packages/core;
           myvim = call ./packages/myvim;
           nvim = call ./packages/nvim;
@@ -53,7 +53,6 @@
         config = import ./kin.nix;
         nixpkgsConfig.allowUnfree = true;
         specialArgs = { inherit inputs; flake = inputs.self; };
-        extraServices = { attest = import ./services/attest.nix inputs.iets; };
         devShell.systems = [ "x86_64-linux" "aarch64-linux" ];
         devShell.extraPackages = pkgs: [
           pkgs.age-plugin-tpm
