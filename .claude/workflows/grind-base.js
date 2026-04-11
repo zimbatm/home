@@ -61,7 +61,7 @@ git worktree add -f --detach "$BASE" origin/main 2>/dev/null || \\
   (cd "$BASE" && git reset --hard origin/main)
 cd "$BASE"
 USER_TREE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
-DIRTY="$(git -C "$USER_TREE" status --porcelain)"
+DIRTY="$(git -C "$USER_TREE" status --porcelain | grep -vx '?? .grind-stop')"
 [[ -z "$DIRTY" ]] || { echo "tree-guard: user tree $USER_TREE has uncommitted changes:" >&2; echo "$DIRTY" | sed 's/^/  /' >&2; exit 1; }
 ${CONFIG.treeGuard ?? ''}
 \`\`\`
