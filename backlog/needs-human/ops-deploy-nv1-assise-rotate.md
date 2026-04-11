@@ -21,5 +21,5 @@ backslash-escape.md).
 
 Probe: `cat /etc/kin/identity/id` → `assise://…/machine/nv1`;
 `systemctl status kin-mesh` → active and peered with relay1/web2.
-Then close this + restore crush in modules/home/desktop/default.nix
-once `backlog/bug-crush-goproxy-leak.md` is fixed.
+Then close this. (crush already restored df81a08; bug-crush-goproxy-leak
+closed f16c924 — that follow-up is done.)
