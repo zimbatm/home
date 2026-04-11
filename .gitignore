@@ -12,3 +12,4 @@ keys/**/*.key
 .grind-stop
 .claude/workflows/.grind-assembled.js
 _grind-*.js
+.claude/commands/nix-*.md
