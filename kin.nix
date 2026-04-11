@@ -27,7 +27,5 @@ in
   services.identity = { domain = "ztm"; on = [ "all" ]; };
   services.mesh.on = [ "all" ];
   services.mesh.relay = [ "relay1" ];
-  # services.attest.on = [ "web2" ];  # needs-human: `kin gen` (zimbatm-yk
-  # age-plugin-yubikey) before enabling — eval fails on web2 without
-  # gen/attest/signing-key/key.age. See backlog/adopt-attest-second-builder.md.
+  services.attest.on = [ "web2" ];
 }
