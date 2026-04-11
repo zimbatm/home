@@ -43,6 +43,7 @@
           core = call ./packages/core;
           myvim = call ./packages/myvim;
           nvim = call ./packages/nvim;
+          gitbutler-cli = call ./packages/gitbutler-cli;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         });
 

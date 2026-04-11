@@ -21,6 +21,7 @@
     fd
     file
     gh
+    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.gitbutler-cli
     gnupg
     gopass
     h
