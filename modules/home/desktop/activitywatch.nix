@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   # ActivityWatch time tracker
   services.activitywatch = {
@@ -21,7 +21,10 @@
     };
   };
 
-  systemd.user.services.activitywatch-watcher-aw-watcher-afk = {
+  systemd.user.services = lib.genAttrs [
+    "activitywatch-watcher-aw-watcher-afk"
+    "activitywatch-watcher-aw-watcher-window-wayland"
+  ] (_: {
     Unit = {
       After = [
         "graphical-session-pre.target"
@@ -29,19 +32,6 @@
       ];
       PartOf = [ "graphical-session.target" ];
     };
-
     Install.WantedBy = [ "graphical-session.target" ];
-  };
-
-  systemd.user.services.activitywatch-watcher-aw-watcher-window-wayland = {
-    Unit = {
-      After = [
-        "graphical-session-pre.target"
-        "aw-server.service"
-      ];
-      PartOf = [ "graphical-session.target" ];
-    };
-
-    Install.WantedBy = [ "graphical-session.target" ];
-  };
+  });
 }
