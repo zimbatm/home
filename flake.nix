@@ -50,6 +50,7 @@
           kin-opts = call ./packages/kin-opts;
           infer-queue = call ./packages/infer-queue;
           agent-meter = call ./packages/agent-meter;
+          pty-puppet = call ./packages/pty-puppet;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         });
 
@@ -71,6 +72,7 @@
         devShell.extraAgentPackages = pkgs: [
           (pkgs.callPackage ./packages/agent-eyes { })
           (pkgs.callPackage ./packages/kin-opts { })
+          (pkgs.callPackage ./packages/pty-puppet { })
         ];
       };
     in

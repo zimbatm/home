@@ -67,6 +67,7 @@ in
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.ask-local
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.agent-eyes
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.agent-meter
+    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.pty-puppet
     llm.claude-code
     llm.claudebox
     llm.codex
