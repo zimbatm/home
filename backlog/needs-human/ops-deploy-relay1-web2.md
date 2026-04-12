@@ -13,9 +13,13 @@ rounds added f7eaa19 (treefmt-nix input) + 7d092c5/b1f1bb3 lock bumps.
 
 ```
 relay1 want: /nix/store/l7h41cp7ixdrhgbw71k75bplqdiip87h-nixos-system-relay1-26.05.20260409.4c1018d
-web2   want: /nix/store/2dfri5fhlsm488qknfvwkg1akr15frgm-nixos-system-web2-26.05.20260409.4c1018d
+web2   want: /nix/store/5fb4q6zrdq00k6984lvj06wbks8kl6x0-nixos-system-web2-26.05.20260409.4c1018d
 have:        unprobeable (ssh publickey denied — ops-worker-ssh-reauth.md)
 ```
+
+(web2 want corrected @ 30b8cf5 — meta-fold had carried forward the
+stale `2dfri5fh…` from e0f586d's eval @ 5aec19d; the f7eaa19/b1f1bb3/
+7d092c5 bumps it already cites moved web2 but not relay1.)
 
 web2 runs `services.attest` so the regenerated identity certs + attest
 signing-key path matter.
