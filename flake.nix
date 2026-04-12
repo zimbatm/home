@@ -33,6 +33,7 @@
       url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "llm-agents/systems";
+      inputs.flake-parts.follows = "llm-agents/flake-parts";
     };
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
@@ -47,6 +48,11 @@
     crops-demo = {
       url = "git+ssh://git@github.com/assise/crops-demo";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.blueprint.follows = "llm-agents/blueprint";
+      inputs.tng.inputs.blueprint.follows = "llm-agents/blueprint";
+      inputs.tng.inputs.disko.follows = "crops-demo/disko";
+      inputs.tng.inputs.srvos.follows = "srvos";
+      inputs.tng.inputs.treefmt-nix.follows = "treefmt-nix";
     };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
