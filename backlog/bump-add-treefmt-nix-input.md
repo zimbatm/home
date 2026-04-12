@@ -1,9 +1,11 @@
-# harness-fmt-and-checks
+# bump: add treefmt-nix input (+ formatter/checks wiring)
 
 ## What
 
-Convert `formatter` from bare nixfmt to treefmt-nix wrapping nixfmt; add
-`checks.${system}` so `nix flake check` evals all hosts.
+Add `inputs.treefmt-nix`, convert `formatter` from bare nixfmt to
+treefmt-nix wrapping nixfmt, and add `checks.${system}` so
+`nix flake check` evals all hosts. Filed as `bump-*` because adding the
+input requires `nix flake lock` (flake.lock-write exemption prefix).
 
 ## Current state
 

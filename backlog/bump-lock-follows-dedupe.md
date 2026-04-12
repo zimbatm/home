@@ -1,4 +1,4 @@
-# simplify: flake.lock follows-dedupe (22→30 nodes after d90e847)
+# bump: flake.lock follows-dedupe (22→30 nodes after d90e847)
 
 ## What
 
@@ -28,16 +28,14 @@ Candidates by safety:
 - `flake-parts_3` → follows root or _2 (check kin/iets compat)
 - `llm-agents_2` → home already has llm-agents direct; whoever pulls
   _2 should follow root
-- `treefmt-nix_2/_3` → home has no root treefmt-nix yet (blocked on
-  needs-human/harness-fmt-and-checks); dedupe between transitives only
+- `treefmt-nix_2/_3` → home has no root treefmt-nix yet (see
+  backlog/bump-add-treefmt-nix-input.md); dedupe between transitives
+  only, or land that first and follow root
 - `blueprint_3 bun2nix_2 import-tree_2` → check who pulls them
 
 ## Blockers
 
-flake.nix edits + `nix flake lock` will touch flake.lock. If
-implementer denylist blocks flake.lock writes (cf.
-needs-human/harness-fmt-and-checks), this lands in needs-human too —
-in which case fold into that item instead of filing a third.
+None. `bump-*` prefix grants the flake.lock-write exemption at merge.
 
 ## Falsifies
 
