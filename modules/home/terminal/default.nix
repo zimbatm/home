@@ -4,6 +4,9 @@
   inputs,
   ...
 }:
+let
+  self' = inputs.self.packages.${pkgs.stdenv.hostPlatform.system};
+in
 {
   imports = [ inputs.nix-index-database.homeModules.nix-index ];
   # also wrap and install comma
@@ -20,7 +23,7 @@
     fd
     file
     gh
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.gitbutler-cli
+    self'.gitbutler-cli
     gnupg
     gopass
     h
@@ -44,8 +47,8 @@
     man-pages
 
     # Coding
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.myvim
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.nvim
+    self'.myvim
+    self'.nvim
     go
     gopls
     (lib.lowPrio gotools)
