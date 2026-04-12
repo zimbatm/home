@@ -63,7 +63,6 @@
         import inputs.nixpkgs {
           inherit system;
           config.allowUnfree = true;
-          overlays = [ ];
         };
       treefmtFor =
         system:
@@ -137,7 +136,7 @@
           ]
           ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
             inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.iets
-            inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.formatter
+            (treefmtFor pkgs.stdenv.hostPlatform.system).config.build.wrapper
           ];
         devShell.extraAgentPackages = pkgs: [
           (pkgs.callPackage ./packages/agent-eyes { })
