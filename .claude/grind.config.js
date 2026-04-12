@@ -45,6 +45,12 @@ apply (with the deploy-safety check from feedback_deploy_safety.md).`,
     drift: ctx => `${ctx.BASE_SETUP}
 You are the DRIFT-CHECKER. Compare what's declared vs what's deployed.
 
+**Skip-guard (run FIRST):**
+\`LAST=$(git log -1 --format=%H --grep='^drift @' origin/main)\`; if set and
+\`git diff --name-only $LAST..origin/main -- '*.nix' kin.nix gen/ flake.lock\`
+is empty, commit \`drift @ <sha>: skip — zero .nix-delta since $LAST\` and
+return immediately — nothing to re-inspect.
+
 For each host in ${HOSTS.join(' ')}: \`kin status <host>\` (or
 \`ssh <host> readlink /run/current-system\` vs the local toplevel).
 File backlog/drift-<host>.md for any mismatch with the diff and a
@@ -60,6 +66,12 @@ ${ctx.MAIN_GUARD}`,
     simplifier: ctx => `${ctx.BASE_SETUP}
 You are the SIMPLIFIER. This is a 38-line kin.nix + ~1500 LoC total —
 keep it that way.
+
+**Skip-guard (run FIRST):**
+\`LAST=$(git log -1 --format=%H --grep='^simplifier @' origin/main)\`; if set and
+\`git diff --name-only $LAST..origin/main -- '*.nix' kin.nix gen/\`
+is empty, commit \`simplifier @ <sha>: skip — zero .nix-delta since $LAST\` and
+return immediately — nothing to re-sweep.
 
 - modules/ files not imported by any host → delete
 - commented-out config (zerotier, tailscale leftovers) → delete
