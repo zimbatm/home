@@ -37,3 +37,20 @@ drift-{relay1,web2}.md cycled 3×A/2×D through backlog/ (7a651c4→0b1f2e7→
 @ 39bab6b: deploy-only + probe-blind items belong in needs-human/, not
 re-triaged each round. drift-checker re-files after next deploy if gap
 reopens.
+
+---
+
+## drift @ 41238a4 (2026-04-12)
+
+Probe still blind (ops-worker-ssh-reauth.md). want refreshed:
+
+```
+relay1 want: /nix/store/l7h41cp7ixdrhgbw71k75bplqdiip87h-nixos-system-relay1-26.05.20260409.4c1018d  (unchanged since 93e01e7)
+web2   want: /nix/store/ljkny7sl99ymdljs2c913qpjkkwm9p0z-nixos-system-web2-26.05.20260409.4c1018d  (was zkmps922…)
+```
+
+relay1 closure-neutral across all 6 nix-touching commits 93e01e7..HEAD
+(minimal mesh-relay surface pulls neither kin/iets bump nor crops-demo
+lock growth). web2 moved via 3ae52ac (kin/iets internal bump —
+services.attest surface) and/or d4e1fea (crops-demo input add, lock
+19→32 nodes). No service-shape changes; reconcile unchanged.

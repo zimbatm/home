@@ -119,3 +119,33 @@ wake-listen` active on nv1 (ConditionPathExists=/dev/accel/accel0);
 Silero VAD on NPU gates ptt-dictate. now-context --clip rides the
 existing now-context check. Deploy + runtime-checks list remain the
 only human-gated work.
+
+---
+
+## drift @ 41238a4 (2026-04-12): r15-r16 closure delta
+
+Probe still blind (ops-worker-ssh-reauth.md — worker key rotated,
+publickey denied on all 3). Last-known have `www09p3bx…` @ 9403a95
+carried forward. declared @ 41238a4 want =
+`rmbkbby6…-nixos-system-nv1-26.05.20260409.4c1018d` (was `63yvjk31…`
+@ 93e01e7; same nixpkgs 4c1018d).
+
+New deploy-affecting commits since 93e01e7 (6):
+
+- eb82a38 — ptt-dictate --intent (GBNF classify → intents.toml dispatch; +ask-local grammar) (nv1-only)
+- 0ce69c5 — **nv1: Niri as second GDM session** (modules/nixos/niri.nix +144L; machines/nv1 import) (nv1-only)
+- 3ae52ac — kin/iets internal bump (web2+nv1; relay1 closure-neutral)
+- 51cb90c — home-manager bump e35c39f→f6196e5 (nv1-only)
+- e23db0f — packages/sem-grep (NPU embedding index over assise repos; flake.nix export) (nv1-only)
+- d4e1fea — +crops-demo flake input (lock 19→32 nodes; consumed by pending adopt-crops-userland) (nv1+web2; relay1 closure-neutral)
+
+**Two new runtime checks:**
+- niri — GDM session picker lists "Niri"; selecting it starts a working
+  session; switching back to GNOME unaffected (lockout-recovery: GNOME
+  stays default, Niri is opt-in at picker)
+- sem-grep — `sem-grep index && sem-grep "kin deploy"` returns hits
+  (falsifies NPU bge-small co-residency w/ transcribe-npu)
+
+ptt-dictate check above extends to `--intent` mode (speak "open
+terminal" → dispatched per intents.toml). Deploy + runtime-checks list
+remain the only human-gated work.
