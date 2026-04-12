@@ -23,6 +23,18 @@ Not safe without a human: `kin deploy`, `nixos-rebuild switch`, `kin set` with s
 - A maille/mesh issue surfaces here → `../maille/backlog/bug-<slug>.md`.
 - An iets eval divergence → `../iets/backlog/bug-<slug>.md`.
 
+Commit+push+verify the cross-file (grind reads origin/main, not your local
+tree — an unpushed/untracked file is invisible):
+
+```sh
+git -C ../<repo> add backlog/<file>.md
+git -C ../<repo> commit -m 'backlog: <slug> (home cross-file)'
+git -C ../<repo> pull --rebase origin main
+git -C ../<repo> push origin HEAD:main && git -C ../<repo> fetch origin && \
+  git -C ../<repo> log -1 --format='%H' origin/main -- backlog/<file>.md | grep -q . || \
+  { echo 'CROSS-FILE NOT ON ORIGIN — push failed'; exit 1; }
+```
+
 Don't open GitHub issues; don't keep local notes. The sibling's own `/grind` triage picks it up.
 
 ## What to edit
