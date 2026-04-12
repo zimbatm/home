@@ -114,6 +114,7 @@
           agent-meter = call ./packages/agent-meter;
           now-context = call ./packages/now-context;
           pty-puppet = call ./packages/pty-puppet;
+          sem-grep = call ./packages/sem-grep;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         }
       );
