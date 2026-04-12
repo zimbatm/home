@@ -66,3 +66,12 @@ for the worker itself.
 Until fixed, drift-checker is **blind** — can compute `want` but not
 `have`. drift-{nv1,relay1,web2}.md this round carry structural drift
 only (d90e847 known-undeployed), no live diff-closures.
+
+## tested (meta round 5, 2026-04-12)
+Option B confirmed not-doable from worker:
+- `age -d -i ~/.ssh/id_ed25519 gen/identity/ca/_shared/ssh-ca.age` → no
+  identity matched (worker is not an admin age recipient)
+- `kin login claude --key ~/.ssh/id_ed25519.pub` → "no enrolled cert
+  matches SHA256:d4hLpc9c…" (new key not enrolled)
+Worker cannot self-recert. All three options end at human-held auth
+(Jonas ssh path or admin age key). → needs-human.
