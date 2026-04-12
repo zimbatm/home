@@ -5,15 +5,16 @@ let
   # (so corp proxies work). On the ant build host GOPROXY points at an authed
   # artifactory the FOD has no creds for → 401. Pin the public proxy and drop
   # GOPROXY from impureEnvVars (impure wins over explicit drv env in Nix).
-  # Upstream fix belongs in numtide/llm-agents.nix (set env.GOPROXY explicitly).
+  # Verified pkgs.crush@0.55.0 still hits this; upstream fix would be nixpkgs
+  # buildGoModule defaulting env.GOPROXY in the FOD.
   crush =
     let
-      goModules = llm.crush.goModules.overrideAttrs (old: {
+      goModules = pkgs.crush.goModules.overrideAttrs (old: {
         GOPROXY = "https://proxy.golang.org,direct";
         impureEnvVars = pkgs.lib.remove "GOPROXY" old.impureEnvVars;
       });
     in
-    llm.crush.overrideAttrs (_: { inherit goModules; });
+    pkgs.crush.overrideAttrs (_: { inherit goModules; });
 in
 {
   imports = [
@@ -72,11 +73,11 @@ in
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.agent-meter
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.now-context
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.pty-puppet
-    llm.claude-code
+    claude-code
     llm.claudebox
-    llm.codex
+    codex
     crush
-    llm.opencode
+    opencode
     llm.pi
   ];
 }
