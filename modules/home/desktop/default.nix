@@ -23,6 +23,7 @@ in
   imports = [
     ../terminal
     ./activitywatch.nix
+    ./crops.nix
   ];
 
   programs.firefox.enable = true;

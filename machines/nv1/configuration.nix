@@ -17,6 +17,7 @@
     inputs.self.nixosModules.niri
     inputs.self.nixosModules.steam
     inputs.srvos.nixosModules.mixins-systemd-boot
+    inputs.crops-demo.nixosModules.vfio-host
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -41,19 +42,15 @@
   programs.ydotool.enable = true;
 
   # Claim NVIDIA GPU + audio for vfio-pci at boot, before nvidia driver loads.
-  boot.kernelParams = [
-    "intel_iommu=on"
-    "iommu=pt"
-  ];
-  boot.initrd.kernelModules = [
-    "vfio_pci"
-    "vfio"
-    "vfio_iommu_type1"
-  ];
-  boot.extraModprobeConfig = ''
-    options vfio-pci ids=10de:28a0,10de:22be
-    softdep nvidia pre: vfio-pci
-  '';
+  # Module owns boot.{kernelParams,initrd.kernelModules,extraModprobeConfig};
+  # IDs match crops-demo's gpu-default.nix (nv1 *is* the reference hardware)
+  # but set explicitly for locality.
+  crops.vfio.enable = true;
+  crops.gpu = {
+    vendorId = "10de";
+    deviceId = "28a0";
+    audioId = "22be";
+  };
 
   boot.loader.systemd-boot.configurationLimit = lib.mkDefault 8;
 
@@ -93,6 +90,8 @@
   home-manager.users.zimbatm = {
     imports = [ inputs.self.homeModules.desktop ];
     config.home.stateVersion = "22.11";
+    # crops-demo userland (5.7 GiB closure) — nv1 is the reference hardware.
+    config.home.crops.enable = true;
     # infer-queue: device-tagged background inference (arc/npu/cpu lanes, nv1-only hardware).
     config.home.packages = [ inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.infer-queue ];
     config.services.pueue.enable = true;
