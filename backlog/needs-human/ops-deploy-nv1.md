@@ -84,3 +84,28 @@ alongside or shortly after the relay1/web2 redeploy in 671c868. The
 ask-local/agent-eyes/infer-queue/agent-meter/pty-puppet/say-back/
 now-context/llm-router). Those need someone at the nv1 desk. Once
 walked, this file can be deleted.
+
+---
+
+## drift @ 9e8c8e8 (2026-04-12): gap reopened, probe blocked
+
+Since the e196255 deploy confirmed above, declared has moved again.
+declared @ 9e8c8e8 want = `x93kiwy9…-nixos-system-nv1-26.05.20260409.4c1018d`
+(same nixpkgs 4c1018d). Probe blocked on ops-worker-ssh-reauth.md (worker
+key rotated; relay1 proxyJump auth fails) — last-known have `www09p3bx…`
+@ 9403a95 carried forward.
+
+New deploy-affecting commits since e196255 (8):
+
+- c9491bc — modules/home/desktop: swap 4 llm-agents pkgs → nixpkgs (nv1-only)
+- d90e847 — kin/iets/nix-skills/llm-agents bump + gen/* regen (all hosts)
+- f4398c4 — transcribe-npu pkg + ptt-dictate NPU-prefer (nv1-only)
+- 6f87665 — flake.lock follows-dedupe 30→19 nodes (all hosts)
+- 3a891ab — agent-eyes: peek --ask moondream2 VLM (nv1-only)
+- 7d092c5 — kin/iets internal bump (all hosts)
+- b1f1bb3 — nix-index-database bump (all hosts)
+- f7eaa19 — +treefmt-nix input + formatter/checks (all hosts)
+
+No new runtime checks — transcribe-npu and peek --ask ride the existing
+ptt-dictate/NPU and agent-eyes checks above. Deploy + the runtime-checks
+list remain the only human-gated work.
