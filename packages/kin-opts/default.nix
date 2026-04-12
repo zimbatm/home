@@ -1,7 +1,12 @@
 { pkgs, ... }:
 pkgs.writeShellApplication {
   name = "kin-opts";
-  runtimeInputs = [ pkgs.nix pkgs.jq pkgs.git pkgs.diffutils ];
+  runtimeInputs = [
+    pkgs.nix
+    pkgs.jq
+    pkgs.git
+    pkgs.diffutils
+  ];
   text = ''
     # Fleet-local NixOS option introspection. Answers from *this flake's*
     # evaluated module system (kin + maille + local modules), not upstream docs.

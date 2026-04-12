@@ -1,7 +1,11 @@
 { pkgs, ... }:
 pkgs.writeShellApplication {
   name = "now-context";
-  runtimeInputs = [ pkgs.curl pkgs.jq pkgs.coreutils ];
+  runtimeInputs = [
+    pkgs.curl
+    pkgs.jq
+    pkgs.coreutils
+  ];
   text = ''
     # Stateless probe of local ActivityWatch (127.0.0.1:5600) → compact JSON
     # of current desktop state: AFK, focused window, last-15m app histogram.

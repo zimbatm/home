@@ -23,7 +23,10 @@
   # Intel Arc (Meteor Lake) handles display.
   # NVIDIA RTX 4060 Max-Q reserved for VFIO passthrough (CROPS VM).
   hardware.graphics.enable = true;
-  hardware.graphics.extraPackages = with pkgs; [ intel-compute-runtime intel-media-driver ];
+  hardware.graphics.extraPackages = with pkgs; [
+    intel-compute-runtime
+    intel-media-driver
+  ];
 
   # Meteor Lake NPU (Intel AI Boost) — exploration: OpenVINO Whisper offload off the iGPU.
   # nixos module wires intel-npu-driver.firmware (intel/vpu/vpu_37xx_v1.bin) + libze_intel_npu.so
@@ -37,8 +40,15 @@
   programs.ydotool.enable = true;
 
   # Claim NVIDIA GPU + audio for vfio-pci at boot, before nvidia driver loads.
-  boot.kernelParams = [ "intel_iommu=on" "iommu=pt" ];
-  boot.initrd.kernelModules = [ "vfio_pci" "vfio" "vfio_iommu_type1" ];
+  boot.kernelParams = [
+    "intel_iommu=on"
+    "iommu=pt"
+  ];
+  boot.initrd.kernelModules = [
+    "vfio_pci"
+    "vfio"
+    "vfio_iommu_type1"
+  ];
   boot.extraModprobeConfig = ''
     options vfio-pci ids=10de:28a0,10de:22be
     softdep nvidia pre: vfio-pci
@@ -55,7 +65,7 @@
     (pkgs.python3.withPackages (p: [ p.openvino ]))
 
     pkgs.perf
-    pkgs.pam_u2f  # provides pamu2fcfg for enrolling the YubiKey
+    pkgs.pam_u2f # provides pamu2fcfg for enrolling the YubiKey
   ];
 
   # Debugging tools
@@ -67,7 +77,10 @@
   nix.settings.trusted-users = [ "zimbatm" ];
 
   # sudo/login/unlock via YubiKey touch (FIDO2). Enroll: pamu2fcfg > ~/.config/Yubico/u2f_keys
-  security.pam.u2f = { enable = true; settings.cue = true; };
+  security.pam.u2f = {
+    enable = true;
+    settings.cue = true;
+  };
   security.pam.services.sudo.u2fAuth = true;
   security.pam.services.gdm-password.u2fAuth = true;
   security.pam.services.login.u2fAuth = true;

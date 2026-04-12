@@ -130,7 +130,6 @@
           "nixpkgs"
         ],
         "treefmt-nix": [
-          "llm-agents",
           "treefmt-nix"
         ]
       },
@@ -199,7 +198,9 @@
           "nixpkgs"
         ],
         "systems": "systems",
-        "treefmt-nix": "treefmt-nix"
+        "treefmt-nix": [
+          "treefmt-nix"
+        ]
       },
       "locked": {
         "lastModified": 1776010706,
@@ -350,7 +351,8 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
-        "srvos": "srvos"
+        "srvos": "srvos",
+        "treefmt-nix": "treefmt-nix"
       }
     },
     "srvos": {
@@ -391,7 +393,6 @@
     "treefmt-nix": {
       "inputs": {
         "nixpkgs": [
-          "llm-agents",
           "nixpkgs"
         ]
       },

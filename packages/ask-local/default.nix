@@ -4,7 +4,10 @@ let
 in
 pkgs.writeShellApplication {
   name = "ask-local";
-  runtimeInputs = [ llama pkgs.coreutils ];
+  runtimeInputs = [
+    llama
+    pkgs.coreutils
+  ];
   text = ''
     # One-shot offline LLM on the Intel Arc iGPU (vulkan). Mirrors ptt-dictate:
     # model lives under XDG_DATA_HOME, wrapper prints the fetch line if missing.

@@ -14,7 +14,9 @@ let
         impureEnvVars = pkgs.lib.remove "GOPROXY" old.impureEnvVars;
       });
     in
-    pkgs.crush.overrideAttrs (_: { inherit goModules; });
+    pkgs.crush.overrideAttrs (_: {
+      inherit goModules;
+    });
 in
 {
   imports = [

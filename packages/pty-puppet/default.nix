@@ -1,7 +1,11 @@
 { pkgs, ... }:
 pkgs.writeShellApplication {
   name = "pty-puppet";
-  runtimeInputs = [ pkgs.tmux pkgs.coreutils pkgs.gnugrep ];
+  runtimeInputs = [
+    pkgs.tmux
+    pkgs.coreutils
+    pkgs.gnugrep
+  ];
   text = ''
     # Session-keyed expect/send for agents driving TUIs (nmtui, gdisk, nix repl).
     # Backend = tmux -L pty-puppet (auto-spawns, auto-dies; no extra daemon).

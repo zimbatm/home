@@ -1,7 +1,10 @@
 { pkgs, ... }:
 pkgs.writeShellApplication {
   name = "infer-queue";
-  runtimeInputs = [ pkgs.pueue pkgs.coreutils ];
+  runtimeInputs = [
+    pkgs.pueue
+    pkgs.coreutils
+  ];
   text = ''
     # Device-tagged background job queue for nv1 local inference. Thin wrapper
     # over pueue with one group per compute lane (arc iGPU, npu Meteor Lake,

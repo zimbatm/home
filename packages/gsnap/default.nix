@@ -6,7 +6,12 @@
 # instead. Leave peek alone — this is the nv1 path, not a replacement.
 pkgs.writeShellApplication {
   name = "gsnap";
-  runtimeInputs = [ pkgs.glib pkgs.imagemagick pkgs.gawk pkgs.coreutils ];
+  runtimeInputs = [
+    pkgs.glib
+    pkgs.imagemagick
+    pkgs.gawk
+    pkgs.coreutils
+  ];
   text = ''
     outdir=/tmp/gsnap
     mkdir -p "$outdir"

@@ -240,7 +240,11 @@
         disabled = true;
         command = "agent-meter --line";
         when = "command -v agent-meter";
-        shell = [ "bash" "--noprofile" "--norc" ];
+        shell = [
+          "bash"
+          "--noprofile"
+          "--norc"
+        ];
         style = "dimmed white";
       };
     };

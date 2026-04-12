@@ -1,7 +1,11 @@
 { pkgs, ... }:
 pkgs.writeShellApplication {
   name = "say-back";
-  runtimeInputs = [ pkgs.piper-tts pkgs.pipewire pkgs.coreutils ];
+  runtimeInputs = [
+    pkgs.piper-tts
+    pkgs.pipewire
+    pkgs.coreutils
+  ];
   text = ''
     # Read text from stdin, synthesise with piper (CPU-only, no Arc/NPU
     # contention), play via pipewire. Closes the ptt-dictate voice loop.

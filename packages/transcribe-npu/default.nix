@@ -10,7 +10,10 @@ let
 in
 pkgs.writeShellApplication {
   name = "transcribe-npu";
-  runtimeInputs = [ py pkgs.coreutils ];
+  runtimeInputs = [
+    py
+    pkgs.coreutils
+  ];
   text = ''
     # Whisper on the Meteor Lake NPU via OpenVINO runtime. Frees the Arc iGPU
     # for ask-local so dictation + local-LLM run concurrently. ptt-dictate

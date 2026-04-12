@@ -5,7 +5,13 @@ let
 in
 pkgs.writeShellApplication {
   name = "ptt-dictate";
-  runtimeInputs = [ whisper transcribe-npu pkgs.pipewire pkgs.ydotool pkgs.coreutils ];
+  runtimeInputs = [
+    whisper
+    transcribe-npu
+    pkgs.pipewire
+    pkgs.ydotool
+    pkgs.coreutils
+  ];
   text = ''
     # Toggle push-to-talk: first call starts recording, second call stops
     # and types the transcription via ydotool. Bind to a single hotkey.
