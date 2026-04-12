@@ -29,6 +29,18 @@ in
 
   programs.firefox.enable = true;
 
+  # tab-tap native-messaging manifest: lets the (unsigned, local) extension at
+  # ${tab-tap}/share/tab-tap/extension reach its host. Load the extension via
+  # about:debugging → Load Temporary Add-on for now; if it survives the
+  # falsification (two verbs suffice) it graduates to a policies.json install.
+  home.file.".mozilla/native-messaging-hosts/tab_tap.json".text = builtins.toJSON {
+    name = "tab_tap";
+    description = "tab-tap socket relay";
+    path = "${self'.tab-tap}/libexec/tab-tap-host";
+    type = "stdio";
+    allowed_extensions = [ "tab-tap@home.assise" ];
+  };
+
   programs.ghostty = {
     enable = true;
 
@@ -105,6 +117,7 @@ in
     self'.agent-meter
     self'.now-context
     self'.pty-puppet
+    self'.tab-tap
     claude-code
     llm.claudebox
     codex

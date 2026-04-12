@@ -1,0 +1,11 @@
+{
+  "manifest_version": 2,
+  "name": "tab-tap",
+  "version": "0.1",
+  "description": "Two-verb bridge: readable text out, one click/type in. No JS REPL.",
+  "browser_specific_settings": {
+    "gecko": { "id": "tab-tap@home.assise" }
+  },
+  "permissions": ["nativeMessaging", "tabs", "<all_urls>"],
+  "background": { "scripts": ["background.js"] }
+}
