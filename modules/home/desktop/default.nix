@@ -1,6 +1,7 @@
 { pkgs, inputs, ... }:
 let
   llm = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
+  self' = inputs.self.packages.${pkgs.stdenv.hostPlatform.system};
   # nixpkgs buildGoModule puts GOPROXY in the go-modules FOD's impureEnvVars
   # (so corp proxies work). On the ant build host GOPROXY points at an authed
   # artifactory the FOD has no creds for → 401. Pin the public proxy and drop
@@ -63,19 +64,19 @@ in
     kdePackages.okular
 
     # SSH shortcuts
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.core
+    self'.core
 
     # AI
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.ptt-dictate
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.wake-listen
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.say-back
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.ask-local
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.llm-router
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.agent-eyes
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.gsnap
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.agent-meter
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.now-context
-    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.pty-puppet
+    self'.ptt-dictate
+    self'.wake-listen
+    self'.say-back
+    self'.ask-local
+    self'.llm-router
+    self'.agent-eyes
+    self'.gsnap
+    self'.agent-meter
+    self'.now-context
+    self'.pty-puppet
     claude-code
     llm.claudebox
     codex
@@ -95,9 +96,7 @@ in
     };
     Service = {
       Type = "simple";
-      ExecStart = "${
-        inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.wake-listen
-      }/bin/wake-listen";
+      ExecStart = "${self'.wake-listen}/bin/wake-listen";
       Restart = "on-failure";
       RestartSec = "5s";
     };
