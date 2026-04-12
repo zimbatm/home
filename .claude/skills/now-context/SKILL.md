@@ -14,3 +14,12 @@ Run `now-context` (no args). It prints one line of JSON:
 If `afk` is true or `focused` is null, hold the suggestion. If `title` is
 empty the Wayland compositor isn't exposing it — fall back to `app` only.
 On `{"error":...}` ActivityWatch isn't running; skip context-aware behaviour.
+
+When the user says *this* / *that* / *the selected …* without a referent in
+the conversation, run `now-context --clip` first and resolve the deictic
+from `selection` (primary, what's highlighted) before `clipboard` (last
+Ctrl-C). Both are ≤4 KiB strings or `null`:
+
+```json
+{..., "selection":"fn parse(...) { ... }", "clipboard":null}
+```
