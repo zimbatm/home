@@ -127,6 +127,7 @@
           coord-panes = call ./packages/coord-panes;
           man-here = call ./packages/man-here;
           sem-grep = call ./packages/sem-grep;
+          tab-tap = call ./packages/tab-tap;
           live-caption-log = call ./packages/live-caption-log;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         }
