@@ -125,6 +125,7 @@
           now-context = call ./packages/now-context;
           pty-puppet = call ./packages/pty-puppet;
           coord-panes = call ./packages/coord-panes;
+          man-here = call ./packages/man-here;
           sem-grep = call ./packages/sem-grep;
           live-caption-log = call ./packages/live-caption-log;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
@@ -156,6 +157,7 @@
           (pkgs.callPackage ./packages/agent-eyes { })
           (pkgs.callPackage ./packages/coord-panes { })
           (pkgs.callPackage ./packages/kin-opts { })
+          (pkgs.callPackage ./packages/man-here { })
           (pkgs.callPackage ./packages/pty-puppet { })
         ];
       };
