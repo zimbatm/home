@@ -120,6 +120,7 @@
           pty-puppet = call ./packages/pty-puppet;
           coord-panes = call ./packages/coord-panes;
           sem-grep = call ./packages/sem-grep;
+          live-caption-log = call ./packages/live-caption-log;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         }
       );

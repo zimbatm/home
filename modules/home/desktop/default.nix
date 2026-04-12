@@ -24,6 +24,7 @@ in
     ../terminal
     ./activitywatch.nix
     ./crops.nix
+    ./live-caption.nix
   ];
 
   programs.firefox.enable = true;
