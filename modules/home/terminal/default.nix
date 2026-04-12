@@ -45,6 +45,7 @@ in
 
     # Linux man pages!
     man-pages
+    self'.man-here
 
     # Coding
     self'.myvim
