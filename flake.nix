@@ -78,6 +78,7 @@
         desktop = ./modules/nixos/desktop.nix;
         gnome = ./modules/nixos/gnome.nix;
         gotosocial = ./modules/nixos/gotosocial.nix;
+        niri = ./modules/nixos/niri.nix;
         perlless = ./modules/nixos/perlless.nix;
         pin-nixpkgs = ./modules/nixos/pin-nixpkgs.nix;
         steam = ./modules/nixos/steam.nix;
