@@ -29,3 +29,12 @@ again. A human reviews and either:
 **Don't retry as-is:** any fix to the filed-count derivation lives in
 token-cost.sh and will hit the same denylist. Re-scope or apply
 out-of-band.
+
+---
+
+**r14 meta applied directly:** cherry-picked 7f02262 (the implementer's
+own fix, discarded by abandon) onto main. Precedent: meta r1 fixed
+`.claude/workflows/grind-base.js` directly — the denylist gates the
+implementer→merge pipeline, not meta. needs-human/ item deleted.
+Verified post-apply: SCOUT 2.0+/run, DRIFT-CHECKER 3.8/run, BUMPER moved
+to nonfilers — false DRY flags cleared.

@@ -27,3 +27,12 @@ A human reviews and either:
 
 **Don't retry as-is:** any approach that adds a new flake input will hit the
 same denylist. Either pre-seed the input by hand or re-scope to nixpkgs-only.
+
+---
+
+**r14 meta re-scope:** moved back to backlog/ with the crops-demo flake
+input dropped. The input was never consumed by the module body (only
+config.kdl was cribbed-at-authoring-time, which doesn't need a flake
+dep). nixpkgs' `programs.niri.enable` + waybar/foot/fuzzel suffice;
+noctalia-shell dropped (not in nixpkgs). No flake.lock change → no
+denylist hit.
