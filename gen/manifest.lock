@@ -79,8 +79,9 @@
     },
     "ssh/_shared": {
       "ageHash": {},
+      "depFilesHash": "ede71d95f59c8fe5e6cbd4e32f0150016a666247af5c50b912a6ee5c66045212",
       "files": {},
-      "inputHash": "176cf4ce745ca23ea3298020d6b236c08542e432ea50f68e79b115542b069769"
+      "inputHash": "78c40cd8276ae0836737c7b1e059dbbb04ba8f5f15204d8857a61477f1293e95"
     },
     "users/password-claude/_shared": {
       "ageHash": {
