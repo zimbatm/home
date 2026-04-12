@@ -16,8 +16,9 @@ const CONFIG = {
   name: 'home',
   implementers: 2,
   archCadence: 6,
-  fastCheck: `nix eval .#nixosConfigurations --apply builtins.attrNames && \
-    for h in ${HOSTS.join(' ')}; do nix build .#nixosConfigurations.$h.config.system.build.toplevel --dry-run --quiet || exit 1; done`,
+  // checks.x86_64-linux = {fmt, nv1, relay1, web2}; --no-build = eval-only (dry-build parity).
+  // ~21s vs ~23s for the old per-host loop — single process shares the nixpkgs import.
+  fastCheck: 'nix flake check --no-build',
 
   triageExtra: () => `
    **kin.nix is the spine** — at most 1 pick per round that touches it.
