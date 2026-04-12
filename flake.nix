@@ -3,15 +3,15 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    kin = { url = "git+ssh://git@github.com/assise/kin"; inputs.nixpkgs.follows = "nixpkgs"; inputs.iets.follows = "iets"; inputs.nix-skills.follows = "nix-skills"; };
-    iets = { url = "git+ssh://git@github.com/jonasc-ant/iets"; inputs.nixpkgs.follows = "nixpkgs"; inputs.llm-agents.follows = "llm-agents"; };
+    kin = { url = "git+ssh://git@github.com/assise/kin"; inputs.nixpkgs.follows = "nixpkgs"; inputs.iets.follows = "iets"; inputs.nix-skills.follows = "nix-skills"; inputs.maille.inputs.llm-agents.follows = "llm-agents"; };
+    iets = { url = "git+ssh://git@github.com/jonasc-ant/iets"; inputs.nixpkgs.follows = "nixpkgs"; inputs.llm-agents.follows = "llm-agents"; inputs.treefmt-nix.follows = "llm-agents/treefmt-nix"; };
     home-manager = { url = "github:nix-community/home-manager"; inputs.nixpkgs.follows = "nixpkgs"; };
     srvos = { url = "github:numtide/srvos"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nixvim = { url = "github:nix-community/nixvim"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nixvim = { url = "github:nix-community/nixvim"; inputs.nixpkgs.follows = "nixpkgs"; inputs.systems.follows = "llm-agents/systems"; };
     llm-agents = { url = "github:numtide/llm-agents.nix"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix-skills = { url = "git+ssh://git@github.com/assise/nix-skills"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nix-skills = { url = "git+ssh://git@github.com/assise/nix-skills"; inputs.nixpkgs.follows = "nixpkgs"; inputs.blueprint.follows = "llm-agents/blueprint"; };
   };
 
   outputs = inputs:
