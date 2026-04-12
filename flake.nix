@@ -44,6 +44,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.blueprint.follows = "llm-agents/blueprint";
     };
+    crops-demo = {
+      url = "git+ssh://git@github.com/assise/crops-demo";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
