@@ -126,23 +126,28 @@ if by_role:
     # Per-role aggregates with the implementer median as the yardstick.
     # An agent paying ≥2× the implementer median is spending its budget on
     # "decide what to do"; one filing 0 across multiple runs is dry.
-    # `filed` counts backlog/* additions in commits whose subject names the
-    # role — proxy, but consistent (specialists commit "<verb>(rN): …" or
-    # "<verb> rN: …"). Transcript role is the noun ("SIMPLIFIER"); commit
-    # subject is the verb ("simplify") — map explicitly.
+    # `filed` counts backlog/* adds+mods in commits whose subject names the
+    # role — proxy, but consistent. Subjects come in two shapes:
+    # legacy "<verb>(rN): …"/"<verb> rN: …" and direct-commit
+    # "<role> @ <sha>: …" (scout/bumper/drift/simplifier). Transcript role
+    # is the noun ("SIMPLIFIER"); subject may be verb or noun — map both.
+    # --diff-filter=AM so drift's in-place needs-human/ edits count (r8 fold).
     VERB_ROLE = {"simplify": "SIMPLIFIER", "align": "ALIGNER", "sec": "SEC",
-                 "refactor": "REFACTOR", "meta": "META"}
+                 "refactor": "REFACTOR", "meta": "META", "scout": "SCOUT",
+                 "bumper": "BUMPER", "simplifier": "SIMPLIFIER",
+                 "drift": "DRIFT-CHECKER", "drift-checker": "DRIFT-CHECKER"}
     log = subprocess.run(
-        ["git", "log", "--format=SUBJ %s", "--diff-filter=A", "--name-only",
+        ["git", "log", "--format=SUBJ %s", "--diff-filter=AM", "--name-only",
          "origin/main", "--", "backlog/"],
         capture_output=True, text=True).stdout
     filed = {}
     cur_role = None
     for line in log.splitlines():
         if line.startswith("SUBJ "):
-            m = re.match(r'SUBJ (\w+)\W+r\d+\b', line)
+            m = re.match(r'SUBJ ([\w-]+)(?:\W+r\d+|\s*@\s*[0-9a-f]{6,})\b', line)
             cur_role = (VERB_ROLE.get(m.group(1).lower()) or m.group(1).upper()) if m else None
-        elif line.startswith("backlog/") and not line.startswith("backlog/tried/"):
+        elif (line.startswith("backlog/") and not line.startswith("backlog/tried/")
+              and not line.startswith("backlog/wontfix/")):
             if cur_role: filed[cur_role] = filed.get(cur_role, 0) + 1
     by = {}
     for role, item, total, t, _ in rows:
@@ -152,7 +157,9 @@ if by_role:
     print(f"{'role':<12} {'runs':>5} {'med_billable':>12} {'×impl_med':>9} "
           f"{'p90':>12} {'$total':>9} {'filed':>6} {'/run':>6}  flag")
     print("-" * 92)
-    NONFILERS = {"IMPLEMENTER","TRIAGE","META","MERGE","SCOPE","ABANDON","REFACTOR","CURATOR","?"}
+    # BUMPER's output is flake.lock commits, never backlog files (meta r11 note)
+    NONFILERS = {"IMPLEMENTER","TRIAGE","META","MERGE","SCOPE","ABANDON",
+                 "REFACTOR","CURATOR","BUMPER","?"}
     for role in sorted(by, key=lambda r: -statistics.median([t for t,_ in by[r]])):
         runs = by[role]; totals = sorted(t for t,_ in runs)
         med = statistics.median(totals)
