@@ -22,3 +22,9 @@ either:
 - re-scopes the item to grind-safe edits only and moves it back to
   `backlog/`; or
 - deletes it outright.
+## Re-scope (meta r12, 2026-04-12)
+Moved back to `backlog/` with config-only approach: early-exit guard
+prepended to drift/simplifier specialist *prompts* (not rotation picker).
+Specialist spawns, checks .nix-delta, skip-commits if zero. Avoids the
+grind-base.js signature change that triggered denylist. ~95% token savings
+vs full rotation-skip; grind.config.js is grind-editable (cf. 2b42336).
