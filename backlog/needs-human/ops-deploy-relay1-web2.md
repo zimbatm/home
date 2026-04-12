@@ -54,3 +54,23 @@ relay1 closure-neutral across all 6 nix-touching commits 93e01e7..HEAD
 lock growth). web2 moved via 3ae52ac (kin/iets internal bump —
 services.attest surface) and/or d4e1fea (crops-demo input add, lock
 19→32 nodes). No service-shape changes; reconcile unchanged.
+
+---
+
+## drift @ e8c0ad4 (2026-04-12)
+
+Probe still blind (ops-worker-ssh-reauth.md — `kin status --json`
+returns `unreachable`, have empty). want refreshed:
+
+```
+relay1 want: /nix/store/l7h41cp7ixdrhgbw71k75bplqdiip87h-nixos-system-relay1-26.05.20260409.4c1018d  (unchanged since 93e01e7)
+web2   want: /nix/store/z5sq8m0z0ymk40bszmg6clp4wlx6d0ca-nixos-system-web2-26.05.20260409.4c1018d  (was ljkny7sl…)
+```
+
+relay1 still closure-neutral across 41238a4..e8c0ad4 (5 nix-touching
+commits: fc83166/0d0321d/ffef511 nv1-only; dc59a67 kin/iets bump
+doesn't reach minimal mesh-relay surface; c27c5c1 follows-dedupe
+drvPath-identical). web2 moved via dc59a67 only (kin 69dbf2a→12d99c5,
+iets 7d651f2→8259dcd — services.attest + common surface). No
+service-shape changes; reconcile unchanged. Gate passed @ dc59a67
+(eval+dry-build green per bumper commit).

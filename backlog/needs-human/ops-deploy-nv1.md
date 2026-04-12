@@ -149,3 +149,34 @@ New deploy-affecting commits since 93e01e7 (6):
 ptt-dictate check above extends to `--intent` mode (speak "open
 terminal" → dispatched per intents.toml). Deploy + runtime-checks list
 remain the only human-gated work.
+
+---
+
+## drift @ e8c0ad4 (2026-04-12): r17-r20 closure delta
+
+Probe still blind (ops-worker-ssh-reauth.md — `kin status` returns
+`not-on-mesh`, have empty). Last-known have `www09p3bx…` @ 9403a95
+carried forward. declared @ e8c0ad4 want =
+`3mschyps…-nixos-system-nv1-26.05.20260409.4c1018d` (was `rmbkbby6…`
+@ 41238a4; same nixpkgs 4c1018d).
+
+New deploy-affecting commits since 41238a4 (4; c27c5c1 follows-dedupe
+is drvPath-identical, closure-neutral):
+
+- fc83166 — **nv1: crops-demo userland** (machines/nv1 +vfio-host import; modules/home/desktop/crops.nix +7 CLIs, gated) (nv1-only)
+- 0d0321d — coord-panes pkg + agentshell wire (flake.nix export; dev-tool) (nv1-only)
+- ffef511 — live-caption-log pkg + hm module, **off-by-default** pending ops-live-caption-privacy (nv1-only)
+- dc59a67 — kin/iets internal bump 69dbf2a→12d99c5 / 7d651f2→8259dcd (nv1+web2; relay1 closure-neutral — want unchanged)
+
+**Two new runtime checks:**
+- crops-userland — `lsmod | grep -E 'vfio_pci|vfio_iommu'` loaded;
+  `crops-guest list` (or whichever of the 7 CLIs is the entry) runs
+  without "module not found" (gate is feature-flag, so off until
+  toggled — verify CLIs in PATH at minimum)
+- live-caption-log — stays inert until ops-live-caption-privacy
+  resolves; if enabled: `systemctl --user status live-caption-log`
+  active + `~/.local/share/live-caption/*.jsonl` grows during audio
+  playback
+
+coord-panes is agentshell/dev-side; no nv1 desk check. Deploy +
+runtime-checks list remain the only human-gated work.
