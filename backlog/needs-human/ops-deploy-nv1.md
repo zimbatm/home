@@ -87,15 +87,15 @@ walked, this file can be deleted.
 
 ---
 
-## drift @ 9e8c8e8 (2026-04-12): gap reopened, probe blocked
+## drift @ 93e01e7 (2026-04-12): gap grown, probe still blocked
 
 Since the e196255 deploy confirmed above, declared has moved again.
-declared @ 9e8c8e8 want = `x93kiwy9…-nixos-system-nv1-26.05.20260409.4c1018d`
-(same nixpkgs 4c1018d). Probe blocked on ops-worker-ssh-reauth.md (worker
-key rotated; relay1 proxyJump auth fails) — last-known have `www09p3bx…`
-@ 9403a95 carried forward.
+declared @ 93e01e7 want = `63yvjk31…-nixos-system-nv1-26.05.20260409.4c1018d`
+(same nixpkgs 4c1018d). Probe still blocked on ops-worker-ssh-reauth.md
+(worker key rotated; relay1 proxyJump auth fails) — last-known have
+`www09p3bx…` @ 9403a95 carried forward.
 
-New deploy-affecting commits since e196255 (8):
+New deploy-affecting commits since e196255 (13):
 
 - c9491bc — modules/home/desktop: swap 4 llm-agents pkgs → nixpkgs (nv1-only)
 - d90e847 — kin/iets/nix-skills/llm-agents bump + gen/* regen (all hosts)
@@ -105,7 +105,17 @@ New deploy-affecting commits since e196255 (8):
 - 7d092c5 — kin/iets internal bump (all hosts)
 - b1f1bb3 — nix-index-database bump (all hosts)
 - f7eaa19 — +treefmt-nix input + formatter/checks (all hosts)
+- eea133f — now-context --clip flag (wl-clipboard fold) (nv1-only)
+- 325a1bc — wake-listen pkg + systemd --user unit, NPU-gated (nv1-only)
+- 0d2890f — kin/iets internal bump (all hosts)
+- 0a84820 — srvos bump f56f105→7983ea7 (all hosts)
+- cb57e80 — modules/home self' = inputs.self.packages binding (nv1-only)
 
-No new runtime checks — transcribe-npu and peek --ask ride the existing
-ptt-dictate/NPU and agent-eyes checks above. Deploy + the runtime-checks
-list remain the only human-gated work.
+(2efe8bf devshell-treefmt + drop `overlays=[]` is closure-neutral —
+relay1 want unchanged across it.)
+
+**One new runtime check:** wake-listen — `systemctl --user status
+wake-listen` active on nv1 (ConditionPathExists=/dev/accel/accel0);
+Silero VAD on NPU gates ptt-dictate. now-context --clip rides the
+existing now-context check. Deploy + runtime-checks list remain the
+only human-gated work.
