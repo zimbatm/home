@@ -14,6 +14,7 @@
     inputs.nixos-hardware.nixosModules.common-pc-ssd
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
+    inputs.self.nixosModules.niri
     inputs.self.nixosModules.steam
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];

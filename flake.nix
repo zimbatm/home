@@ -80,6 +80,7 @@
         gotosocial = ./modules/nixos/gotosocial.nix;
         perlless = ./modules/nixos/perlless.nix;
         pin-nixpkgs = ./modules/nixos/pin-nixpkgs.nix;
+        niri = ./modules/nixos/niri.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;
         zimbatm = ./modules/nixos/zimbatm.nix;
