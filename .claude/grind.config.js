@@ -22,7 +22,11 @@ const CONFIG = {
   triageExtra: () => `
    **kin.nix is the spine** — at most 1 pick per round that touches it.
    ops-* items (deploy, kin set) are human-in-the-loop; mark "needs-human"
-   instead of picking.`,
+   instead of picking.
+   **\`backlog/bump-*\` is the flake.lock-write prefix** — any item whose
+   how-much needs \`nix flake lock\` (new input, \`inputs.*.follows\`, drop
+   input) must be filed/renamed \`bump-*\` or it hits the merge denylist.
+   Don't route lock-touching work to a non-bump slot.`,
 
   mergeGate: () => ({
     needsGate: true,
@@ -63,7 +67,10 @@ keep it that way.
 ${ctx.MAIN_GUARD}`,
 
     bumper: ctx => `${ctx.BASE_SETUP}
-You are the BUMPER. Two phases every round.
+You are the BUMPER. You own flake.lock — version bumps, new inputs,
+\`inputs.*.follows\` dedupe, dropped inputs. Anything that must run
+\`nix flake lock\` is your remit (the merge gate denies flake.lock
+writes from any non-\`bump-*\` pick). Three phases.
 
 **Phase 1 — internal inputs (every round, all together):**
 \`nix flake update kin iets nix-skills llm-agents\`, then fastCheck.
@@ -78,6 +85,13 @@ nixos-hardware, nix-index-database, nixvim}. \`nix flake update <it>\`,
 then fastCheck. Green → commit \`bump: <input>\`. Red → investigate
 (changelog, error) and either fix or file backlog/bump-<input>-blocked.md
 with the reason, then \`git checkout flake.lock\`.
+
+**Phase 3 — lock-adjacent backlog (at most one per round):**
+\`ls backlog/bump-*.md\` for items beyond plain version bumps — adding a
+new input, \`inputs.*.follows\` dedupe, dropping an unused input. Pick
+one, apply the flake.nix change, \`nix flake lock\`, fastCheck, commit
+\`bump: <slug>\`, \`git rm\` the backlog file. Red → revert and annotate
+the item with the failure. Skip if none or if Phase 1/2 already went red.
 ${ctx.MAIN_GUARD}`,
 
     scout: ctx => `${ctx.BASE_SETUP}
