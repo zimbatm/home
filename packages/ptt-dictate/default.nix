@@ -1,10 +1,11 @@
 { pkgs, ... }:
 let
   whisper = pkgs.whisper-cpp.override { vulkanSupport = true; };
+  transcribe-npu = pkgs.callPackage ../transcribe-npu { };
 in
 pkgs.writeShellApplication {
   name = "ptt-dictate";
-  runtimeInputs = [ whisper pkgs.pipewire pkgs.ydotool pkgs.coreutils ];
+  runtimeInputs = [ whisper transcribe-npu pkgs.pipewire pkgs.ydotool pkgs.coreutils ];
   text = ''
     # Toggle push-to-talk: first call starts recording, second call stops
     # and types the transcription via ydotool. Bind to a single hotkey.
@@ -30,8 +31,15 @@ pkgs.writeShellApplication {
     wait || true
     rm -f "$STATE/pid"
 
-    TEXT=$(whisper-cli -m "$MODEL" -f "$REC" --no-timestamps --no-prints 2>/dev/null \
-           | tr -d '\n' | sed 's/^ *//;s/ *$//')
+    # Prefer the Meteor Lake NPU when present — frees the Arc iGPU for
+    # ask-local so voice + local-LLM run concurrently. Fall back to the
+    # whisper-cpp/vulkan path if the accel node is absent or the NPU run fails.
+    if [[ -e /dev/accel/accel0 ]] && TEXT=$(transcribe-npu "$REC" 2>/dev/null); then
+      :
+    else
+      TEXT=$(whisper-cli -m "$MODEL" -f "$REC" --no-timestamps --no-prints 2>/dev/null)
+    fi
+    TEXT=$(printf %s "$TEXT" | tr -d '\n' | sed 's/^ *//;s/ *$//')
     [[ -n "$TEXT" ]] && ydotool type -- "$TEXT"
   '';
 }

@@ -45,6 +45,7 @@
           nvim = call ./packages/nvim;
           gitbutler-cli = call ./packages/gitbutler-cli;
           ptt-dictate = call ./packages/ptt-dictate;
+          transcribe-npu = call ./packages/transcribe-npu;
           say-back = call ./packages/say-back;
           agent-eyes = call ./packages/agent-eyes;
           gsnap = call ./packages/gsnap;
