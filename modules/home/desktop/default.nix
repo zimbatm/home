@@ -67,6 +67,7 @@ in
 
     # AI
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.ptt-dictate
+    inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.wake-listen
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.say-back
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.ask-local
     inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.llm-router
@@ -82,4 +83,24 @@ in
     opencode
     llm.pi
   ];
+
+  # Always-on VAD gate on the NPU. ConditionPathExists keeps it inert until
+  # the accel node is live (gated on needs-human/ops-deploy-nv1). Falsify via
+  # agent-meter NPU-busy % + powertop package-W delta over a 10-min idle window.
+  systemd.user.services.wake-listen = {
+    Unit = {
+      Description = "NPU-resident VAD gate for ptt-dictate";
+      ConditionPathExists = "/dev/accel/accel0";
+      After = [ "pipewire.service" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = "${
+        inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.wake-listen
+      }/bin/wake-listen";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
 }
