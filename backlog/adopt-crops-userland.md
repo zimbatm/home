@@ -3,7 +3,7 @@
 ## What
 
 Consume `crops-demo` flake outputs on nv1 (input added by
-`adopt-niri-session`; whichever lands first adds it):
+`bump-add-crops-demo-input.md` — see Blockers):
 
 1. **Replace hand-rolled vfio** in `machines/nv1/configuration.nix:42-54`
    with the exported module:
@@ -71,9 +71,11 @@ before/after eval diff and closure-size check.
 
 ## Blockers
 
-- Shares the `crops-demo` flake input with `adopt-niri-session` —
-  coordinate so it's added once (sibling-cluster guard: pick at most one
-  of these two per round).
+- **`inputs.crops-demo` does not exist yet.** adopt-niri-session landed
+  nixpkgs-only @ 0ce69c5 without adding it (r14 meta re-scope; see
+  `tried/adopt-niri-session.md`). Blocked on
+  `bump-add-crops-demo-input.md` — bumper adds the input first
+  (implementer touching flake.lock is denylisted).
 - crops-demo's nixpkgs pin may diverge from ours after `follows` —
   `crops-llama` w/ CUDA may need `allowUnfree` already set (it is, via
   desktop.nix) but watch for `cudaSupport` overlay mismatch.
