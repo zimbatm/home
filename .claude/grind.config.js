@@ -46,7 +46,10 @@ File backlog/drift-<host>.md for any mismatch with the diff and a
 proposed reconciliation (usually: just deploy, but flag if deployed
 state has something declared doesn't).
 
-Also check: are flake.lock inputs >30 days stale? File backlog/bump-*.
+Also check: are external flake.lock inputs (nixpkgs, home-manager, srvos,
+nixos-hardware, nix-index-database, nixvim) >7 days stale? File
+backlog/bump-*. Internal inputs (kin/iets/nix-skills/llm-agents) are the
+bumper's job every round — don't flag those here.
 ${ctx.MAIN_GUARD}`,
 
     simplifier: ctx => `${ctx.BASE_SETUP}
@@ -60,14 +63,21 @@ keep it that way.
 ${ctx.MAIN_GUARD}`,
 
     bumper: ctx => `${ctx.BASE_SETUP}
-You are the BUMPER. Update one input per round and prove it builds.
+You are the BUMPER. Two phases every round.
 
-\`nix flake update <input>\` for the oldest-locked input. Then run
-fastCheck. If a host breaks, investigate (changelog, error) and either
-fix or file backlog/bump-<input>-blocked.md with the reason.
+**Phase 1 — internal inputs (every round, all together):**
+\`nix flake update kin iets nix-skills llm-agents\`, then fastCheck.
+Green → commit \`bump: internal (kin/iets/nix-skills/llm-agents)\`.
+Red → \`git checkout flake.lock\` and cross-file the regression to the
+offending sibling's backlog/ (../kin, ../iets, ../nix-skills) per the
+CLAUDE.md cross-dispatch recipe — add+commit+push+verify in that repo.
 
-Priority: nixpkgs > kin > iets > others. Don't bump >1 input per round
-(blast radius).
+**Phase 2 — external inputs (one per round, oldest-first):**
+Pick the single oldest-locked input from {nixpkgs, home-manager, srvos,
+nixos-hardware, nix-index-database, nixvim}. \`nix flake update <it>\`,
+then fastCheck. Green → commit \`bump: <input>\`. Red → investigate
+(changelog, error) and either fix or file backlog/bump-<input>-blocked.md
+with the reason, then \`git checkout flake.lock\`.
 ${ctx.MAIN_GUARD}`,
 
     scout: ctx => `${ctx.BASE_SETUP}
