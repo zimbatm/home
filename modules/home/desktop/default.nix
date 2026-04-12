@@ -41,6 +41,7 @@ in
     "org/gnome/settings-daemon/plugins/media-keys" = {
       custom-keybindings = [
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate/"
+        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate-intent/"
       ];
     };
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate" = {
@@ -48,7 +49,32 @@ in
       command = "ptt-dictate";
       binding = "<Super>d";
     };
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate-intent" = {
+      name = "Push-to-talk intent dispatch";
+      command = "ptt-dictate --intent";
+      binding = "<Super><Shift>d";
+    };
   };
+
+  # Dispatch table for `ptt-dictate --intent`. Each [section] is an intent name
+  # the GBNF-constrained classifier (ask-local --grammar) may emit; `exec` runs
+  # via bash -c with {arg} substituted shell-quoted. `fallthrough = true` types
+  # the raw utterance via ydotool (the pre-intent path). Unmatched → fallthrough.
+  # Targets are existing skill CLIs already on PATH (agent-eyes, ask-local,
+  # say-back, now-context) — zero new closure.
+  xdg.configFile."voice-intent/intents.toml".text = ''
+    [screenshot]
+    exec = "peek"
+
+    [ask]
+    exec = "ask-local {arg} | say-back"
+
+    [context]
+    exec = "now-context --clip"
+
+    [type]
+    fallthrough = true
+  '';
 
   home.packages = with pkgs; [
     # Graphical

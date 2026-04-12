@@ -11,8 +11,10 @@ pkgs.writeShellApplication {
   text = ''
     # One-shot offline LLM on the Intel Arc iGPU (vulkan). Mirrors ptt-dictate:
     # model lives under XDG_DATA_HOME, wrapper prints the fetch line if missing.
-    #   ask-local "<prompt>"   → llama-cli, prints completion to stdout
-    #   ask-local --serve      → llama-server on 127.0.0.1:8088 (OpenAI-compat)
+    #   ask-local "<prompt>"                  → llama-cli, prints completion to stdout
+    #   ask-local --grammar <gbnf> "<prompt>" → constrained decoding (used by
+    #                                           ptt-dictate --intent for JSON-only output)
+    #   ask-local --serve                     → llama-server on 127.0.0.1:8088 (OpenAI-compat)
     MODEL="''${ASK_LOCAL_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/llama/Phi-3-mini-4k-instruct-Q4_K_M.gguf}"
 
     if [[ ! -f "$MODEL" ]]; then
@@ -26,6 +28,12 @@ pkgs.writeShellApplication {
       exec llama-server -m "$MODEL" -ngl 99 --host 127.0.0.1 --port 8088
     fi
 
-    exec llama-cli -m "$MODEL" -ngl 99 -p "$*" --no-display-prompt 2>/dev/null
+    extra=()
+    if [[ "''${1:-}" == "--grammar" && $# -ge 2 ]]; then
+      extra=(--grammar-file "$2" -n 128)
+      shift 2
+    fi
+
+    exec llama-cli -m "$MODEL" -ngl 99 "''${extra[@]}" -p "$*" --no-display-prompt 2>/dev/null
   '';
 }
