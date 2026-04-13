@@ -41,6 +41,12 @@ in
     allowed_extensions = [ "tab-tap@home.assise" ];
   };
 
+  programs.foot = {
+    enable = true;
+    server.enable = true;
+    settings.main.font = "monospace:size=16";
+  };
+
   programs.ghostty = {
     enable = true;
 
@@ -63,7 +69,7 @@ in
     };
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal" = {
       name = "Terminal";
-      command = "ghostty";
+      command = "foot";
       binding = "<Super>Return";
     };
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate" = {
