@@ -63,8 +63,9 @@
     },
     "identity/user-claude/_shared": {
       "ageHash": {},
+      "depFilesHash": "d8fb419abb315310b6ba83ff63eaeb6f662db14bb64f6df92131631f44703088",
       "files": {},
-      "inputHash": "915969e0b53b3fb61179d271e27fdf6500245004f01733e71bac498f7830ec3b"
+      "inputHash": "a0d1f3ea75fc26bb8cd63df839db7232f1669b400980423e671ea0a29b65828a"
     },
     "identity/user-zimbatm/_shared": {
       "ageHash": {},
