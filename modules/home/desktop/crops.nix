@@ -22,7 +22,10 @@ in
       cp.crops-research
       cp.crops-gpu-detect
       cp.crops-selftest
-      cp.run-crops
+      # cp.run-crops — pulls inputs.tng → crane mkDummySrc reads Cargo.toml at
+      # eval time → IETS-0025 (iets bans IFD per ADR-0011). Use
+      # `nix run github:assise/crops-demo#run-crops` ad-hoc until
+      # ../tng/backlog/bug-crane-ifd-iets.md lands.
     ];
   };
 }
