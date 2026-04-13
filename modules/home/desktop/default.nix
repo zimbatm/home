@@ -50,13 +50,21 @@ in
     };
   };
 
-  # Push-to-talk dictation hotkey (toggle: press to start, press to stop+type)
+  # GNOME custom keybinds. The custom-keybindings list is the *registry* —
+  # hm activation REPLACES it, so every bind we want must be listed here
+  # (manual binds via Settings get de-registered on switch otherwise).
   dconf.settings = {
     "org/gnome/settings-daemon/plugins/media-keys" = {
       custom-keybindings = [
+        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate-intent/"
       ];
+    };
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal" = {
+      name = "Terminal";
+      command = "ghostty";
+      binding = "<Super>Return";
     };
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate" = {
       name = "Push-to-talk dictate";
