@@ -1,5 +1,6 @@
 { inputs, system, ... }:
 inputs.nixvim.legacyPackages.${system}.makeNixvim {
+  enableMan = false;
   editorconfig.enable = true;
 
   plugins = {
