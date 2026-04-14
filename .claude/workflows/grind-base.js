@@ -60,13 +60,20 @@ Read/Glob/Grep over \`cat\`/\`ls\`/\`grep -rn\`; \`git log --numstat\` over
 
 \`\`\`sh
 BASE="${BASE}"
-git fetch origin main
+git fetch origin
+USER_TREE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
+# Auto-salvage stranded cross-repo backlog dispatch in user tree before _base reset:
+git -C "$USER_TREE" ls-files --others --exclude-standard -- 'backlog/*.md' | grep -q . && \\
+  git -C "$USER_TREE" add -- 'backlog/*.md' && git -C "$USER_TREE" commit -m 'backlog(auto-salvage): stranded cross-repo dispatch'
+if [[ -n "$(git -C "$USER_TREE" log origin/main..HEAD -- backlog/ 2>/dev/null)" && \\
+      -z "$(git -C "$USER_TREE" diff --name-only origin/main..HEAD | grep -v '^backlog/')" ]]; then
+  git -C "$USER_TREE" pull --rebase origin main && git -C "$USER_TREE" push origin HEAD:main && git fetch origin
+fi
 git worktree add -f --detach "$BASE" origin/main 2>/dev/null || \\
   (cd "$BASE" && git reset --hard origin/main)
 cd "$BASE"
 nix build .#agentshell --out-link .claude/profile 2>/dev/null && PATH=".claude/profile/bin:$PATH" || true
-USER_TREE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
-DIRTY="$(git -C "$USER_TREE" status --porcelain | grep -Fvx '?? .grind-stop')"
+DIRTY="$(git -C "$USER_TREE" status --porcelain | grep -Fvx '?? .grind-stop' | grep -Ev '^[?][?] backlog/[^/]*[.]md$')"
 [[ -z "$DIRTY" ]] || { echo "tree-guard: user tree $USER_TREE has uncommitted changes:" >&2; echo "$DIRTY" | sed 's/^/  /' >&2; exit 1; }
 ${CONFIG.treeGuard ?? ''}
 \`\`\`
@@ -285,11 +292,39 @@ Return one entry per branch with its file list.`, {
     const prev = mergeChain
     let done
     mergeChain = new Promise(r => { done = r })
-    return prev.then(() => {
+    return prev.then(async () => {
       const actualFiles = (scopeMap.get(impl.branch) ?? []).filter(f => /^[\w./-]+$/.test(f))
       const isBump = /^backlog\/bump-/.test(impl.pick?.file ?? '')
       const deny = isBump ? MERGE_DENY : [...MERGE_DENY, /(^|\/)flake\.lock$/]
-      const bad = actualFiles.find(f => deny.some(re => re.test(f)))
+      const allBad = actualFiles.filter(f => deny.some(re => re.test(f)))
+      let bad = allBad[0]
+      // sibling-forward-lock: if flake.lock is the ONLY denylist hit, allow when every
+      // changed lock node is URL-unchanged + rev on ../$node origin/main (same trust as bumper).
+      if (allBad.length === 1 && /(^|\/)flake\.lock$/.test(bad) && !isBump) {
+        const fwd = await agent(`
+Sibling-forward-lock check for ${impl.branch}. flake.lock is the only scope hit.
+Run in ${impl.worktree}:
+\`\`\`sh
+set -e
+OLD=$(git show origin/main:flake.lock); NEW=$(cat flake.lock)
+nodes() { jq -r '.nodes|to_entries[]|"\\(.key) \\(.value.locked.rev // "-") \\(.value.locked.url // .value.original.url // "-")"'; }
+ALLOW=1
+diff <(echo "$OLD"|nodes) <(echo "$NEW"|nodes) | grep '^>' | sed 's/^> //' | while read -r node rev url; do
+  [[ "$node" =~ ^[a-zA-Z0-9_-]+$ ]] || { echo "DENY: node name '$node'"; exit 1; }
+  oldurl=$(echo "$OLD" | jq -r ".nodes.\\"$node\\".locked.url // .nodes.\\"$node\\".original.url // \\"-\\"")
+  [[ "$url" == "$oldurl" ]] || { echo "DENY: $node url changed"; exit 1; }
+  [[ -d "../$node" ]] || { echo "DENY: $node not a local sibling"; exit 1; }
+  git -C "../$node" fetch -q origin main
+  git -C "../$node" merge-base --is-ancestor "$rev" origin/main || { echo "DENY: $node $rev not on origin/main"; exit 1; }
+done && echo SIBLING_FORWARD_OK
+\`\`\`
+Return ok:true only if the last line is SIBLING_FORWARD_OK.`, {
+          label: `lock-fwd-${impl.branch.replace(/.*\//, '')}`, phase: 'Merge',
+          schema: { type: 'object', properties: { ok: { type: 'boolean' }, reason: { type: 'string' } }, required: ['ok'] },
+        })
+        if (fwd?.ok) { log(`lock-fwd OK on ${impl.branch}`); bad = undefined }
+        else log(`lock-fwd DENY on ${impl.branch}: ${fwd?.reason ?? 'check failed'}`)
+      }
       const pickFile = /^backlog\/[\w.-]+\.md$/.test(impl.pick?.file ?? '') ? impl.pick.file : null
       if (bad) {
         log(`SKIP merge: scope violation ${bad} on ${impl.branch}`)
@@ -446,6 +481,13 @@ then \`--notes\` to attach per-merge cost as \`refs/notes/tokens\`; then
 \`git push origin refs/notes/tokens\`. Act on flags: WIDE (med ≥2× impl_med)
 → file backlog/meta-split-<role>.md; DRY (≥3 runs, <0.5 filed/run) →
 file backlog/meta-retire-<role>.md or note expected (refactor/direct-commit roles).
+
+**Rotation drift** — this round ran specialist \`${specName}\`. Verify it's
+still a key in the on-disk config:
+\`grep -Fq '${specName}: ({' .claude/grind.config.js || echo DRIFT\` (cwd is _base,
+reset to origin/main, so this reads the latest committed config).
+On DRIFT (config edited mid-run; CONFIG is frozen at launch) report
+stop_requested:true and note "rotation-drift: restart /grind" in fixes_applied.
 
 **Stop signal** — derive the user tree
 (\`UT="$(git worktree list --porcelain | sed -n '1s/^worktree //p')"\`)
