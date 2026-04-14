@@ -72,7 +72,7 @@ pkgs.writeShellApplication {
         pcm = (np.frombuffer(raw, np.int16).astype(np.float32) / 32768.0)[None, :]
         res = vad({"input": pcm, "h": h, "c": c, "sr": sr})
         h, c = res[p_hn], res[p_cn]
-        streak = streak + 1 if float(res[p_out]) > THRESH else 0
+        streak = streak + 1 if res[p_out].item() > THRESH else 0
         if streak < DEBOUNCE or os.path.exists(active):
             continue
         if oneshot == "1":
