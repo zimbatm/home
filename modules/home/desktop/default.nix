@@ -1,4 +1,9 @@
-{ pkgs, inputs, ... }:
+{
+  pkgs,
+  lib,
+  inputs,
+  ...
+}:
 let
   llm = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
   self' = inputs.self.packages.${pkgs.stdenv.hostPlatform.system};
@@ -83,6 +88,19 @@ in
       binding = "<Super><Shift>d";
     };
   };
+
+  # Grant non-interactive xdg-desktop-portal Screenshot to host (unsandboxed)
+  # apps — app_id "" — so gsnap can capture without a prompt. GNOME 41+ locks
+  # org.gnome.Shell.Screenshot to allowlisted senders, so the portal is the only
+  # CLI path; the portal in turn refuses interactive:false until this row exists
+  # in PermissionStore. Idempotent; tolerates no-session-bus (initial install).
+  home.activation.grantScreenshotPortal = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    ${pkgs.glib}/bin/gdbus call --session \
+      --dest org.freedesktop.impl.portal.PermissionStore \
+      --object-path /org/freedesktop/impl/portal/PermissionStore \
+      --method org.freedesktop.impl.portal.PermissionStore.SetPermission \
+      screenshot true screenshot "" '["yes"]' 2>/dev/null || true
+  '';
 
   # Dispatch table for `ptt-dictate --intent`. Each [section] is an intent name
   # the GBNF-constrained classifier (ask-local --grammar) may emit; `exec` runs
