@@ -10,8 +10,8 @@ let
 in
 {
   # Off by default — capturing the sink monitor turns *all* desktop audio into
-  # text on disk. Enable per-host only after the privacy stance in
-  # backlog/needs-human/ops-live-caption-privacy.md is decided.
+  # text on disk. Policy 2026-04-14 (396d2de): enable per-host with explicit
+  # retentionDays; `live-caption off` for per-session pause.
   options.home.live-caption = {
     enable = lib.mkEnableOption "live-caption-log: monitor-source → NPU transcript → jsonl + sem-grep";
     retentionDays = lib.mkOption {
