@@ -238,3 +238,34 @@ already noted by bumper):
 Deploy + runtime-checks list remain the only human-gated work. The
 **off-main `have`** is the new flag — confirm no intentional local
 delta on nv1 before deploy overwrites it.
+
+---
+
+## drift @ 589a2f5 (2026-04-12): want moved, have unchanged off-main
+
+`kin status --json` live:
+```
+have: /nix/store/gfcs7jg5f5k5zb0yy9wf2jmqip1rjcgf-nixos-system-nv1-26.05.20260409.4c1018d
+want: /nix/store/fvq2yl042n4vaz7mcpr3nfkfzkhv3h88-nixos-system-nv1-26.05.20260409.4c1018d
+```
+have `gfcs7jg5` unchanged since d2ad1d1 (still off-main, still
+unmatched against any origin/main eval; uptime 0d18h same boot). want
+`db5j0ss1`→`fvq2yl04` via 2 nv1-affecting commits since fbececb:
+
+- 1201785 — gsnap compositor-aware (xdg-portal GNOME / grim wlroots) +
+  per-desktop baselines; modules/home/desktop +20L (nv1-only)
+- f2c38c8 — kin/iets/nix-skills/llm-agents internal bump; drop stale
+  llm-agents follows (all hosts; relay1 bisect confirms closure delta)
+
+Closure-neutral for nv1 (verified via relay1 bisect @ 7e93604):
+6bf3705 kin.nix `admin=true` drop (mkDefault'd), d00a686 IFD-ban
+(flake.nix nixConfig + grind harness only). 821b625 srvos bump
+relay1-neutral; nv1 not bisected but srvos is server-profile —
+unlikely nv1-affecting.
+
+**One new runtime check:**
+- gsnap — `gsnap capture` works under both GNOME (xdg-portal path)
+  and Niri (grim path); per-desktop baseline dirs created
+
+Off-main `have` flag from d2ad1d1 still stands — confirm no
+intentional local delta on nv1 before `kin deploy nv1` overwrites it.
