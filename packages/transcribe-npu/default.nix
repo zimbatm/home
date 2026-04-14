@@ -7,6 +7,12 @@ let
     ps.numpy
     ps.huggingface-hub
   ]);
+  whisper-base-en-ov = pkgs.fetchgit {
+    url = "https://huggingface.co/OpenVINO/whisper-base.en-fp16-ov";
+    rev = "50b74f57c2339aaf6cd2bfae1e7a0a437d73faff";
+    fetchLFS = true;
+    hash = "sha256-iA220hJxoBLNJMQFucCGLygJgtCIlLftMqINFpaeOnQ=";
+  };
 in
 pkgs.writeShellApplication {
   name = "transcribe-npu";
@@ -20,16 +26,11 @@ pkgs.writeShellApplication {
     # prefers this path when /dev/accel/accel0 exists; also the first real
     # workload for `infer-queue add --lane npu -- transcribe-npu <wav>`.
     #   transcribe-npu <wav>   → prints transcript to stdout
-    # Model: pre-exported OpenVINO IR under XDG_DATA_HOME (mirror ask-local).
-    MODEL="''${TRANSCRIBE_NPU_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/openvino/whisper-base.en}"
+    # Model: OpenVINO/whisper-base.en-fp16-ov, shipped as a FOD in the closure.
+    MODEL="''${TRANSCRIBE_NPU_MODEL:-${whisper-base-en-ov}}"
     DEVICE="''${TRANSCRIBE_NPU_DEVICE:-NPU}"
 
-    if [[ ! -f "$MODEL/openvino_encoder_model.xml" ]]; then
-      echo "transcribe-npu: model not found: $MODEL" >&2
-      echo "  fetch: mkdir -p \"$MODEL\" && \\" >&2
-      echo "    huggingface-cli download OpenVINO/whisper-base.en-fp16-ov --local-dir \"$MODEL\"" >&2
-      exit 1
-    fi
+    [[ -f "$MODEL/openvino_encoder_model.xml" ]] || { echo "transcribe-npu: model not found: $MODEL" >&2; exit 1; }
 
     exec python3 - "$MODEL" "$DEVICE" "''${1:-/dev/stdin}" <<'PY'
     import sys, numpy as np, soundfile as sf, openvino as ov

@@ -5,6 +5,10 @@ let
     ps.numpy
   ]);
   ptt-dictate = pkgs.callPackage ../ptt-dictate { };
+  silero-vad = pkgs.fetchurl {
+    url = "https://github.com/snakers4/silero-vad/raw/v5.1/src/silero_vad/data/silero_vad.onnx";
+    hash = "sha256-JiOilT9v89LB5hdAxs23FoEzR5smff7xFKSjzFvdeI8=";
+  };
 in
 pkgs.writeShellApplication {
   name = "wake-listen";
@@ -21,8 +25,8 @@ pkgs.writeShellApplication {
     # and the CPU asleep — the NPU is the ambient coprocessor.
     #   wake-listen            → loop forever (systemd --user unit)
     #   wake-listen --oneshot  → exit 0 on first onset (testing)
-    # Model: Silero VAD v5 ONNX (~1.8 MB) under XDG_DATA_HOME.
-    MODEL="''${WAKE_LISTEN_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/openvino/silero_vad.onnx}"
+    # Model: Silero VAD v5 ONNX (~1.8 MB), shipped as a FOD in the closure.
+    MODEL="''${WAKE_LISTEN_MODEL:-${silero-vad}}"
     DEVICE="''${WAKE_LISTEN_DEVICE:-NPU}"
     RUNTIME="''${XDG_RUNTIME_DIR:-/tmp}/wake-listen"
     mkdir -p "$RUNTIME"
@@ -30,12 +34,7 @@ pkgs.writeShellApplication {
     ONESHOT=0
     [[ "''${1:-}" == "--oneshot" ]] && ONESHOT=1
 
-    if [[ ! -f "$MODEL" ]]; then
-      echo "wake-listen: model not found: $MODEL" >&2
-      echo "  fetch: mkdir -p \"$(dirname "$MODEL")\" && \\" >&2
-      echo "    curl -L -o \"$MODEL\" https://github.com/snakers4/silero-vad/raw/v5.1/src/silero_vad/data/silero_vad.onnx" >&2
-      exit 1
-    fi
+    [[ -f "$MODEL" ]] || { echo "wake-listen: model not found: $MODEL" >&2; exit 1; }
 
     if [[ -f "$RUNTIME/active" ]] && kill -0 "$(cat "$RUNTIME/active" 2>/dev/null)" 2>/dev/null; then
       echo "wake-listen: already active (pid $(cat "$RUNTIME/active"))" >&2
