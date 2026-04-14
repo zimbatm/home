@@ -196,6 +196,8 @@ in
       Description = "NPU-resident VAD gate for ptt-dictate";
       ConditionPathExists = "/dev/accel/accel0";
       After = [ "pipewire.service" ];
+      StartLimitIntervalSec = 60;
+      StartLimitBurst = 5;
     };
     Service = {
       Type = "simple";

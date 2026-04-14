@@ -5,9 +5,12 @@ let
     ps.numpy
   ]);
   ptt-dictate = pkgs.callPackage ../ptt-dictate { };
+  # Silero VAD v4.0 — v5.x ONNX has an If-based 8k/16k branch with dynamic-rank
+  # Conv/ReduceMean that OpenVINO 2026.1's ONNX frontend cannot convert
+  # (OpConversionFailure on Conv-16/ReduceMean-16). v4 compiles clean.
   silero-vad = pkgs.fetchurl {
-    url = "https://github.com/snakers4/silero-vad/raw/v5.1/src/silero_vad/data/silero_vad.onnx";
-    hash = "sha256-JiOilT9v89LB5hdAxs23FoEzR5smff7xFKSjzFvdeI8=";
+    url = "https://github.com/snakers4/silero-vad/raw/v4.0/files/silero_vad.onnx";
+    hash = "sha256-o16/Uv085fFGmyo2FY26dhvEe5c+ozgrMYbKFbH1ryg=";
   };
 in
 pkgs.writeShellApplication {
@@ -25,7 +28,7 @@ pkgs.writeShellApplication {
     # and the CPU asleep — the NPU is the ambient coprocessor.
     #   wake-listen            → loop forever (systemd --user unit)
     #   wake-listen --oneshot  → exit 0 on first onset (testing)
-    # Model: Silero VAD v5 ONNX (~1.8 MB), shipped as a FOD in the closure.
+    # Model: Silero VAD v4 ONNX (~1.8 MB), shipped as a FOD in the closure.
     MODEL="''${WAKE_LISTEN_MODEL:-${silero-vad}}"
     DEVICE="''${WAKE_LISTEN_DEVICE:-NPU}"
     RUNTIME="''${XDG_RUNTIME_DIR:-/tmp}/wake-listen"
@@ -50,7 +53,7 @@ pkgs.writeShellApplication {
 
     core = ov.Core()
     vad = core.compile_model(model, device)
-    p_out, p_state = vad.outputs[0], vad.outputs[1]
+    p_out, p_hn, p_cn = vad.outputs[0], vad.outputs[1], vad.outputs[2]
 
     rec = subprocess.Popen(
         ["pw-record", "--rate", "16000", "--channels", "1", "-"],
@@ -59,15 +62,16 @@ pkgs.writeShellApplication {
     rec.stdout.read(44)  # canonical WAV header
 
     sr = np.array(16000, dtype=np.int64)
-    state = np.zeros((2, 1, 128), dtype=np.float32)
+    h = np.zeros((2, 1, 64), dtype=np.float32)
+    c = np.zeros((2, 1, 64), dtype=np.float32)
     streak = 0
     while True:
         raw = rec.stdout.read(CHUNK * 2)
         if len(raw) < CHUNK * 2:
             sys.exit(rec.wait())
         pcm = (np.frombuffer(raw, np.int16).astype(np.float32) / 32768.0)[None, :]
-        res = vad({"input": pcm, "state": state, "sr": sr})
-        state = res[p_state]
+        res = vad({"input": pcm, "h": h, "c": c, "sr": sr})
+        h, c = res[p_hn], res[p_cn]
         streak = streak + 1 if float(res[p_out]) > THRESH else 0
         if streak < DEBOUNCE or os.path.exists(active):
             continue
@@ -83,7 +87,8 @@ pkgs.writeShellApplication {
             rec.send_signal(signal.SIGCONT)
             try: os.unlink(active)
             except OSError: pass
-        state = np.zeros((2, 1, 128), dtype=np.float32)
+        h = np.zeros((2, 1, 64), dtype=np.float32)
+        c = np.zeros((2, 1, 64), dtype=np.float32)
         streak = 0
     PY
   '';
