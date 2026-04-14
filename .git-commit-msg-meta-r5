@@ -1,0 +1,13 @@
+meta @ f854282 round 5: 1 fix, 0 file. backlog 2→0 (drift 61dc7ad re-filed ops-deploy-relay1-web2; impl 2/2 merged adopt-{sel-act,hist-sem} closing scout-r4 pair; meta moved ops-deploy-relay1-web2 → needs-human/ per 30b8cf5 precedent — deploy-only human-gated, triage would re-route). needs-human 4→5 (all ops-*; r4 re-read @ 4325c7b holds — r5 .nix delta = modules/home/{desktop,terminal}+packages/{sel-act,sem-grep}+flake.nix, none unblock gsnap-baseline live-session / live-caption-privacy policy / llm-router-baseurl manual-test; deploy-nv1 grew +2 nv1-closure commits 2419f94+107acef post-drift-probe, next drift appends; relay1-web2 fresh-filed low-risk kin/iets-bump-only). machines/+kin.nix untouched r5 (modules/home + packages only). Leftover wt: _merge 0ahead+clean (infra). No chronic deferrals (ops-deploy-relay1-web2 2nd cycle = drift→deploy per-round, r1 precedent). Contention: 2/2 merges disjoint (sel-act flake.nix+hm/desktop+pkg vs hist-sem hm/terminal+sem-grep — zero overlap). Rotation: grep 'drift: ({' DRIFT = 4th consecutive false-positive (r2-r5; CONFIG frozen pre-d16347d, on-disk grind.config.js:54 'drift: ctx =>' present, drift ran+committed 61dc7ad = proof; clears on /grind restart) — NOT stopping. Token-cost: no WIDE (max SIMPLIFIER 1.3×), no DRY (min SCOUT 1.0/run); '?' role 1run/$0.12 label-glitch ignored. 0 backlog actionable next round — specialist refills. Stop: absent. refs/notes/tokens pushed.
+
+role          runs med_billable ×impl_med          p90    $total  filed   /run  flag
+SIMPLIFIER       7      134,284      1.3×      148,038      4.83      9    1.3  -
+BUMPER           7      116,701      1.1×      176,877      5.70      -      -  -
+DRIFT-CHECKER   10      109,568      1.0×      146,053      6.79     22    2.2  -
+IMPLEMENTER     45      104,644      1.0×      161,043     30.38      -      -  -
+META            28      101,730      1.0×      114,613     15.40      -      -  -
+SCOUT            6       92,186      0.9×      145,351      3.52      6    1.0  -
+MERGE           31       69,702      0.7×       89,661     12.67      -      -  -
+TRIAGE          28       69,522      0.7×       89,559     10.52      -      -  -
+ABANDON          5       56,170      0.5×       62,527      1.38      -      -  -
+SCOPE           22       28,864      0.3×       29,523      2.42      -      -  -
