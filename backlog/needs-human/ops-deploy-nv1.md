@@ -305,3 +305,34 @@ since 589a2f5 (e170608 gen-regen drvPath-identical, neutral):
 
 Off-main `have` flag from d2ad1d1 still stands — confirm no
 intentional local delta on nv1 before `kin deploy nv1` overwrites it.
+---
+
+## drift @ 53bed8f (2026-04-14): have moved off-main AGAIN, want +live-caption
+
+`kin status --json` live (probe ok, all 3 reachable, health=running, 0 failed):
+```
+have: /nix/store/sxmv9yvibgy7xvf56yfg09gjm99knnjv-nixos-system-nv1-26.05.20260409.4c1018d
+want: /nix/store/xx8swk3nzr3ck07z3lr93sp8bcz2rpmh-nixos-system-nv1-26.05.20260409.4c1018d
+```
+have `gfcs7jg5`→`sxmv9yvi` since e4c1d3d (uptime 0d22h→1d2h, same
+boot — switched-not-rebooted in the ~4h window). `sxmv9yvi` is
+**off-main again**: eval at every commit 0251202..53bed8f yields only
+`fvazrzw4` (pre-396d2de) or `xx8swk3n` (post). Second consecutive
+off-main have (`gfcs7jg5` since d2ad1d1, now `sxmv9yvi`) — nv1 is
+being deployed from a working tree or local branch, not origin/main.
+**Confirm the local delta is intentional before `kin deploy nv1`
+overwrites it** — or commit+push the local tree first.
+
+want `fvazrzw4`→`xx8swk3n` via **1 commit** since e4c1d3d:
+
+- 396d2de — live-caption enable on nv1 (`home.live-caption.enable=true`
+  in machines/nv1/configuration.nix); module +`retentionDays` opt
+  (default 30, prune in nightly reindex) + `live-caption
+  {on|off|status|tail}` CLI wrapper (nv1-only; relay1+web2
+  closure-neutral, verified want unchanged)
+
+**One new runtime check:**
+- live-caption — `systemctl --user status live-caption-log` active;
+  `live-caption tail` follows today's jsonl; `live-caption off`
+  stops the unit; nightly reindex prunes
+  `~/.local/state/live-caption/*.jsonl` older than 30d

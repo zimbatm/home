@@ -50,3 +50,25 @@ doesn't reach the iets/kin paths that moved. (65e3984 commit msg claims
 **Reconcile unchanged:** just deploy. Same nixpkgs 4c1018d throughout;
 internal lib bumps only. web2 restic-backups-gotosocial timer runtime
 check from d2ad1d1 still applies if not yet walked.
+---
+
+## drift @ 53bed8f (2026-04-14): web2 deployed ✓, relay1 still pending
+
+`kin status --json` live:
+```
+relay1: have dpxnfwvk… ≠ want cfp7bc9j…  (UNCHANGED both sides since 589a2f5; uptime 6d8h)
+web2:   have l6wwl43y… == want l6wwl43y…  ✓ (deployed since e4c1d3d; uptime 6d11h)
+```
+
+**web2 done** — have moved `zv4kapl1`→`l6wwl43y` matching want;
+deployed sometime in the ~4h since e4c1d3d. restic-backups-gotosocial
+timer runtime check from d2ad1d1 still applies if not yet walked;
+otherwise web2 is fully reconciled.
+
+**relay1 unchanged** — still the single f2c38c8 kin/iets bump as sole
+delta. 396d2de (live-caption, nv1-only home module) is
+relay1-closure-neutral (want stayed `cfp7bc9j`, verified). relay1 is
+now the only stale host of the pair; uptime 6d8h, no failed units.
+
+**Reconcile:** `kin deploy relay1`. After that lands and the web2
+restic check is walked, delete this file.
