@@ -17,6 +17,15 @@
     playerctl
   ];
 
+  # waybar's stock config draws workspace/battery/network glyphs from
+  # Font Awesome; without it the bar shows tofu. GNOME ships its own
+  # icon theme so this only matters in the Niri session.
+  fonts.packages = with pkgs; [
+    font-awesome
+    nerd-fonts.symbols-only
+    noto-fonts-color-emoji
+  ];
+
   # System-wide default; per-user ~/.config/niri/config.kdl overrides.
   environment.etc."xdg/niri/config.kdl".text = ''
     input {
