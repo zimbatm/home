@@ -12,10 +12,31 @@ in
   # Off by default — capturing the sink monitor turns *all* desktop audio into
   # text on disk. Enable per-host only after the privacy stance in
   # backlog/needs-human/ops-live-caption-privacy.md is decided.
-  options.home.live-caption.enable = lib.mkEnableOption "live-caption-log: monitor-source → NPU transcript → jsonl + sem-grep";
+  options.home.live-caption = {
+    enable = lib.mkEnableOption "live-caption-log: monitor-source → NPU transcript → jsonl + sem-grep";
+    retentionDays = lib.mkOption {
+      type = lib.types.ints.positive;
+      default = 30;
+      description = "Delete caption jsonl older than this many days during the nightly reindex.";
+    };
+  };
 
   config = lib.mkIf config.home.live-caption.enable {
-    home.packages = [ self'.live-caption-log ];
+    home.packages = [
+      self'.live-caption-log
+      (pkgs.writeShellApplication {
+        name = "live-caption";
+        text = ''
+          case "''${1:-status}" in
+            on)     systemctl --user start live-caption-log ;;
+            off)    systemctl --user stop live-caption-log ;;
+            status) systemctl --user status live-caption-log --no-pager ;;
+            tail)   tail -f "''${XDG_STATE_HOME:-$HOME/.local/state}/live-caption/$(date +%F).jsonl" ;;
+            *)      echo "usage: live-caption {on|off|status|tail}  (off is per-session; edit config for persistent)" >&2; exit 2 ;;
+          esac
+        '';
+      })
+    ];
 
     systemd.user.services.live-caption-log = {
       Unit = {
@@ -47,6 +68,7 @@ in
           set -eu
           state="''${XDG_STATE_HOME:-$HOME/.local/state}/live-caption"
           [ -d "$state" ] || exit 0
+          find "$state" -name '*.jsonl' -mtime +${toString config.home.live-caption.retentionDays} -delete
           export SEM_GREP_REPOS="''${SEM_GREP_REPOS:-$HOME/src/home:$HOME/src/kin:$HOME/src/iets:$HOME/src/maille:$HOME/src/meta}:$state"
           exec ${self'.sem-grep}/bin/sem-grep index
         ''}";

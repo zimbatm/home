@@ -92,6 +92,8 @@
     config.home.stateVersion = "22.11";
     # crops-demo userland (5.7 GiB closure) — nv1 is the reference hardware.
     config.home.crops.enable = true;
+    # Policy 2026-04-14: sink-monitor → NPU transcript on; 30d retention; `live-caption off` to pause.
+    config.home.live-caption.enable = true;
     # infer-queue: device-tagged background inference (arc/npu/cpu lanes, nv1-only hardware).
     config.home.packages = [ inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.infer-queue ];
     config.services.pueue.enable = true;
