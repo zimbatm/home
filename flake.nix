@@ -1,14 +1,6 @@
 {
   description = "zimbatm's machines — kin-managed";
 
-  nixConfig = {
-    # IFD forces a build during eval — eval blocks on the store, becomes
-    # machine-dependent, defeats lazy/pure eval. iets bans it (ADR-0011);
-    # this makes plain `nix` equally loud so dry-build can't silently
-    # green-light what `kin deploy` will reject (hit dacd1ec: crops→tng→crane).
-    allow-import-from-derivation = false;
-  };
-
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     kin = {
@@ -181,7 +173,20 @@
           fmt = (treefmtFor system).config.build.check inputs.self;
         }
         // lib.optionalAttrs (system == "x86_64-linux") (
-          lib.mapAttrs (_: c: c.config.system.build.toplevel) kinOut.nixosConfigurations
+          {
+            # IFD ban (ADR-0011): iets/kin-deploy reject it; fastCheck passes
+            # --no-allow-import-from-derivation so forcing these drvPaths trips
+            # on any regression (hit dacd1ec: crops→tng→crane). nixConfig used
+            # to set this but prompted users for trust — CLI flag is the gate.
+            no-ifd = (pkgsFor system).writeText "no-ifd" (
+              lib.concatLines (
+                lib.mapAttrsToList (
+                  n: c: "${n} ${c.config.system.build.toplevel.drvPath}"
+                ) kinOut.nixosConfigurations
+              )
+            );
+          }
+          // lib.mapAttrs (_: c: c.config.system.build.toplevel) kinOut.nixosConfigurations
         )
       );
     };
