@@ -18,7 +18,16 @@ const CONFIG = {
   archCadence: 6,
   // checks.x86_64-linux = {fmt, nv1, relay1, web2}; --no-build = eval-only (dry-build parity).
   // ~21s vs ~23s for the old per-host loop — single process shares the nixpkgs import.
-  fastCheck: 'nix flake check --no-build',
+  // iets step: `kin deploy` evals via iets which bans IFD (ADR-0011 → IETS-0025); plain
+  // nix allows it, so flake check alone green-lights changes that break deploy
+  // (hit 2026-04-13: cp.run-crops → crane mkDummySrc). iets is in devShell.extraPackages,
+  // not agentshell PATH — hence `nix develop -c`. Multi -A shares one root parse +
+  // disk-caches across runs: warm +2s (~23s total), cold-cache +42s (rare; cache
+  // persists in ~/.cache/iets across rounds). Correctness > speed here.
+  fastCheck:
+    'nix flake check --no-build && ' +
+    'nix develop -c iets eval --no-warn default.nix ' +
+    HOSTS.map(h => `-A nixosConfigurations.${h}.config.system.build.toplevel.drvPath`).join(' '),
 
   triageExtra: () => `
    **kin.nix is the spine** — at most 1 pick per round that touches it.
