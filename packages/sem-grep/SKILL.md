@@ -20,6 +20,23 @@ faster and exact — sem-grep is for the "I know it's in here somewhere"
 case across all five repos at once. If top hits look wrong the index may
 be stale; run `sem-grep index`.
 
+## hist — semantic shell-history recall
+
+`sem-grep hist "<what the command did>"` (alias `hist-sem`) ranks past
+shell commands by intent, not literal match — for when you remember
+*what it did* but not *what it was called*. The bash PROMPT_COMMAND hook
+in `modules/home/terminal` appends `(ts,cwd,cmd,exit)` to
+`$XDG_STATE_HOME/hist-sem/log.jsonl`; first query lazily batch-embeds
+new rows into the same sqlite DB (`hist` table) with the same bge-small
+encoder.
+
+```sh
+hist-sem "the ffmpeg line that fixed the audio drift"
+hist-sem -n 20 "nix eval that showed closure size"
+hist-sem --pick 2 "that rsync to relay1"   # bare cmd → stdout, for eval/$()
+```
+
 State lives at `$XDG_STATE_HOME/sem-grep/`: `index.db` is the chunk→vec
-store, `evals.jsonl` logs every query so the embed-vs-ripgrep recall
-test has real traffic to score. `SEM_GREP_DEVICE=CPU` to bypass the NPU.
+store (files + hist tables), `evals.jsonl` logs every file query so the
+embed-vs-ripgrep recall test has real traffic to score.
+`SEM_GREP_DEVICE=CPU` to bypass the NPU.

@@ -131,6 +131,65 @@ def cmd_index(_args):
           file=sys.stderr)
 
 
+def cmd_hist(args):
+    """Semantic recall over shell history fed by the bash PROMPT_COMMAND hook."""
+    con = db()
+    con.executescript("""
+      CREATE TABLE IF NOT EXISTS hist(
+        id INTEGER PRIMARY KEY, ts INTEGER, cwd TEXT, cmd TEXT,
+        exit INTEGER, vec BLOB);
+      CREATE TABLE IF NOT EXISTS hist_mark(k TEXT PRIMARY KEY, v INTEGER);
+    """)
+    log = os.path.join(
+        os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")),
+        "hist-sem", "log.jsonl")
+    off = (con.execute("SELECT v FROM hist_mark WHERE k='off'").fetchone()
+           or (0,))[0]
+    new = []
+    if os.path.isfile(log):
+        with open(log, "rb") as f:
+            f.seek(off)
+            raw = f.read()
+        off += len(raw)
+        for ln in raw.decode("utf-8", "replace").splitlines():
+            try:
+                new.append(json.loads(ln))
+            except json.JSONDecodeError:
+                pass  # tolerate the rare malformed line from the shell hook
+    embed = load_embedder()
+    if new:
+        for j in range(0, len(new), BATCH):
+            part = new[j:j + BATCH]
+            vecs = embed([r["cmd"] for r in part])
+            con.executemany(
+                "INSERT INTO hist(ts,cwd,cmd,exit,vec) VALUES(?,?,?,?,?)",
+                [(r["ts"], r.get("cwd", ""), r["cmd"], r.get("exit", 0),
+                  vecs[k].tobytes()) for k, r in enumerate(part)])
+        con.execute("INSERT OR REPLACE INTO hist_mark VALUES('off',?)", (off,))
+        con.commit()
+        print(f"sem-grep hist: embedded {len(new)} new commands", file=sys.stderr)
+    rows = con.execute("SELECT ts, cwd, cmd, vec FROM hist").fetchall()
+    if not rows:
+        print("sem-grep hist: no history yet — log feeds from the shell hook "
+              "in modules/home/terminal", file=sys.stderr)
+        sys.exit(1)
+    q = embed(["Represent this sentence for searching relevant passages: "
+               + args.text])[0]
+    mat = np.frombuffer(b"".join(r[3] for r in rows),
+                        dtype=np.float32).reshape(-1, DIM)
+    scores = mat @ q
+    top = np.argsort(-scores)[: args.n]
+    home = os.path.expanduser("~")
+    for rank, i in enumerate(top, 1):
+        ts, cwd, cmd, _ = rows[i]
+        if args.pick:
+            if rank == args.pick:
+                print(cmd)
+            continue
+        date = time.strftime("%Y-%m-%d", time.localtime(ts))
+        print(f"{scores[i]:.3f}  {date}  {cwd.replace(home, '~', 1)}$ {cmd}")
+
+
 def cmd_query(args):
     con = db()
     rows = con.execute("SELECT repo, path, line, vec FROM chunks").fetchall()
@@ -170,9 +229,15 @@ def main():
     qp.add_argument("-n", type=int, default=10)
     qp.add_argument("text")
     qp.set_defaults(fn=cmd_query)
+    hp = sub.add_parser("hist")
+    hp.add_argument("-n", type=int, default=10)
+    hp.add_argument("--pick", type=int, metavar="N",
+                    help="print only the Nth-ranked command (for shell recall)")
+    hp.add_argument("text")
+    hp.set_defaults(fn=cmd_hist)
     # bare `sem-grep "<text>"` → query
     argv = sys.argv[1:]
-    if argv and argv[0] not in {"index", "query", "-h", "--help"}:
+    if argv and argv[0] not in {"index", "query", "hist", "-h", "--help"}:
         argv = ["query", *argv]
     args = ap.parse_args(argv)
     if not args.cmd:
