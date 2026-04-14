@@ -484,7 +484,7 @@ file backlog/meta-retire-<role>.md or note expected (refactor/direct-commit role
 
 **Rotation drift** — this round ran specialist \`${specName}\`. Verify it's
 still a key in the on-disk config:
-\`grep -Fq '${specName}: ({' .claude/grind.config.js || echo DRIFT\` (cwd is _base,
+\`grep -Fq '    ${specName}: ' .claude/grind.config.js || echo DRIFT\` (cwd is _base,
 reset to origin/main, so this reads the latest committed config).
 On DRIFT (config edited mid-run; CONFIG is frozen at launch) report
 stop_requested:true and note "rotation-drift: restart /grind" in fixes_applied.
