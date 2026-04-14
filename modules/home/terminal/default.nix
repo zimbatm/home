@@ -97,6 +97,25 @@ in
       alias drun='docker run -ti --rm'
       alias screenshot='grim -g "$(slurp)" - | wl-copy'
 
+      # hist-sem feeder: append (ts,cwd,cmd,exit) JSONL after every command so
+      # `sem-grep hist "<english>"` can embed+rank it on the NPU. Falsification
+      # target: does bge-small usefully embed shell one-liners? If recall is
+      # poor, that argues for a code-specific encoder for the file index too.
+      _hist_sem_log() {
+        local e=$? h cmd d
+        h=$(HISTTIMEFORMAT= builtin history 1)
+        [[ $h =~ ^[[:space:]]*[0-9]+\*?[[:space:]]+(.*)$ ]] || return 0
+        cmd=''${BASH_REMATCH[1]}
+        [[ -n $cmd && $cmd != "$_HSEM_LAST" ]] || return 0
+        _HSEM_LAST=$cmd
+        d=''${XDG_STATE_HOME:-$HOME/.local/state}/hist-sem
+        [[ -d $d ]] || mkdir -p "$d"
+        jq -nc --arg cwd "$PWD" --arg cmd "$cmd" --argjson e "$e" \
+          '{ts:now|floor,cwd:$cwd,cmd:$cmd,exit:$e}' >>"$d/log.jsonl" 2>/dev/null
+      }
+      PROMPT_COMMAND="_hist_sem_log''${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+      alias hist-sem='sem-grep hist'
+
       # don't install shell extensions in the nix shell
       if [[ -n $IN_NIX_SHELL ]]; then return; fi
 

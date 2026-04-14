@@ -25,6 +25,7 @@ pkgs.writeShellApplication {
     #   sem-grep "<query>"       → ranked file:line hits (top 10)
     #   sem-grep -n 20 "<query>" → top N
     #   sem-grep index           → (re)build; incremental on git blob-sha
+    #   sem-grep hist "<query>"  → ranked shell-history commands (hist-sem alias)
     #
     # Model: bge-small-en-v1.5 OpenVINO IR (~130 MB, 384-dim) under XDG_DATA_HOME.
     MODEL="''${SEM_GREP_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/openvino/bge-small-en-v1.5}"
