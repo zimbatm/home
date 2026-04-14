@@ -1,6 +1,14 @@
 {
   description = "zimbatm's machines — kin-managed";
 
+  nixConfig = {
+    # IFD forces a build during eval — eval blocks on the store, becomes
+    # machine-dependent, defeats lazy/pure eval. iets bans it (ADR-0011);
+    # this makes plain `nix` equally loud so dry-build can't silently
+    # green-light what `kin deploy` will reject (hit dacd1ec: crops→tng→crane).
+    allow-import-from-derivation = false;
+  };
+
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     kin = {

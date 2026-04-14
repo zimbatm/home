@@ -25,7 +25,7 @@ const CONFIG = {
   // disk-caches across runs: warm +2s (~23s total), cold-cache +42s (rare; cache
   // persists in ~/.cache/iets across rounds). Correctness > speed here.
   fastCheck:
-    'nix flake check --no-build && ' +
+    'nix flake check --no-build --no-allow-import-from-derivation && ' +
     'nix develop -c iets eval --no-warn default.nix ' +
     HOSTS.map(h => `-A nixosConfigurations.${h}.config.system.build.toplevel.drvPath`).join(' '),
 
