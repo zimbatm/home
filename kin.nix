@@ -66,4 +66,15 @@ in
   services.mesh.relay = [ "relay1" ];
   services.attest.on = [ "web2" ];
   services.attest.keyName = "attest.ztm-1";
+
+  gen.gotosocial-restic = {
+    for = [ "web2" ];
+    perMachine = false;
+    files.password.random.bytes = 32;
+  };
+  gen.gotosocial-rsyncnet = {
+    for = [ "web2" ];
+    perMachine = false;
+    files.password.secret = true;
+  };
 }

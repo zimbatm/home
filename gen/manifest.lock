@@ -84,6 +84,24 @@
       "files": {},
       "inputHash": "78c40cd8276ae0836737c7b1e059dbbb04ba8f5f15204d8857a61477f1293e95"
     },
+    "user/gotosocial-restic/_shared": {
+      "ageHash": {
+        "password": "73020d93247cca988c37c9ae44131dfdd2051343e15fa5dba3590d5f6428a154"
+      },
+      "files": {
+        "password": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc"
+      },
+      "inputHash": "49db6723a9a0ec974fd35113a37f17f1793e9dfbfaa8fb2913e55b1f3155c1fb"
+    },
+    "user/gotosocial-rsyncnet/_shared": {
+      "ageHash": {
+        "password": "c0692c67ad04b923daa4a99638315f3b4a82e8a870142d91b80d811494e3c7f3"
+      },
+      "files": {
+        "password": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc"
+      },
+      "inputHash": "1f6fac16216f1dd2ff372d42944693eac188c321986a32a08bc325b706336b2e"
+    },
     "users/password-claude/_shared": {
       "ageHash": {
         "hash": "864cd3c26c4b3f981be1e26ae7dbf866cd22b2343ef5060743be94834ae8eac4",
