@@ -19,7 +19,6 @@ in
     ];
   };
   users.zimbatm-yk = {
-    admin = true;
     recipientOnly = true;
   }; # YubiKey age recipient (no unix account)
   users.migration-test = {
