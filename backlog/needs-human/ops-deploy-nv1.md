@@ -269,3 +269,39 @@ unlikely nv1-affecting.
 
 Off-main `have` flag from d2ad1d1 still stands — confirm no
 intentional local delta on nv1 before `kin deploy nv1` overwrites it.
+---
+
+## drift @ 0251202 (2026-04-14): want moved, have unchanged off-main
+
+`kin status --json` live (probe ok, all 3 reachable):
+```
+have: /nix/store/gfcs7jg5f5k5zb0yy9wf2jmqip1rjcgf-nixos-system-nv1-26.05.20260409.4c1018d
+want: /nix/store/fvazrzw4f1v85fg8lyyikdd2bny597ic-nixos-system-nv1-26.05.20260409.4c1018d
+```
+have `gfcs7jg5` unchanged since d2ad1d1 (still off-main, uptime 0d22h —
+same boot). want `fvq2yl04`→`fvazrzw4` via 6 nv1-affecting commits
+since 589a2f5 (e170608 gen-regen drvPath-identical, neutral):
+
+- 2419f94 — sel-act pkg + `<Super>a` keybind (wayland selection →
+  ask-local transform; modules/home/desktop +30L) (nv1-only)
+- 107acef — sem-grep `hist` verb + bash PROMPT_COMMAND feeder
+  (modules/home/terminal +19L) (nv1-only)
+- 082a29f — iets bump 396eb90→ef58583 (nv1+web2; relay1-neutral)
+- b016581 — home-manager bump f6196e5→8a423e4 (nv1-only)
+- 65e3984 — kin 0feb503→1306b57 + iets/llm-agents/nixvim bump
+  (nv1+web2; relay1-neutral — commit msg "host drvPaths unchanged" is
+  wrong for web2, see ops-deploy-relay1-web2.md bisect)
+- 0251202 — niri: fonts.packages += font-awesome + nerd-fonts.symbols-only
+  + noto-emoji (waybar tofu fix) (nv1-only)
+
+**Three new runtime checks:**
+- sel-act — select text in any wayland app, hit the sel-act keybind →
+  ask-local transform menu appears; result replaces selection
+- sem-grep hist — open fresh bash, run a few commands, then
+  `sem-grep hist "<semantic query>"` returns relevant history lines
+  (falsifies feeder hook + NPU index append)
+- niri waybar glyphs — log into Niri session; waybar shows icon glyphs
+  (Font Awesome / nerd-symbols), not tofu boxes
+
+Off-main `have` flag from d2ad1d1 still stands — confirm no
+intentional local delta on nv1 before `kin deploy nv1` overwrites it.
