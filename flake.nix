@@ -16,12 +16,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.iets.follows = "iets";
       inputs.nix-skills.follows = "nix-skills";
-      inputs.maille.inputs.llm-agents.follows = "llm-agents";
     };
     iets = {
       url = "git+ssh://git@github.com/jonasc-ant/iets";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.llm-agents.follows = "llm-agents";
       inputs.treefmt-nix.follows = "treefmt-nix";
     };
     home-manager = {
