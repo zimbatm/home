@@ -70,6 +70,8 @@ in
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate-intent/"
+        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/sel-act-tighten/"
+        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/sel-act-ask/"
       ];
     };
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal" = {
@@ -86,6 +88,16 @@ in
       name = "Push-to-talk intent dispatch";
       command = "ptt-dictate --intent";
       binding = "<Super><Shift>d";
+    };
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/sel-act-tighten" = {
+      name = "Selection: tighten via ask-local";
+      command = "sel-act tighten";
+      binding = "<Super>e";
+    };
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/sel-act-ask" = {
+      name = "Selection: free-form prompt via ask-local";
+      command = "sel-act ask";
+      binding = "<Super><Shift>e";
     };
   };
 
@@ -122,6 +134,23 @@ in
     fallthrough = true
   '';
 
+  # Transform table for `sel-act <verb>`. Same [section].prompt shape as the
+  # ptt-dictate intent table above so the two grow together; ask-local sees
+  # "<prompt>\n\n---\n<selection>". `sel-act ask` bypasses this (zenity entry).
+  xdg.configFile."sel-act/prompts.toml".text = ''
+    [tighten]
+    prompt = "Rewrite the text below to be tighter and clearer. Keep meaning, tone, and formatting. Output only the rewritten text."
+
+    [translate]
+    prompt = "Translate the text below to English. Output only the translation."
+
+    [explain]
+    prompt = "Explain the text below in 2-3 plain sentences. Output only the explanation."
+
+    [shellify]
+    prompt = "Produce a single POSIX shell command that does what the text below describes. Output only the command, no fences."
+  '';
+
   home.packages = with pkgs; [
     # Graphical
     brave
@@ -150,6 +179,7 @@ in
     self'.now-context
     self'.pty-puppet
     self'.tab-tap
+    self'.sel-act
     claude-code
     llm.claudebox
     codex

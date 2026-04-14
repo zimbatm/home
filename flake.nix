@@ -135,6 +135,7 @@
           sem-grep = call ./packages/sem-grep;
           tab-tap = call ./packages/tab-tap;
           live-caption-log = call ./packages/live-caption-log;
+          sel-act = call ./packages/sel-act;
           inherit (inputs.nix-skills.packages.${system}) nix-skills-commands;
         }
       );
