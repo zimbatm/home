@@ -29,6 +29,7 @@ pkgs.writeShellApplication {
     # Model: OpenVINO/whisper-base.en-fp16-ov, shipped as a FOD in the closure.
     MODEL="''${TRANSCRIBE_NPU_MODEL:-${whisper-base-en-ov}}"
     DEVICE="''${TRANSCRIBE_NPU_DEVICE:-NPU}"
+    export TRANSFORMERS_OFFLINE=1 HF_HUB_OFFLINE=1
 
     [[ -f "$MODEL/openvino_encoder_model.xml" ]] || { echo "transcribe-npu: model not found: $MODEL" >&2; exit 1; }
 
