@@ -127,3 +127,31 @@ Walk these at the nv1 desk after deploy:
 
 (drift-checker appends new `## drift @ <rev>` sections below; META
 re-compacts into the table above when this section exceeds 3 entries)
+
+### drift @ 0404fbb (2026-04-15): want 9qwbl2bw→x2p8iwvp; have UNPROBEABLE 3rd round
+
+`kin status --json`: nv1 `have=""` health=not-on-mesh — `~/.ssh/kin-bir7vyhu*`
+still absent (only kin-dwqfzbq5+kin-infra; ops-kin-login-worker.md
+unactioned). **have carried forward** from 53bed8f: `sxmv9yvi` (off-main).
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed)
+want: /nix/store/x2p8iwvpl5g7y8f5casmi8pz23s2cxfa-nixos-system-nv1-26.05.20260409.4c1018d
+```
+
+**Bisect b411c2d..0404fbb** — 2 nv1-affecting commits (both packages/, nv1-only):
+- 85d68cd ask-local --fast (llama-lookup speculative decoding + bench.sh):
+  9qwbl2bw→vpdxwmdz
+- 2194b90 sem-grep -r/--rerank (bge-reranker-base NPU stage-2):
+  vpdxwmdz→x2p8iwvp
+- 6673c0c internal bump (kin/iets/nix-skills): nv1-neutral (x2p8iwvp
+  unchanged; per META r7, re-confirmed)
+
+**+2 runtime checks** (append to list above on next compact):
+- **ask-local --fast** — `ask-local --fast "<prompt>"` runs via llama-lookup;
+  `packages/ask-local/bench.sh` reports tok/s ≥ plain path on the 4 cases
+- **sem-grep -r** — `sem-grep -r "<q>"` loads bge-reranker-base on NPU
+  (3rd tenant alongside VAD+bge-small); evals.jsonl shows `rerank:true`
+  rows; fetch-hint fires if model dir absent
+
+Same nixpkgs 4c1018d throughout. Reconcile unchanged: `kin deploy nv1`.

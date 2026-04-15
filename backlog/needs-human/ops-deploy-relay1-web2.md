@@ -140,3 +140,34 @@ flake.nix-checks-only) both relay1+web2-neutral, verified.
 e4d45cd). Same nixpkgs 4c1018d throughout; all internal lib/mesh bumps
 + substituter add — low-risk. have unprobed 2nd round running, so
 can't confirm no out-of-band changes since 53bed8f.
+---
+
+## drift @ 0404fbb (2026-04-15): relay1 want UNCHANGED; web2 want moved; have UNPROBEABLE 3rd round
+
+`kin status --json`: relay1+web2 `have=""` health=unreachable —
+`~/.ssh/kin-bir7vyhu*` still absent (ops-kin-login-worker.md unactioned
+3rd round). **have carried forward** from 53bed8f: relay1=`dpxnfwvk`,
+web2=`l6wwl43y`.
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want 6dxixaw6…  (UNCHANGED since 7f572ea)
+web2:   have l6wwl43y… (carried) ≠ want 731rixqs…  (was abqnqrp0 @ 7f572ea)
+```
+
+**Bisect b411c2d..0404fbb** — 3 .nix-touching commits:
+- 85d68cd ask-local --fast + 2194b90 sem-grep -r — both packages/ nv1-only;
+  relay1+web2-neutral (web2 verified abqnqrp0 @ 2194b90)
+- 6673c0c internal bump kin 23094e5→2785e63, iets a4abd7b→2a0cbb9,
+  nix-skills 4b604a9→76e053a: relay1-neutral (6dxixaw6 unchanged), web2
+  abqnqrp0→731rixqs
+
+**relay1 zero new delta** this round — still carries the same 3
+(f2c38c8 + bfcd408 + e4d45cd). 6673c0c is the 2nd consecutive internal
+bump that's relay1-neutral (after e4d45cd was the exception via maille).
+
+**web2 +1 delta** — now carries 4 (35c8232 + 26cb8a9 + e4d45cd +
+6673c0c), all internal lib bumps + substituter add.
+
+**Reconcile:** `kin deploy relay1 web2`. Same nixpkgs 4c1018d
+throughout; low-risk. have unprobed 3rd round running — can't confirm
+no out-of-band changes since 53bed8f.
