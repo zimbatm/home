@@ -33,6 +33,7 @@
   ];
   nix.settings.experimental-features = lib.mkForce [
     "auto-allocate-uids"
+    "ca-derivations"
     "cgroups"
     "fetch-closure"
     "recursive-nix"
