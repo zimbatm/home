@@ -29,6 +29,7 @@ in
     ../terminal
     ./activitywatch.nix
     ./crops.nix
+    ./deepfilter.nix
     ./live-caption.nix
     ./sem-grep.nix
   ];
