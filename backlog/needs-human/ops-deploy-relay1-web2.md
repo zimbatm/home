@@ -171,3 +171,26 @@ bump that's relay1-neutral (after e4d45cd was the exception via maille).
 **Reconcile:** `kin deploy relay1 web2`. Same nixpkgs 4c1018d
 throughout; low-risk. have unprobed 3rd round running — can't confirm
 no out-of-band changes since 53bed8f.
+---
+
+## drift @ b9b1d94 (2026-04-15): both want UNCHANGED; have UNPROBEABLE 4th round
+
+`kin status --json`: empty — `~/.ssh/kin-bir7vyhu*` still absent
+(ops-kin-login-worker.md unactioned 4th round). **have carried forward**
+from 53bed8f: relay1=`dpxnfwvk`, web2=`l6wwl43y`.
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want 6dxixaw6…  (UNCHANGED since 7f572ea)
+web2:   have l6wwl43y… (carried) ≠ want 731rixqs…  (UNCHANGED since 0404fbb)
+```
+
+**Bisect 3a46943..b9b1d94** — 2 .nix-touching merges (07b2b2f ask-local
+--agent, 99e9212 sem-grep log + hm module), both packages/ +
+modules/home/desktop nv1-only; relay1+web2-neutral verified at both
+points (6dxixaw6/731rixqs throughout). Zero new delta either host.
+
+**relay1 still carries 3** (f2c38c8 + bfcd408 + e4d45cd); **web2 still
+carries 4** (35c8232 + 26cb8a9 + e4d45cd + 6673c0c). Reconcile
+unchanged: `kin deploy relay1 web2`. Same nixpkgs 4c1018d throughout.
+have unprobed 4th round running — can't confirm no out-of-band changes
+since 53bed8f.

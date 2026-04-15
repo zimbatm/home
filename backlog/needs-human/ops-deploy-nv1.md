@@ -155,3 +155,33 @@ want: /nix/store/x2p8iwvpl5g7y8f5casmi8pz23s2cxfa-nixos-system-nv1-26.05.2026040
   rows; fetch-hint fires if model dir absent
 
 Same nixpkgs 4c1018d throughout. Reconcile unchanged: `kin deploy nv1`.
+
+### drift @ b9b1d94 (2026-04-15): want x2p8iwvp→y1ii1g33; have UNPROBEABLE 4th round
+
+`kin status --json`: empty — `~/.ssh/kin-bir7vyhu*` still absent (only
+kin-dwqfzbq5+kin-infra mtime 12:17; ops-kin-login-worker.md unactioned
+4th round). **have carried forward** from 53bed8f: `sxmv9yvi` (off-main).
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed)
+want: /nix/store/y1ii1g33cyc0aqqyhby6v6s6r4r9akw7-nixos-system-nv1-26.05.20260409.4c1018d
+```
+
+**Bisect 3a46943..b9b1d94** — 2 nv1-affecting merges (both packages/ +
+home-module, nv1-only; relay1+web2-neutral verified):
+- 07b2b2f ask-local --agent (bounded ReAct loop, tools.json +
+  bench-agent.jsonl): x2p8iwvp→9mdzqlsm
+- 99e9212 sem-grep log/index-log verbs + new
+  modules/home/desktop/sem-grep.nix (nightly timer, puts sem-grep on
+  PATH): 9mdzqlsm→y1ii1g33
+
+**+2 runtime checks** (append to list above on next compact):
+- **ask-local --agent** — `ask-local --agent "<goal>"` runs ≤4-turn
+  ReAct loop; walk `packages/ask-local/bench-agent.jsonl` (20 goals,
+  expect_tool+expect_substr); tools.json CLIs all resolve on PATH
+- **sem-grep timer** — `systemctl --user list-timers | grep sem-grep`
+  shows nightly index-log timer; `which sem-grep` on PATH (was only
+  hist-sem alias before, now via hm module)
+
+Same nixpkgs 4c1018d throughout. Reconcile unchanged: `kin deploy nv1`.
+2 append-log entries — META compacts at 3.
