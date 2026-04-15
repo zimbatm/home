@@ -19,6 +19,7 @@ import openvino as ov
 from transformers import AutoTokenizer
 
 MODEL = os.environ["SEM_GREP_MODEL"]
+RERANK_MODEL = os.environ.get("SEM_GREP_RERANK_MODEL")  # optional, -r only
 DEVICE = os.environ.get("SEM_GREP_DEVICE", "NPU")
 STATE = os.environ["SEM_GREP_STATE"]
 REPOS = [p for p in os.environ["SEM_GREP_REPOS"].split(":") if os.path.isdir(p)]
@@ -26,6 +27,8 @@ DB = os.path.join(STATE, "index.db")
 DIM = 384
 CHUNK_LINES, STRIDE = 24, 12
 MAX_LEN = 256  # tokens; bge cap is 512 but shorter = faster, fits more on NPU
+RERANK_MAX_LEN = 512  # cross-encoder sees query+passage; needs the headroom
+RERANK_POOL = 30  # cosine candidates fed to the cross-encoder
 BATCH = 8
 SKIP_EXT = {".png", ".jpg", ".jpeg", ".gif", ".pdf", ".age", ".bin", ".svg",
             ".lock", ".gz", ".zst", ".woff", ".woff2", ".ttf", ".ico"}
@@ -49,6 +52,40 @@ def load_embedder():
         n = np.clip(np.linalg.norm(pooled, axis=1, keepdims=True), 1e-9, None)
         return (pooled / n).astype(np.float32)
     return embed
+
+
+def load_reranker():
+    """bge-reranker-base cross-encoder on the same NPU device. Returns
+    score(query, passages) -> 1-D float32 logits (higher = more relevant).
+    Third NPU tenant alongside Silero VAD + bge-small embed; whether all
+    three co-reside is the falsification target — see adopt-rerank-pass."""
+    tok = AutoTokenizer.from_pretrained(RERANK_MODEL)
+    core = ov.Core()
+    net = core.compile_model(f"{RERANK_MODEL}/openvino_model.xml", DEVICE)
+    out = net.outputs[0]
+    in_names = {p.any_name for p in net.inputs}
+
+    def score(query, passages):
+        logits = np.empty(len(passages), dtype=np.float32)
+        for j in range(0, len(passages), BATCH):
+            part = passages[j:j + BATCH]
+            enc = tok([query] * len(part), part, padding="max_length",
+                      truncation=True, max_length=RERANK_MAX_LEN,
+                      return_tensors="np")
+            res = net({k: v for k, v in enc.items() if k in in_names})[out]
+            logits[j:j + len(part)] = res.reshape(-1)
+        return logits
+    return score
+
+
+def chunk_text(repo, path, line):
+    """Re-read the on-disk text for a stored chunk (we index vectors only)."""
+    try:
+        with open(os.path.join(repo, path), encoding="utf-8") as f:
+            lines = f.read().splitlines()
+    except (OSError, UnicodeDecodeError):
+        return ""
+    return "\n".join(lines[line - 1:line - 1 + CHUNK_LINES]).strip()
 
 
 def db():
@@ -204,17 +241,29 @@ def cmd_query(args):
     mat = np.frombuffer(b"".join(r[3] for r in rows),
                         dtype=np.float32).reshape(-1, DIM)
     scores = mat @ q
-    top = np.argsort(-scores)[: args.n]
     home = os.path.expanduser("~") + "/"
-    for i in top:
-        repo, path, line, _ = rows[i]
-        loc = os.path.join(repo, path).replace(home, "~/", 1)
-        print(f"{scores[i]:.3f}  {loc}:{line}")
-    # falsification log → feeds the embed-vs-ripgrep recall eval
+    if args.rerank:
+        # stage-2: cosine top-K → cross-encoder rerank → top-N
+        pool = np.argsort(-scores)[: max(RERANK_POOL, args.n)]
+        passages = [chunk_text(rows[i][0], rows[i][1], rows[i][2]) for i in pool]
+        rscore = load_reranker()(args.text, passages)
+        order = np.argsort(-rscore)[: args.n]
+        top = [pool[k] for k in order]
+        for k, i in zip(order, top):
+            repo, path, line, _ = rows[i]
+            loc = os.path.join(repo, path).replace(home, "~/", 1)
+            print(f"{rscore[k]:+.3f}  {loc}:{line}")
+    else:
+        top = np.argsort(-scores)[: args.n]
+        for i in top:
+            repo, path, line, _ = rows[i]
+            loc = os.path.join(repo, path).replace(home, "~/", 1)
+            print(f"{scores[i]:.3f}  {loc}:{line}")
+    # falsification log → feeds the embed-vs-ripgrep / rerank-vs-cosine evals
     try:
         with open(os.path.join(STATE, "evals.jsonl"), "a") as f:
             f.write(json.dumps({
-                "ts": time.time(), "q": args.text,
+                "ts": time.time(), "q": args.text, "rerank": args.rerank,
                 "top": [f"{rows[i][1]}:{rows[i][2]}" for i in top[:5]],
             }) + "\n")
     except OSError:
@@ -227,6 +276,8 @@ def main():
     sub.add_parser("index").set_defaults(fn=cmd_index)
     qp = sub.add_parser("query")
     qp.add_argument("-n", type=int, default=10)
+    qp.add_argument("-r", "--rerank", action="store_true",
+                    help="rerank cosine top-30 with bge-reranker-base on NPU")
     qp.add_argument("text")
     qp.set_defaults(fn=cmd_query)
     hp = sub.add_parser("hist")
