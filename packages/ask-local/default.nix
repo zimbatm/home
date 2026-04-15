@@ -37,11 +37,11 @@ pkgs.writeShellApplication {
     #                                           calls over packages/ CLIs (tools.json),
     #                                           ≤4 turns. See bench-agent.jsonl.
     MODEL="''${ASK_LOCAL_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/llama/Phi-3-mini-4k-instruct-Q4_K_M.gguf}"
+    mkdir -p "$(dirname "$MODEL")"
 
     if [[ ! -f "$MODEL" ]]; then
       echo "ask-local: model not found: $MODEL" >&2
-      echo "  fetch: mkdir -p \"$(dirname "$MODEL")\" && \\" >&2
-      echo "    curl -L -o \"$MODEL\" https://huggingface.co/bartowski/Phi-3-mini-4k-instruct-GGUF/resolve/main/Phi-3-mini-4k-instruct-Q4_K_M.gguf" >&2
+      echo "  fetch: curl -L -o \"$MODEL\" https://huggingface.co/bartowski/Phi-3-mini-4k-instruct-GGUF/resolve/main/Phi-3-mini-4k-instruct-Q4_K_M.gguf" >&2
       exit 1
     fi
 
