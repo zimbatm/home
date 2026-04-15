@@ -14,6 +14,7 @@ pkgs.writeShellApplication {
     py
     pkgs.git
     pkgs.coreutils
+    pkgs.systemd # journalctl for `index-log`
   ];
   text = ''
     # Semantic grep over the assise repos via a tiny embedding model resident
@@ -27,6 +28,8 @@ pkgs.writeShellApplication {
     #   sem-grep -r "<query>"    → rerank cosine top-30 with bge-reranker-base
     #   sem-grep index           → (re)build; incremental on git blob-sha
     #   sem-grep hist "<query>"  → ranked shell-history commands (hist-sem alias)
+    #   sem-grep log "<query>"   → ranked journald lines (last 7d, hour-deduped)
+    #   sem-grep index-log       → (re)build the journald index (nightly timer)
     #
     # Model: bge-small-en-v1.5 OpenVINO IR (~130 MB, 384-dim) under XDG_DATA_HOME.
     # Rerank model (opt-in, -r): bge-reranker-base OpenVINO IR (~280 MB fp16).

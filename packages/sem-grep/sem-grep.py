@@ -227,6 +227,90 @@ def cmd_hist(args):
         print(f"{scores[i]:.3f}  {date}  {cwd.replace(home, '~', 1)}$ {cmd}")
 
 
+def _journal(argv):
+    """Yield (unit, ts_seconds, message) from a journalctl -o json invocation.
+    Tolerates absence/permission denial — returns nothing rather than raising."""
+    p = subprocess.run(["journalctl", "-o", "json", "--no-pager", *argv],
+                       capture_output=True, text=True)
+    if p.returncode != 0:
+        print(f"sem-grep index-log: journalctl {' '.join(argv)}: {p.stderr.strip()}",
+              file=sys.stderr)
+        return
+    for ln in p.stdout.splitlines():
+        try:
+            r = json.loads(ln)
+        except json.JSONDecodeError:
+            continue
+        msg = r.get("MESSAGE", "")
+        if isinstance(msg, list):  # journald emits non-UTF8 payloads as byte arrays
+            msg = bytes(msg).decode("utf-8", "replace")
+        msg = msg.strip()
+        if not msg:
+            continue
+        unit = (r.get("_SYSTEMD_UNIT") or r.get("SYSLOG_IDENTIFIER")
+                or r.get("_COMM") or "-")
+        ts = int(r.get("__REALTIME_TIMESTAMP", "0")) // 1_000_000
+        yield unit, ts, msg
+
+
+def cmd_index_log(_args):
+    """Nightly: last-7d journald → hour-bucket dedup → embed → logs table.
+    Full rebuild each run; the -S -7d window makes it rolling. Dedup keeps the
+    same template line once per (unit, hour) so the corpus stays brute-forceable
+    (~2k chunks). Falsifies whether bge-small embeds machine log text usefully —
+    see backlog/adopt-log-sem.md."""
+    con = db()
+    con.execute("""CREATE TABLE IF NOT EXISTS logs(
+        id INTEGER PRIMARY KEY, unit TEXT, ts INTEGER, msg TEXT, vec BLOB)""")
+    buckets: dict[tuple[str, int], dict[str, int]] = {}
+    for argv in (["--user", "-S", "-7d"], ["-S", "-7d", "-p", "warning"]):
+        for unit, ts, msg in _journal(argv):
+            buckets.setdefault((unit, ts // 3600), {}).setdefault(msg, ts)
+    rows = [(unit, ts, msg) for (unit, _), msgs in buckets.items()
+            for msg, ts in msgs.items()]
+    embed = load_embedder()
+    con.execute("DELETE FROM logs")
+    for j in range(0, len(rows), BATCH):
+        part = rows[j:j + BATCH]
+        vecs = embed([m for _, _, m in part])
+        con.executemany("INSERT INTO logs(unit,ts,msg,vec) VALUES(?,?,?,?)",
+                        [(u, t, m, vecs[k].tobytes())
+                         for k, (u, t, m) in enumerate(part)])
+    con.commit()
+    print(f"sem-grep index-log: {len(rows)} lines (7d, hour-dedup) → {DB}",
+          file=sys.stderr)
+
+
+def cmd_log(args):
+    con = db()
+    con.execute("""CREATE TABLE IF NOT EXISTS logs(
+        id INTEGER PRIMARY KEY, unit TEXT, ts INTEGER, msg TEXT, vec BLOB)""")
+    rows = con.execute("SELECT unit, ts, msg, vec FROM logs").fetchall()
+    if not rows:
+        print("sem-grep log: index empty — run `sem-grep index-log` first "
+              "(nightly timer in modules/home/desktop/sem-grep.nix)",
+              file=sys.stderr)
+        sys.exit(1)
+    embed = load_embedder()
+    q = embed(["Represent this sentence for searching relevant passages: "
+               + args.text])[0]
+    mat = np.frombuffer(b"".join(r[3] for r in rows),
+                        dtype=np.float32).reshape(-1, DIM)
+    scores = mat @ q
+    if args.rerank:
+        pool = np.argsort(-scores)[: max(RERANK_POOL, args.n)]
+        rscore = load_reranker()(args.text, [rows[i][2] for i in pool])
+        order = np.argsort(-rscore)[: args.n]
+        top, disp = [pool[k] for k in order], rscore[order]
+    else:
+        top = np.argsort(-scores)[: args.n]
+        disp = scores[top]
+    for s, i in zip(disp, top):
+        unit, ts, msg, _ = rows[i]
+        when = time.strftime("%Y-%m-%d %H:%M", time.localtime(ts))
+        print(f"{s:+.3f}  {unit}\t{when}\t{msg}")
+
+
 def cmd_query(args):
     con = db()
     rows = con.execute("SELECT repo, path, line, vec FROM chunks").fetchall()
@@ -286,9 +370,17 @@ def main():
                     help="print only the Nth-ranked command (for shell recall)")
     hp.add_argument("text")
     hp.set_defaults(fn=cmd_hist)
+    sub.add_parser("index-log").set_defaults(fn=cmd_index_log)
+    lp = sub.add_parser("log")
+    lp.add_argument("-n", type=int, default=10)
+    lp.add_argument("-r", "--rerank", action="store_true",
+                    help="rerank cosine top-30 with bge-reranker-base on NPU")
+    lp.add_argument("text")
+    lp.set_defaults(fn=cmd_log)
     # bare `sem-grep "<text>"` → query
     argv = sys.argv[1:]
-    if argv and argv[0] not in {"index", "query", "hist", "-h", "--help"}:
+    if argv and argv[0] not in {"index", "query", "hist", "index-log", "log",
+                                "-h", "--help"}:
         argv = ["query", *argv]
     args = ap.parse_args(argv)
     if not args.cmd:
