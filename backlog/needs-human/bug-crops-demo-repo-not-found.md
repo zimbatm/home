@@ -18,19 +18,28 @@ rev locally; `nix flake prefetch git+file:///root/src/crops-demo?rev=cad8614b…
 populates the git cache with matching narHash, after which the
 ssh:// locked entry resolves from cache without re-fetching.
 
-**Likely causes (pick one):**
-1. Repo renamed (e.g. `assise/crops` or moved org) — update
-   `flake.nix` inputs.crops-demo.url + `nix flake lock --update-input
-   crops-demo`.
-2. Repo went private and this worker's deploy key lost access —
-   re-grant, no flake change.
-3. Repo deleted — vendor the bits nv1 actually uses or drop the input.
+**Triage done (a767724, sans gh-auth):**
+- Differential `git ls-remote` with the same deploy key: `assise/kin`
+  and `assise/nix-skills` both succeed, `assise/crops-demo` alone 404s
+  → **not** broad credential loss.
+- `curl -I https://github.com/assise/crops-demo` → 404, no Location
+  redirect → **not** a rename (GitHub 301-redirects renamed repos).
+- Remaining causes: **per-repo access drop** (went private / deploy
+  key removed from this repo only) or **deletion**. Both require an
+  assise GitHub org admin to check repo settings.
 
-**How much:** ~5min once cause is known. Check
-`gh repo view assise/crops-demo` from an authenticated session, or ask
-in the crops-demo sibling grind what changed.
+**Cross-filed:** `../crops-demo/backlog/bug-origin-unreachable.md` @
+02f28fc — local-only, push fails on the same 404.
 
-**Blockers:** Needs GitHub auth this worker doesn't have (`gh auth
-status` = not logged in) to distinguish rename vs access-loss vs
-delete. Filing for triage; not needs-human (a worker with gh auth can
-resolve).
+**Mitigation attempted:** prefetch shim (`.claude/workflows/prefetch-sibling-inputs.sh`
+seeding from `/root/src/crops-demo`) — abandoned, denylist forbids
+backlog-item branches touching `.claude/`. See
+`backlog/tried/bug-crops-demo-repo-not-found.md`. A human can commit
+that helper directly as a harness change if wanted.
+
+**How much:** ~5min once an org admin confirms private-vs-deleted.
+Then either re-grant access (no flake change), update `flake.nix`
+inputs.crops-demo.url, or vendor/drop the input.
+
+**Blockers:** assise GitHub org admin access. Re-verified 2026-04-15
+meta r2: ls-remote still `Repository not found`.
