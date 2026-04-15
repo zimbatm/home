@@ -11,8 +11,13 @@
   },
   {
     "name": "kin-opts",
-    "desc": "evaluated NixOS option tree for this fleet; args = '<host> <option.path>' or '--hosts'",
+    "desc": "evaluated NixOS option tree for this fleet; args = '<host> <option.path>'",
     "argv": ["kin-opts", "{args}"]
+  },
+  {
+    "name": "kin-hosts",
+    "desc": "list all machines in this fleet (no args)",
+    "argv": ["kin-opts", "--hosts"]
   },
   {
     "name": "man-here",

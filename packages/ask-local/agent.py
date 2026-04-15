@@ -48,7 +48,17 @@ def ask(grammar_path: str, prompt: str) -> dict:
 def run_tool(spec: dict, args: str) -> str:
     argv: list[str] = []
     for a in spec["argv"]:
-        argv.extend(shlex.split(args) if a == "{args}" else [a])
+        if a != "{args}":
+            argv.append(a)
+            continue
+        toks = shlex.split(args)
+        # Observation text feeds back into the prompt, so a poisoned obs could
+        # steer Phi-3 into emitting flags here. Reject; model retries on the
+        # error string. Tools needing flags get a fixed-argv entry (kin-hosts).
+        bad = next((t for t in toks if t.startswith("-")), None)
+        if bad:
+            return f"(rejected: args may not contain flags: {bad!r})"
+        argv.extend(toks)
     try:
         p = subprocess.run(argv, capture_output=True, text=True, timeout=30)
         out = (p.stdout + p.stderr).strip()
