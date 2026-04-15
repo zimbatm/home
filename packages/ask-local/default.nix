@@ -13,6 +13,7 @@ pkgs.writeShellApplication {
   runtimeInputs = [
     llama
     pkgs.coreutils
+    pkgs.python3
   ];
   text = ''
     # One-shot offline LLM on the Intel Arc iGPU (vulkan). Mirrors ptt-dictate:
@@ -32,6 +33,9 @@ pkgs.writeShellApplication {
     #                                           grammar×lookup tok/s matrix.
     #   ask-local --serve                     → llama-server on 127.0.0.1:8088 (OpenAI-compat),
     #                                           with n-gram lookup decoding always on.
+    #   ask-local --agent "<goal>"            → bounded ReAct loop: GBNF-forced JSON tool
+    #                                           calls over packages/ CLIs (tools.json),
+    #                                           ≤4 turns. See bench-agent.jsonl.
     MODEL="''${ASK_LOCAL_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/llama/Phi-3-mini-4k-instruct-Q4_K_M.gguf}"
 
     if [[ ! -f "$MODEL" ]]; then
@@ -43,6 +47,13 @@ pkgs.writeShellApplication {
 
     CACHE="''${XDG_CACHE_HOME:-$HOME/.cache}/ask-local"
     mkdir -p "$CACHE"
+
+    if [[ "''${1:-}" == "--agent" ]]; then
+      shift
+      export ASK_LOCAL_BIN="$0"
+      export ASK_LOCAL_TOOLS="''${ASK_LOCAL_TOOLS:-${./tools.json}}"
+      exec python3 ${./agent.py} "$@"
+    fi
 
     if [[ "''${1:-}" == "--serve" ]]; then
       # Server exposes prompt-lookup cleanly (no echo issue); enable unconditionally.
