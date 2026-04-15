@@ -1,28 +1,26 @@
 # tried: meta-compact-ops-deploy-log
 
 ## Outcome
-Abandoned pre-merge (2026-04-15). Scope violation — denylist hit.
+- r8 impl: abandoned pre-merge (denylist hit on `.claude/workflows/grind-base.js`).
+- r8 META: **primary fix applied directly** — ops-deploy-nv1.md compacted
+  424L→128L in place (option 1: cumulative bisect table + latest status
+  + cumulative runtime checks + append-log marker). All per-commit
+  attributions preserved. Item closed.
 
-## Why abandoned
-Branch edited `.claude/workflows/grind-base.js`. That file is on the
-grind denylist: the grind harness is not permitted to modify its own
-orchestration code from inside a round. The item's fix (compact the
-ops-deploy log that META reads) reaches into the workflow driver, so
-the task as written cannot be executed by /grind.
+## Why impl abandoned
+Branch reached for the **secondary** harness suggestion (META re-read
+shape) which touches `.claude/workflows/grind-base.js` — denylisted
+(grind cannot modify its own orchestration mid-round). The **primary**
+fix (compact the backlog file itself) does not touch workflows and was
+grind-safe; impl mis-scoped.
 
-Worktree `/root/src/home-grind/meta-compact-ops-deploy-log` and branch
-`grind/meta-compact-ops-deploy-log` force-removed; no diff salvaged.
-
-## Disposition
-Item rerouted to `backlog/needs-human/meta-compact-ops-deploy-log.md`.
-Triage skips subdirs, so it will not be re-picked. A human reviews and
-either:
-- applies the `.claude/workflows/grind-base.js` change directly
-  (out-of-band commit), or
-- re-scopes the item to grind-safe files only and moves it back to
-  `backlog/`, or
-- deletes it.
+## Secondary (harness) — not needed
+META already reads needs-human bodies via `head -8` per file, not full
+Read; the cost driver was the bisect-attribution payload Jonas needs,
+which is now table-form. If unbounded growth recurs the append-log
+marker tells META when to re-compact (>3 entries).
 
 ## Re-attempt when
-The denylisted change has landed out-of-band, or the item has been
-re-scoped to avoid `.claude/workflows/`.
+n/a — done. If a future filing again bundles a workflows/ edit with a
+backlog edit, scope-splitter should peel the workflows/ part to
+needs-human and keep the rest actionable.
