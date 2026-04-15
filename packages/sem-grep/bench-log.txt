@@ -1,0 +1,15 @@
+# Falsification bench for `sem-grep log` — 10 real queries pulled from
+# ops-deploy-nv1.md debugging history. Run each via `sem-grep log "<q>"` and
+# compare against `journalctl -g`. Pass: ≥7/10 surface the relevant line in
+# top-5. Fail → bge-small doesn't generalise to machine log text; kill this
+# verb AND the live-caption→sem-grep nightly fold (caption jsonl is log-shaped).
+wake-listen crash
+wifi drop yesterday
+openvino conversion error
+NPU device not found
+pipewire audio glitch
+silero VAD type error
+home-manager activation failed
+GDM session refused login
+restic backup failed
+firefox native messaging disconnected

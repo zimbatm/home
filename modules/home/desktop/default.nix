@@ -30,6 +30,7 @@ in
     ./activitywatch.nix
     ./crops.nix
     ./live-caption.nix
+    ./sem-grep.nix
   ];
 
   programs.firefox.enable = true;

@@ -111,7 +111,7 @@ Walk these at the nv1 desk after deploy:
 - **wake-listen** — `systemctl --user status wake-listen` active (not crash-looping; StartLimitBurst catches it); `journalctl --user -u wake-listen -n5` shows VAD probabilities, no TypeError/OpConversionFailure
 - **transcribe-npu** — invoke once with no network; model loads from store path, no HF Hub fetch in stderr
 - **niri** — GDM picker lists "Niri"; session works; switching back to GNOME unaffected; waybar shows icon glyphs not tofu
-- **sem-grep** — `sem-grep index && sem-grep "kin deploy"` returns hits; `sem-grep hist "<q>"` returns history lines
+- **sem-grep** — `sem-grep index && sem-grep "kin deploy"` returns hits; `sem-grep hist "<q>"` returns history lines; `sem-grep index-log && sem-grep log "wake-listen crash"` returns journald lines; walk packages/sem-grep/bench-log.txt (≥7/10 pass = keep, else rm verb + live-caption fold)
 - **crops-userland** — `lsmod | grep -E 'vfio_pci|vfio_iommu'` loaded; CLIs in PATH (gated, off until toggled)
 - **live-caption** — `systemctl --user status live-caption-log` active; `live-caption tail` follows today's jsonl; `live-caption off` stops unit; nightly reindex prunes >30d; `journalctl --user -u live-caption-log -n20` shows heartbeat; forced transcribe error surfaces in journal
 - **man-here** — `man-here jq` renders store-exact docs
