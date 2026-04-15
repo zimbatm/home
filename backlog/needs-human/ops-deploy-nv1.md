@@ -387,3 +387,38 @@ before `kin deploy nv1` overwrites it.
 revoked). Locked rev cad8614b is in local /root/src/crops-demo so eval
 worked via prefetch — but `nix flake update crops-demo` and fresh
 clones will fail. Filed backlog/bug-crops-demo-repo-not-found.md.
+---
+
+## drift @ 7f572ea (2026-04-15): have STILL UNPROBEABLE, want +2 commits
+
+`kin status --json` from grind worker: all 3 hosts `have=""` unchanged
+(nv1=not-on-mesh, relay1+web2=unreachable). `~/.ssh/kin-bir7vyhu*` still
+absent (only kin-dwqfzbq5+kin-infra) — ops-kin-login-worker.md unactioned.
+**have carried forward** from 53bed8f: `sxmv9yvi` (off-main).
+
+```
+have: sxmv9yvi…  (carried forward, NOT re-probed)
+want: /nix/store/9qwbl2bww0k5zpj0jz6f3jrlg6z7p3rx-nixos-system-nv1-26.05.20260409.4c1018d
+```
+
+want `lgpj8j5x`→`9qwbl2bw` via **2 nv1-affecting commits** since e301f49
+(bisect-verified; 8172dfe checks.no-ifd is flake.nix-checks-only,
+all-hosts-neutral):
+
+- 02441a9 — live-caption-log: stop swallowing transcribe errors +
+  heartbeat/streak/notify (lgpj8j5x→blxgazgw; nv1-only, relay1+web2
+  unchanged)
+- e4d45cd — internal bump kin/iets/nix-skills/llm-agents (6 lock nodes
+  incl. transitive maille 6ece63e→b849d73 + blueprint 06ee719→56131e8)
+  (blxgazgw→9qwbl2bw; **all 3 hosts** — first internal bump to move
+  relay1 since f2c38c8, maille is the likely relay1-reaching path)
+
+**One runtime-check extension** (live-caption check from 53bed8f section):
+- live-caption heartbeat — `journalctl --user -u live-caption-log -n20`
+  shows periodic heartbeat lines; force a transcribe error (e.g. kill
+  transcribe-npu mid-stream) → error surfaces in journal, not silently
+  swallowed; streak/notify fires on repeated failure
+
+Off-main `have` flag from 53bed8f still stands (2nd round unprobed) —
+confirm no intentional local delta on nv1 before `kin deploy nv1`
+overwrites it.

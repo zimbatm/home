@@ -109,3 +109,34 @@ same nixpkgs 4c1018d throughout).
 (f2c38c8 from 589a2f5 + bfcd408); web2 carries 2 (35c8232 + 26cb8a9).
 No declared-side gap suspected — but have is unprobed this round, so
 can't confirm no out-of-band changes since 53bed8f.
+---
+
+## drift @ 7f572ea (2026-04-15): both want moved again; have STILL UNPROBEABLE
+
+`kin status --json`: relay1+web2 `have=""` health=unreachable —
+`~/.ssh/kin-bir7vyhu*` still absent (ops-kin-login-worker.md
+unactioned). **have carried forward** from 53bed8f: relay1=`dpxnfwvk`,
+web2=`l6wwl43y`.
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want 6dxixaw6…  (was m1shwflm @ e969d2c)
+web2:   have l6wwl43y… (carried) ≠ want abqnqrp0…  (was d3w23bih @ e969d2c)
+```
+
+**Bisect e301f49..7f572ea** — single closure-affecting commit for both:
+- e4d45cd — internal bump kin/iets/nix-skills/llm-agents (6 lock nodes:
+  kin 31acf3f→23094e5, iets cf11339→a4abd7b, nix-skills 1c13ad4→4b604a9,
+  llm-agents f721224→78aa310, transitive maille 6ece63e→b849d73 +
+  blueprint 06ee719→56131e8). relay1 m1shwflm→6dxixaw6, web2
+  d3w23bih→abqnqrp0. **relay1 closure moved on an internal bump** —
+  first time since f2c38c8 (26cb8a9+prior were relay1-neutral); maille
+  is kin's mesh transitive and the likely relay1-reaching path.
+
+02441a9 (live-caption-log, nv1-only) + 8172dfe (checks.no-ifd,
+flake.nix-checks-only) both relay1+web2-neutral, verified.
+
+**Reconcile:** `kin deploy relay1 web2`. relay1 now carries 3 deltas
+(f2c38c8 + bfcd408 + e4d45cd); web2 carries 3 (35c8232 + 26cb8a9 +
+e4d45cd). Same nixpkgs 4c1018d throughout; all internal lib/mesh bumps
++ substituter add — low-risk. have unprobed 2nd round running, so
+can't confirm no out-of-band changes since 53bed8f.
