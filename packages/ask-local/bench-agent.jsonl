@@ -1,0 +1,20 @@
+{"goal": "what app am I looking at right now?", "expect_tool": "now-context", "expect_substr": "focused"}
+{"goal": "am I AFK?", "expect_tool": "now-context", "expect_substr": "afk"}
+{"goal": "which apps have I used in the last 15 minutes?", "expect_tool": "now-context", "expect_substr": "last_15m"}
+{"goal": "find where the wake word model is loaded", "expect_tool": "sem-grep", "expect_substr": "wake"}
+{"goal": "where in the repos do we configure the GNOME shell extensions?", "expect_tool": "sem-grep", "expect_substr": "gnome"}
+{"goal": "search the codebase for how llm-router picks a backend", "expect_tool": "sem-grep", "expect_substr": "router"}
+{"goal": "is ssh enabled on nv1?", "expect_tool": "kin-opts", "expect_substr": "openssh"}
+{"goal": "list the machines in this fleet", "expect_tool": "kin-opts", "expect_substr": "nv1"}
+{"goal": "what value does services.tailscale.enable have on relay1?", "expect_tool": "kin-opts", "expect_substr": "tailscale"}
+{"goal": "how do I use the pueue command? show me its flags", "expect_tool": "man-here", "expect_substr": "pueue"}
+{"goal": "what does the jq --slurp flag do?", "expect_tool": "man-here", "expect_substr": "slurp"}
+{"goal": "give me the help for nixos-rebuild", "expect_tool": "man-here", "expect_substr": "nixos-rebuild"}
+{"goal": "is there a terminal window visible on screen right now?", "expect_tool": "peek", "expect_substr": "terminal"}
+{"goal": "what colour is the wallpaper?", "expect_tool": "peek", "expect_substr": "colour"}
+{"goal": "read the text in the currently focused window", "expect_tool": "peek", "expect_substr": "text"}
+{"goal": "are any inference jobs queued or running?", "expect_tool": "infer-queue", "expect_substr": "status"}
+{"goal": "show me the GPU job queue", "expect_tool": "infer-queue", "expect_substr": "arc"}
+{"goal": "check if the npu lane is busy", "expect_tool": "infer-queue", "expect_substr": "npu"}
+{"goal": "which file sets the hostname for web2?", "expect_tool": "sem-grep", "expect_substr": "web2"}
+{"goal": "what version of git is installed here?", "expect_tool": "man-here", "expect_substr": "git"}

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "now-context",
+    "desc": "current desktop state: AFK flag, focused window, last-15m app histogram (JSON)",
+    "argv": ["now-context"]
+  },
+  {
+    "name": "sem-grep",
+    "desc": "semantic search over the local assise repos; args = natural-language query",
+    "argv": ["sem-grep", "{args}"]
+  },
+  {
+    "name": "kin-opts",
+    "desc": "evaluated NixOS option tree for this fleet; args = '<host> <option.path>' or '--hosts'",
+    "argv": ["kin-opts", "{args}"]
+  },
+  {
+    "name": "man-here",
+    "desc": "version-exact man/--help/README for any CLI on PATH; args = command name",
+    "argv": ["man-here", "{args}"]
+  },
+  {
+    "name": "peek",
+    "desc": "screenshot the desktop and answer a visual question about it; args = question",
+    "argv": ["peek", "--ask", "{args}"]
+  },
+  {
+    "name": "infer-queue",
+    "desc": "status of the local arc/npu/cpu inference job queue",
+    "argv": ["infer-queue", "status"]
+  }
+]
