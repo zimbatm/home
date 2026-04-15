@@ -19,63 +19,64 @@
         "ssh-ca": "ac931a5cc614b007bc9e3518de628d307ba316ac945ceea6cba088c86866e876",
         "tls-ca.key": "d8210bc9b6f1f9047f2ced85631cc73e412c8aec8c29c65f2b18d299cfc72cf0"
       },
+      "depFilesHash": "ede71d95f59c8fe5e6cbd4e32f0150016a666247af5c50b912a6ee5c66045212",
       "files": {
         "ssh-ca": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b",
         "tls-ca.key": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
       },
-      "inputHash": "0fc72ebff85d09d2df3b9a0dee2eb837bd983e9445873c4352a8311957057402"
+      "inputHash": "6e53d4ac3ded58f76a471a0545a5e7e2f0736ba9310d9ba841b0e2556657b31a"
     },
     "identity/machine/nv1": {
       "ageHash": {
         "ssh-host": "685ec34fd2cbb2f554274e04288dc32fd58aea906e6a7edadeb8e86d92f44795",
         "tls.key": "0b2ecd9a8429c6dbc1bf238443165178a8e1ac1dc5037575e65f260bfd41844b"
       },
-      "depFilesHash": "d8fb419abb315310b6ba83ff63eaeb6f662db14bb64f6df92131631f44703088",
+      "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
       "files": {
         "ssh-host": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63",
         "tls.key": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63"
       },
-      "inputHash": "150cbd25b996d3b0ea36414434b4821d097ec7711dd833bdefa7b2e7d7005934"
+      "inputHash": "78ebf722c6e749cb434968a0513394350b3a46f97347e08ce14852359359a93b"
     },
     "identity/machine/relay1": {
       "ageHash": {
         "ssh-host": "d1f0a1e70b3b839ad3bc3c058a420f0b6627c9f0786fb21efe61a541d26044f2",
         "tls.key": "42881c4cbdf935cca834f24bdbd21c3e89f6cef1e467593fbb3b490bc3e8e54e"
       },
-      "depFilesHash": "d8fb419abb315310b6ba83ff63eaeb6f662db14bb64f6df92131631f44703088",
+      "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
       "files": {
         "ssh-host": "996aa73155bd2a5f8b4d97b4d747b03a47695ce5210364e49b7c9aed7dd36f2d",
         "tls.key": "996aa73155bd2a5f8b4d97b4d747b03a47695ce5210364e49b7c9aed7dd36f2d"
       },
-      "inputHash": "d147304b01ea4c2ca5d7255a273415e8d7af976b3e5fdc7ead81a56bc922f74a"
+      "inputHash": "64d51854d5d8bc474df08d8b6d290712caafca85eca6842c9fea8e9febfb525b"
     },
     "identity/machine/web2": {
       "ageHash": {
         "ssh-host": "306260fa179d12f9e9ee998f9b24847987f76e82fb184eb98c8cae5e7173245b",
         "tls.key": "3e4c4eddd026dcdfd0351784dca3b196ceed5cc094625ca37036bf4f409fa490"
       },
-      "depFilesHash": "d8fb419abb315310b6ba83ff63eaeb6f662db14bb64f6df92131631f44703088",
+      "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
       "files": {
         "ssh-host": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc",
         "tls.key": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc"
       },
-      "inputHash": "63ff2c01bb5504d39aa3ee6175969ce26e3938dfdcfb5e99e13003977f064bbb"
+      "inputHash": "0e92244aea3487989a73e09bc2a2153505cbc2528746e50fd8bad74b112b4935"
     },
     "identity/user-claude/_shared": {
       "ageHash": {},
-      "depFilesHash": "d8fb419abb315310b6ba83ff63eaeb6f662db14bb64f6df92131631f44703088",
+      "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
       "files": {},
       "inputHash": "653f44872a2b0681925ea6e5aa31c5d4a65a5b1d91c02feec458a459813c4aa6"
     },
     "identity/user-zimbatm/_shared": {
       "ageHash": {},
-      "depFilesHash": "d8fb419abb315310b6ba83ff63eaeb6f662db14bb64f6df92131631f44703088",
+      "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
       "files": {},
       "inputHash": "183f768baac22493d0741f35f2d50f9016633804aa97993aad1dd93e235227aa"
     },
     "mesh/fingerprints/_shared": {
       "ageHash": {},
-      "depFilesHash": "c78d47a509266a525a17799a83630a46e98e417b94f46cb7714438feaa931bdd",
+      "depFilesHash": "a865a11491ce56aa112e598fb4681096dffaca1d0d325fcc071b0ac808a0a8cc",
       "files": {},
       "inputHash": "8e82129efbaad334c7f507022d81f2c8e93ddef292fc5e4c96280cd16be85022"
     },
