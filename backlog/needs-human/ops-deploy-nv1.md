@@ -336,3 +336,54 @@ want `fvazrzw4`→`xx8swk3n` via **1 commit** since e4c1d3d:
   `live-caption tail` follows today's jsonl; `live-caption off`
   stops the unit; nightly reindex prunes
   `~/.local/state/live-caption/*.jsonl` older than 30d
+---
+
+## drift @ e969d2c (2026-04-15): have UNPROBEABLE (worker lost fleet identity), want +6 commits
+
+`kin status --json` from grind worker: all 3 hosts `have=""` —
+nv1=not-on-mesh, relay1+web2=unreachable. Root cause:
+`~/.ssh/kin-bir7vyhu_ed25519` (home fleet identity) is **gone from this
+worker**; only kin-infra's `kin-dwqfzbq5` remains (mtime today). Prior
+round @ 53bed8f probed fine. Worker-state regression, not repo —
+`kin login` needs a hardware key, can't self-heal. **have carried
+forward**: `sxmv9yvi` (off-main, last seen @ 53bed8f).
+
+```
+have: sxmv9yvi…  (carried forward, NOT re-probed — see above)
+want: /nix/store/lgpj8j5xyxisimq8sr5m54rjgbhm4bph-nixos-system-nv1-26.05.20260409.4c1018d
+```
+
+want `xx8swk3n`→`lgpj8j5x` via **6 nv1-affecting commits** since 53bed8f
+(bisect-verified; 9dbb216 nixConfig drop, 26cb8a9 internal bump,
+24cc8e8/2898dcd comment-only, bfcd408 relay1-only — all nv1-neutral):
+
+- 35c8232 — common.nix: add cache.assise.systems substituter+key
+  (nv1+web2; relay1-neutral, doesn't import common.nix)
+- a603e7c — home-manager bump 8a423e4→3c7524c (nv1-only)
+- 94cf5c6 — wake-listen+transcribe-npu ship models as FODs
+  (silero_vad.onnx 2.2M + whisper-base.en-fp16-ov 147M); MODEL defaults
+  to store path (nv1-only)
+- 2243fd1 — transcribe-npu: TRANSFORMERS_OFFLINE=1 HF_HUB_OFFLINE=1
+  env (nv1-only)
+- 0580584 — wake-listen: silero-vad v5.1→v4.0 (OpenVINO 2026.1 can't
+  convert v5 ONNX); state[2,1,128]→h+c[2,1,64]; +StartLimitBurst=5/60s
+  on user unit (nv1-only)
+- e969d2c — wake-listen: res[p_out].item() (v4 output is [1,1])
+  (nv1-only)
+
+**Two new runtime checks:**
+- wake-listen — `systemctl --user status wake-listen` active (not
+  crash-looping; StartLimitBurst would catch it); `journalctl --user
+  -u wake-listen -n5` shows VAD probabilities, no TypeError/OpConversionFailure
+- transcribe-npu — invoke once with no network (offline env vars set);
+  model loads from store path, no HF Hub fetch attempt in stderr
+
+Off-main `have` flag from 53bed8f still stands (unprobeable this round
+so can't confirm it moved) — confirm no intentional local delta on nv1
+before `kin deploy nv1` overwrites it.
+
+**Secondary structural issue this round:** `assise/crops-demo` returns
+"Repository not found" over ssh from this worker (renamed/deleted/key
+revoked). Locked rev cad8614b is in local /root/src/crops-demo so eval
+worked via prefetch — but `nix flake update crops-demo` and fresh
+clones will fail. Filed backlog/bug-crops-demo-repo-not-found.md.

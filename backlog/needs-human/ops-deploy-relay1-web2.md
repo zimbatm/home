@@ -72,3 +72,40 @@ now the only stale host of the pair; uptime 6d8h, no failed units.
 
 **Reconcile:** `kin deploy relay1`. After that lands and the web2
 restic check is walked, delete this file.
+---
+
+## drift @ e969d2c (2026-04-15): both want moved; have UNPROBEABLE this round
+
+`kin status --json` from grind worker: relay1+web2 `have=""`
+health=unreachable. Root cause: `~/.ssh/kin-bir7vyhu_ed25519` (home
+fleet identity) is gone from this worker — see ops-deploy-nv1.md same
+section. **have carried forward** from 53bed8f: relay1=`dpxnfwvk`,
+web2=`l6wwl43y`.
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want m1shwflm…  (was cfp7bc9j @ 53bed8f)
+web2:   have l6wwl43y… (carried) ≠ want d3w23bih…  (was l6wwl43y == have @ 53bed8f)
+```
+
+**relay1 bisect** cfp7bc9j→m1shwflm: single commit.
+- bfcd408 — relay1/configuration.nix: add cache.assise.systems
+  substituter+key (relay1 doesn't import common.nix, so 35c8232 missed
+  it). 26cb8a9 internal bump + a603e7c hm bump + all wake-listen/
+  transcribe-npu commits relay1-neutral (verified).
+
+**web2 bisect** l6wwl43y→d3w23bih: two commits.
+- 35c8232 — common.nix: cache.assise.systems substituter+key
+  (l6wwl43y→44z9l6xb)
+- 26cb8a9 — internal bump kin/iets/nix-skills/llm-agents
+  (44z9l6xb→d3w23bih). a603e7c hm bump + bfcd408 relay1-only + all
+  wake-listen/transcribe-npu/live-caption commits web2-neutral
+  (verified).
+
+**web2 stale again** — was have==want @ 53bed8f, now want moved past
+it. Both deltas are low-risk (extra binary cache + internal lib bump,
+same nixpkgs 4c1018d throughout).
+
+**Reconcile:** `kin deploy relay1 web2`. relay1 now carries 2 deltas
+(f2c38c8 from 589a2f5 + bfcd408); web2 carries 2 (35c8232 + 26cb8a9).
+No declared-side gap suspected — but have is unprobed this round, so
+can't confirm no out-of-band changes since 53bed8f.
