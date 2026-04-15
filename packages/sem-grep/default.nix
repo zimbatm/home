@@ -24,11 +24,14 @@ pkgs.writeShellApplication {
     #
     #   sem-grep "<query>"       → ranked file:line hits (top 10)
     #   sem-grep -n 20 "<query>" → top N
+    #   sem-grep -r "<query>"    → rerank cosine top-30 with bge-reranker-base
     #   sem-grep index           → (re)build; incremental on git blob-sha
     #   sem-grep hist "<query>"  → ranked shell-history commands (hist-sem alias)
     #
     # Model: bge-small-en-v1.5 OpenVINO IR (~130 MB, 384-dim) under XDG_DATA_HOME.
+    # Rerank model (opt-in, -r): bge-reranker-base OpenVINO IR (~280 MB fp16).
     MODEL="''${SEM_GREP_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/openvino/bge-small-en-v1.5}"
+    RERANK_MODEL="''${SEM_GREP_RERANK_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/openvino/bge-reranker-base}"
     DEVICE="''${SEM_GREP_DEVICE:-NPU}"
     STATE="''${SEM_GREP_STATE:-''${XDG_STATE_HOME:-$HOME/.local/state}/sem-grep}"
     REPOS="''${SEM_GREP_REPOS:-$HOME/src/home:$HOME/src/kin:$HOME/src/iets:$HOME/src/maille:$HOME/src/meta}"
@@ -40,8 +43,22 @@ pkgs.writeShellApplication {
       exit 1
     fi
 
-    export SEM_GREP_MODEL="$MODEL" SEM_GREP_DEVICE="$DEVICE" \
-           SEM_GREP_STATE="$STATE" SEM_GREP_REPOS="$REPOS"
+    # reranker is opt-in: only check presence when -r/--rerank requested
+    for a in "$@"; do
+      if [[ "$a" == "-r" || "$a" == "--rerank" ]]; then
+        if [[ ! -f "$RERANK_MODEL/openvino_model.xml" ]]; then
+          echo "sem-grep: rerank model not found: $RERANK_MODEL" >&2
+          echo "  fetch: mkdir -p \"$RERANK_MODEL\" && \\" >&2
+          echo "    huggingface-cli download OpenVINO/bge-reranker-base-fp16-ov --local-dir \"$RERANK_MODEL\"" >&2
+          exit 1
+        fi
+        break
+      fi
+    done
+
+    export SEM_GREP_MODEL="$MODEL" SEM_GREP_RERANK_MODEL="$RERANK_MODEL" \
+           SEM_GREP_DEVICE="$DEVICE" SEM_GREP_STATE="$STATE" \
+           SEM_GREP_REPOS="$REPOS"
     exec python3 ${./sem-grep.py} "$@"
   '';
 }
