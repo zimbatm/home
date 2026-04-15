@@ -42,7 +42,7 @@ pkgs.writeShellApplication {
     # shellcheck disable=SC2064
     trap "rm -f '$RUN'/chunk-*.wav '$RUN'/chunk-*.txt" EXIT
 
-    prev=""; prev_ts=""; n=0
+    prev=""; prev_ts=""; n=0; first=1; empties=0
     while :; do
       cur="$RUN/chunk-$((n % 2)).wav"
       rm -f "$cur"
@@ -52,21 +52,38 @@ pkgs.writeShellApplication {
 
       # Drain the previous chunk while the current one records (double-buffer).
       if [[ -n "$prev" && -s "$prev" ]]; then
-        out="$prev.txt"; : >"$out"
+        out="$prev.txt"; : >"$out"; via=inline
         job=$(infer-queue add --lane npu -- \
-                /bin/sh -c "exec '$TNPU' '$prev' >'$out' 2>/dev/null")
+                /bin/sh -c "exec '$TNPU' '$prev' >'$out'")
         if [[ $job =~ id\ ([0-9]+) ]]; then
-          infer-queue wait "''${BASH_REMATCH[1]}" >/dev/null 2>&1 || true
+          via=queue
+          infer-queue wait "''${BASH_REMATCH[1]}" >/dev/null || true
         else
-          "$TNPU" "$prev" >"$out" 2>/dev/null || true  # pueued down → inline
+          "$TNPU" "$prev" >"$out" || true  # pueued down → inline
         fi
         text=$(tr -d '\r\n' <"$out" | sed 's/^ *//;s/ *$//')
+        bytes=$(stat -c%s "$prev" 2>/dev/null || echo 0)
+        # Heartbeat: prove the loop is alive and which step yielded zero.
+        printf '%s chunk=%d bytes=%d text_len=%d via=%s\n' \
+          "$(date -u +%FT%TZ)" "$n" "$bytes" "''${#text}" "$via" >&2
         if [[ -n "$text" ]]; then
+          empties=0
+          if [[ $first -eq 1 ]]; then
+            notify-send -u low -a live-caption 'live-caption' 'first transcript landed' || true
+            first=0
+          fi
           jq -cn --arg ts "$prev_ts" --arg text "$text" --arg src "$SOURCE" \
             '{ts:$ts, text:$text, source:$src}' \
             >>"$STATE/$(date -u +%F).jsonl"
           if [[ $overlay -eq 1 ]]; then
             notify-send -r "$NID" -t 0 -a live-caption " " "$text" || true
+          fi
+        elif [[ $bytes -gt 2048 ]]; then
+          # Non-silent input but empty transcript — track streak.
+          empties=$((empties + 1))
+          if [[ $empties -eq 60 ]]; then
+            printf 'WARN: %d consecutive empty transcripts on non-silent input — transcribe-npu suspect\n' \
+              "$empties" >&2
           fi
         fi
       fi
