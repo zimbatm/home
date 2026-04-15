@@ -178,13 +178,21 @@
             # --no-allow-import-from-derivation so forcing these drvPaths trips
             # on any regression (hit dacd1ec: crops→tng→crane). nixConfig used
             # to set this but prompted users for trust — CLI flag is the gate.
-            no-ifd = (pkgsFor system).writeText "no-ifd" (
-              lib.concatLines (
-                lib.mapAttrsToList (
-                  n: c: "${n} ${c.config.system.build.toplevel.drvPath}"
-                ) kinOut.nixosConfigurations
-              )
-            );
+            # seq forces instantiation (so IFD still surfaces); context is then
+            # discarded so writeText doesn't input-depend on the .drv — avoids
+            # the transient "path … is not valid" race under --no-build.
+            no-ifd =
+              let
+                line =
+                  n: c:
+                  let
+                    p = c.config.system.build.toplevel.drvPath;
+                  in
+                  builtins.seq p "${n} ${builtins.unsafeDiscardStringContext p}";
+              in
+              (pkgsFor system).writeText "no-ifd" (
+                lib.concatLines (lib.mapAttrsToList line kinOut.nixosConfigurations)
+              );
           }
           // lib.mapAttrs (_: c: c.config.system.build.toplevel) kinOut.nixosConfigurations
         )
