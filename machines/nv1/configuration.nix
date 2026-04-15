@@ -97,7 +97,10 @@
     # DeepFilterNet noise cancellation via PipeWire LADSPA — virtual mic source.
     config.home.deepfilter.enable = true;
     # infer-queue: device-tagged background inference (arc/npu/cpu lanes, nv1-only hardware).
-    config.home.packages = [ inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.infer-queue ];
+    config.home.packages = [
+      inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.default
+      inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.infer-queue
+    ];
     config.services.pueue.enable = true;
   };
 
