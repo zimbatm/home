@@ -191,3 +191,51 @@ ed83b09/e4d1e1a/605cd1b markers+backlog only.
   includes kin-infra fleet CA; `maille config show | jq .peer_fleets`
   lists kin-infra; ssh from a kin-infra host lands without TOFU prompt.
 
+### drift @ 5858216 (2026-04-17): want UNEVALABLE at HEAD; last-evalable 3f3124d snfxm0c9; have UNPROBEABLE 7th round
+
+`kin status --json`: dies at eval — `Failed to fetch git repository
+'ssh://git@github.com/assise/crops-demo'`. 5858216 (zimbatm out-of-band
+`flake update`) bumped crops-demo cad8614b→0182fa2c (revCount 301→1,
+repo recreated); worker key still 404s, sibling /root/src/crops-demo
+lacks 0182fa2c. **Gate broken at HEAD** — filed
+backlog/bug-eval-broken-crops-demo-5858216.md (revert crops-demo hunk).
+`~/.ssh/kin-bir7vyhu*` still absent (only dwqfzbq5+infra mtime
+Apr-15-12:17 unchanged 10th check; ops-kin-login-worker.md unactioned
+7th round). **have carried forward** from 53bed8f: nv1=`sxmv9yvi`
+(off-main).
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed — worker blind 7th round)
+want@3f3124d: /nix/store/snfxm0c9hpdi42q44j8fwvigzanm9cvx-nixos-system-nv1-26.05.20260414.4bd9165
+want@5858216: UNEVALABLE (crops-demo fetch fails)
+```
+
+**Bisect 605cd1b..3f3124d** (lhz6s49y→snfxm0c9, 4 nv1-affecting):
+- 8bde140 packages/lib/fetch-model.sh HF-repo-id validate +
+  flags-before-positional (lhz6s49y→30ci0cam, nv1-only — relay1/web2
+  verified neutral)
+- 4ec63e0 ask-local --diff-gate + llm-router /review +
+  modules/home/terminal pre-commit/starship hooks (30ci0cam→6wbrhkxa,
+  nv1-only)
+- 92d2cd8 sem-grep `sig` verb tree-sitter signature index
+  (6wbrhkxa→72x0j76x, nv1-only)
+- 483fadb internal bump kin e736801→df0a4b2 + iets/llm-agents
+  (72x0j76x→snfxm0c9, nv1+web2; relay1-neutral)
+
+Closure-neutral all 3 (verified): 3a809a9 nixvim bump 0a12693→4f75992
+(snfxm0c9 unchanged — packages/nvim enableMan=false from c170da0 likely
+makes the bumped paths unreferenced).
+
+**5858216 unbisectable** — bumps 7 inputs (crops-demo home-manager iets
+kin llm-agents maille nixvim); home-manager+maille+kin would move nv1
+once eval is fixed. Re-bisect after bug-eval-broken-crops-demo-5858216
+lands.
+
+**+2 runtime checks:**
+- **ask-local --diff-gate** — stage a diff, `ask-local --diff-gate`
+  returns pass/fail JSON; pre-commit hook fires it; starship `diff_gate`
+  segment renders on dirty tree; `curl -s localhost:8090/review -d
+  @<diff>` responds.
+- **sem-grep sig** — `sem-grep sig 'def main'` returns tree-sitter
+  signature matches across indexed repos.
+

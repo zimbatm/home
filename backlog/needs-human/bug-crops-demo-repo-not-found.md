@@ -43,3 +43,14 @@ inputs.crops-demo.url, or vendor/drop the input.
 
 **Blockers:** assise GitHub org admin access. Re-verified 2026-04-15
 meta r2: ls-remote still `Repository not found`.
+
+---
+
+**Update 2026-04-17 (drift @ 5858216):** repo was **recreated** upstream
+— 5858216 (zimbatm `flake update`) bumped lock to `0182fa2c` revCount=1
+(was cad8614b revCount=301; old history discarded). zimbatm's key
+reaches it; this worker's still 404s (`git ls-remote` re-confirmed) and
+`/root/src/crops-demo` lacks 0182fa2c. So: not deleted — **recreated
+private**, deploy-key not re-granted on the new repo. Ask: re-add the
+grind worker deploy key to assise/crops-demo settings. Acute eval
+breakage filed separately at backlog/bug-eval-broken-crops-demo-5858216.md.

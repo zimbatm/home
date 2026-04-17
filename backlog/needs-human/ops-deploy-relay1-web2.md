@@ -267,3 +267,37 @@ hosts:** peer-kin-infra trust — `grep '@cert-authority'
 /etc/ssh/ssh_known_hosts` includes kin-infra CA; maille peer_fleets
 lists kin-infra. have unprobed 6th round — can't confirm no out-of-band
 changes since 53bed8f.
+---
+
+## drift @ 5858216 (2026-04-17): want UNEVALABLE at HEAD; relay1 unchanged / web2 +1 @ 3f3124d; have UNPROBEABLE 7th round
+
+`kin status --json`: dies at eval (crops-demo fetch fail — see
+ops-deploy-nv1.md same section + backlog/bug-eval-broken-crops-demo-
+5858216.md). `~/.ssh/kin-bir7vyhu*` still absent (mtime Apr-15-12:17
+unchanged 10th check; ops-kin-login-worker.md unactioned 7th round).
+**have carried forward** from 53bed8f: relay1=`dpxnfwvk`,
+web2=`l6wwl43y`.
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want@3f3124d 4v9sfxzk…  (UNCHANGED since 605cd1b)
+web2:   have l6wwl43y… (carried) ≠ want@3f3124d kzz0zmsj…  (MOVED from sasxqy66)
+want@5858216: UNEVALABLE both (crops-demo fetch fails)
+```
+
+**Bisect 605cd1b..3f3124d** — 1 web2-affecting, relay1 fully neutral:
+- 8bde140 fetch-model.sh + 4ec63e0 ask-local/terminal + 92d2cd8
+  sem-grep sig — all packages/+modules/home nv1-only; relay1=4v9sfxzk
+  web2=sasxqy66 unchanged (verified)
+- 483fadb internal bump kin e736801→df0a4b2 + iets/llm-agents:
+  relay1-neutral (4v9sfxzk unchanged — 3rd consecutive relay1-neutral
+  internal bump after 6673c0c, 26cb8a9-precedent), web2
+  sasxqy66→kzz0zmsj
+- 3a809a9 nixvim bump: neutral both (verified)
+
+**5858216 unbisectable** — bumps incl maille+kin which historically
+reach both hosts; re-bisect after eval fix lands.
+
+**relay1 still carries 9** (no change since 605cd1b); **web2 now
+carries 11** (+483fadb). Reconcile unchanged: `kin deploy relay1 web2`.
+have unprobed 7th round — can't confirm no out-of-band changes since
+53bed8f.
