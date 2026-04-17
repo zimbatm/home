@@ -12,6 +12,7 @@ lane). Env wiring into agentshell is a deliberate follow-up (ops-*).
 """
 import json
 import os
+import subprocess
 import sys
 import time
 import urllib.error
@@ -74,11 +75,64 @@ class Router(BaseHTTPRequestHandler):
             self.wfile.write(chunk)
             self.wfile.flush()
 
+    def _reply_json(self, obj, status=200):
+        msg = json.dumps(obj).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(msg)))
+        self.end_headers()
+        self.wfile.write(msg)
+
+    def _review(self, diff: bytes):
+        """POST /review: model-gated diff triage. ask-local --diff-gate decides
+        low/high; low → local one-line summary, high → upstream chat review.
+        Falls back to linecount when ask-local is absent (pre-deploy)."""
+        t0 = time.monotonic()
+        text = diff.decode("utf-8", "replace")
+        try:
+            p = subprocess.run(["ask-local", "--diff-gate"], input=text,
+                               capture_output=True, text=True, timeout=30)
+            risk = "low" if p.returncode == 0 else "high"
+            why = p.stdout.strip() or p.stderr.strip()[:80]
+            gate = "model"
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            risk = "high" if text.count("\n") > 200 else "low"
+            why = "linecount fallback (ask-local unavailable)"
+            gate = "linecount"
+        lane = "local" if risk == "low" else "upstream"
+        out = {"risk": risk, "why": why, "lane": lane, "gate": gate}
+        try:
+            if lane == "local":
+                s = subprocess.run(
+                    ["ask-local", "--fast",
+                     "Summarize this diff in one line:\n" + text[:4000]],
+                    capture_output=True, text=True, timeout=30)
+                out["summary"] = s.stdout.strip().splitlines()[-1][:200]
+            else:
+                content = "Review this diff briefly:\n" + text[:12000]
+                req = json.dumps({
+                    "model": os.environ.get("LLM_ROUTER_REVIEW_MODEL", "gpt-4o"),
+                    "messages": [{"role": "user", "content": content}],
+                }).encode()
+                self.path = "/v1/chat/completions"
+                r = json.load(self._forward(UPSTREAM, req))
+                out["review"] = r["choices"][0]["message"]["content"]
+        except Exception as e:
+            out["error"] = str(e)
+        self._reply_json(out)
+        log_decision({
+            "ts": time.time(), "lane": lane, "path": "/review", "gate": gate,
+            "risk": risk, "tokens_in": len(text) // 4, "status": 200,
+            "latency_ms": int((time.monotonic() - t0) * 1000),
+        })
+
     def do_GET(self):
         self.do_POST()
 
     def do_POST(self):
         body = self._body()
+        if self.path == "/review":
+            return self._review(body)
         lane, tokens = "upstream", 0
         if self.path.startswith("/v1/chat/completions") and body:
             try:

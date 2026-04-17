@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   pkgs,
   inputs,
@@ -235,6 +236,29 @@ in
       submodule.recurse = true;
       url."ssh://git@github.com/".pushInsteadOf = "https://github.com/";
     };
+    # Seed new repos (git init / clone) with the diff-gate pre-commit hook.
+    # Non-invasive: existing repos keep their own .git/hooks; refresh them
+    # with `git init` if wanted. The hook is informational-only — it never
+    # blocks a commit.
+    settings.init.templateDir = "${config.xdg.configHome}/git/template";
+  };
+
+  xdg.configFile."git/template/hooks/pre-commit" = {
+    executable = true;
+    text = ''
+      #!/usr/bin/env bash
+      # ask-local --diff-gate: local risky-diff triage. Prints why on high
+      # and points at llm-router /review; never exits non-zero. Caches the
+      # verdict for the starship diff_gate segment.
+      command -v ask-local >/dev/null || exit 0
+      diff=$(git diff --cached)
+      [[ -n "$diff" ]] || exit 0
+      if ! why=$(ask-local --diff-gate <<<"$diff" 2>/dev/null); then
+        printf '\033[33mdiff-gate: high — %s\033[0m\n' "$why" >&2
+        printf '  → curl -sd @- localhost:8090/review <<<"$(git show -p HEAD)"\n' >&2
+      fi
+      exit 0
+    '';
   };
 
   services.gpg-agent = {
@@ -269,6 +293,22 @@ in
           "--norc"
         ];
         style = "dimmed white";
+      };
+      # Dirty-tree risk glyph from the last ask-local --diff-gate run
+      # (pre-commit hook caches to $XDG_STATE_HOME/diff-gate/last.json).
+      # Reads a file — no model call — so safe at prompt latency. Same
+      # opt-in shape as agent_meter; flip on nv1 once bench-diff-gate.sh
+      # has a recall number.
+      custom.diff_gate = {
+        disabled = true;
+        command = ''jq -r 'if .risk=="high" then "⚠ "+.why else "" end' "''${XDG_STATE_HOME:-$HOME/.local/state}/diff-gate/last.json" 2>/dev/null'';
+        when = ''test -f "''${XDG_STATE_HOME:-$HOME/.local/state}/diff-gate/last.json"'';
+        shell = [
+          "bash"
+          "--noprofile"
+          "--norc"
+        ];
+        style = "yellow";
       };
     };
   };

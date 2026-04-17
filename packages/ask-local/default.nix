@@ -37,6 +37,11 @@ pkgs.writeShellApplication {
     #   ask-local --agent "<goal>"            → bounded ReAct loop: GBNF-forced JSON tool
     #                                           calls over packages/ CLIs (tools.json),
     #                                           ≤4 turns. See bench-agent.jsonl.
+    #   ask-local --diff-gate                 → reads a git diff on stdin, GBNF-forced
+    #                                           {"risk":"low|high","why":"…"} triage,
+    #                                           prints why, exit 0=low 1=high. Gates
+    #                                           pre-commit + llm-router /review. See
+    #                                           bench-diff-gate.sh for the label harness.
     # shellcheck source=/dev/null
     . ${../lib/fetch-model.sh}
     MODEL="''${ASK_LOCAL_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/llama/Phi-3-mini-4k-instruct-Q4_K_M.gguf}"
@@ -46,12 +51,17 @@ pkgs.writeShellApplication {
     CACHE="''${XDG_CACHE_HOME:-$HOME/.cache}/ask-local"
     mkdir -p "$CACHE"
 
-    if [[ "''${1:-}" == "--agent" ]]; then
-      shift
-      export ASK_LOCAL_BIN="$0"
-      export ASK_LOCAL_TOOLS="''${ASK_LOCAL_TOOLS:-${./tools.json}}"
-      exec python3 ${./agent.py} "$@"
-    fi
+    case "''${1:-}" in
+      --agent)
+        shift
+        export ASK_LOCAL_BIN="$0"
+        export ASK_LOCAL_TOOLS="''${ASK_LOCAL_TOOLS:-${./tools.json}}"
+        exec python3 ${./agent.py} "$@" ;;
+      --diff-gate)
+        export ASK_LOCAL_BIN="$0"
+        export ASK_LOCAL_DIFF_GATE_GBNF="''${ASK_LOCAL_DIFF_GATE_GBNF:-${./diff-gate.gbnf}}"
+        exec python3 ${./agent.py} --diff-gate ;;
+    esac
 
     if [[ "''${1:-}" == "--serve" ]]; then
       # Server exposes prompt-lookup cleanly (no echo issue); enable unconditionally.

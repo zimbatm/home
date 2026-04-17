@@ -15,7 +15,6 @@ import sys
 import tempfile
 
 ASK_LOCAL = os.environ.get("ASK_LOCAL_BIN", "ask-local")
-TOOLS = json.load(open(os.environ["ASK_LOCAL_TOOLS"]))
 MAX_TURNS = int(os.environ.get("ASK_LOCAL_AGENT_TURNS", "4"))
 OBS_CAP = 1200  # chars per observation; Phi-3-mini is 4k-context
 
@@ -69,12 +68,75 @@ def run_tool(spec: dict, args: str) -> str:
     return out[:OBS_CAP] + (" …[truncated]" if len(out) > OBS_CAP else "")
 
 
+def diff_cap(diff: str, budget: int = 6000) -> str:
+    """Hunk-header-weighted truncation: keep all diff/---/+++/@@ lines, drop
+    context lines first, then change lines, until under budget. Diffs are
+    repetitive so lookup-decode acceptance should beat the intent-text bench."""
+    if len(diff) <= budget:
+        return diff
+    lines = diff.splitlines()
+    hdr = tuple(i for i, l in enumerate(lines)
+                if l.startswith(("diff ", "+++", "---", "@@")))
+    keep = set(hdr)
+    size = sum(len(lines[i]) + 1 for i in keep)
+    # changes before context: signal lives in +/-, not in surrounding ' ' lines
+    for pred in (lambda l: l[:1] in "+-", lambda l: True):
+        for i, l in enumerate(lines):
+            if size >= budget:
+                break
+            if i not in keep and pred(l):
+                keep.add(i)
+                size += len(l) + 1
+    out = [lines[i] if i in keep else None for i in range(len(lines))]
+    folded, gap = [], False
+    for l in out:
+        if l is None:
+            if not gap:
+                folded.append(" …")
+            gap = True
+        else:
+            folded.append(l)
+            gap = False
+    return "\n".join(folded)
+
+
+def diff_gate() -> None:
+    diff = sys.stdin.read()
+    if not diff.strip():
+        print("(empty diff)")
+        sys.exit(0)
+    prompt = (
+        "You are a commit-risk triage. Reply with exactly "
+        '{"risk":"low"|"high","why":"<reason>"}.\n'
+        "high = touches deploy/secrets/auth/network, large refactor, or "
+        "non-obvious logic that wants a second pair of eyes. "
+        "low = docs, comments, lockfile-only, trivial rename, formatting.\n"
+        f"Diff:\n{diff_cap(diff)}\nJSON:"
+    )
+    res = ask(os.environ["ASK_LOCAL_DIFF_GATE_GBNF"], prompt)
+    risk, why = res.get("risk", "high"), res.get("why", "")
+    state = os.path.join(
+        os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")),
+        "diff-gate")
+    try:
+        os.makedirs(state, exist_ok=True)
+        with open(os.path.join(state, "last.json"), "w") as f:
+            json.dump({"risk": risk, "why": why, "ts": os.times().elapsed}, f)
+    except OSError:
+        pass
+    print(why)
+    sys.exit(0 if risk == "low" else 1)
+
+
 def main() -> None:
+    if sys.argv[1:2] == ["--diff-gate"]:
+        return diff_gate()
     if len(sys.argv) < 2:
         sys.exit("usage: ask-local --agent \"<goal>\"")
     goal = " ".join(sys.argv[1:])
-    by_name = {t["name"]: t for t in TOOLS}
-    inventory = "\n".join(f"- {t['name']}: {t['desc']}" for t in TOOLS)
+    tools = json.load(open(os.environ["ASK_LOCAL_TOOLS"]))
+    by_name = {t["name"]: t for t in tools}
+    inventory = "\n".join(f"- {t['name']}: {t['desc']}" for t in tools)
     sys_p = (
         "You are a tool-using assistant. Pick ONE tool per step, or finish.\n"
         f"Tools:\n{inventory}\n"
