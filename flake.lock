@@ -176,11 +176,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776284827,
-        "narHash": "sha256-AY5Xta4GEyxApSv43U/F5OaKkyS8s1ezJv7t7fwGtDU=",
+        "lastModified": 1776420938,
+        "narHash": "sha256-nQj4A7JK09cRiL9/WGhQCNsq7tkoDApnW98qtNoyJjk=",
         "ref": "refs/heads/main",
-        "rev": "84615ffd355021c143f3a8d5cc5cf7442e4ce4bf",
-        "revCount": 4891,
+        "rev": "85665109b94af9f4a97e0e089adc4dc789eb1f55",
+        "revCount": 5028,
         "type": "git",
         "url": "ssh://git@github.com/jonasc-ant/iets"
       },
@@ -218,11 +218,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776261692,
-        "narHash": "sha256-/WNV36gX5HvfiUnAJnVn8uFXKXIi9iPOjzWC/Aum/kY=",
+        "lastModified": 1776421381,
+        "narHash": "sha256-Y15QFmdNt1Sl22a6HDgcQLRHVnyYo9bdJE1bXkemS6o=",
         "ref": "refs/heads/main",
-        "rev": "2785e63dc18c6352ea88b31734bf2da512c5076e",
-        "revCount": 2503,
+        "rev": "e7368019a39afa12e86c5c04c37313996b907ccc",
+        "revCount": 2878,
         "type": "git",
         "url": "ssh://git@github.com/assise/kin"
       },
@@ -245,11 +245,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776251337,
-        "narHash": "sha256-GttxCVipjiQ/cdu3wNXYZbAKfrq8IU9zBTiyYTuw3mw=",
+        "lastModified": 1776396092,
+        "narHash": "sha256-/u2hD8oduiJheEBw00CaogcGtY1J9Ej8GhyLqACFsSM=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "78aa3103939b8f6ba98d9c6e71a1907fad743bdb",
+        "rev": "f18497e5b190912fc7bfad822d3f6b7f02c43444",
         "type": "github"
       },
       "original": {
@@ -266,11 +266,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776419772,
-        "narHash": "sha256-pACVQEtA9A9WkuszhokqdEaBBOBaPFLtzXkjVWze1t4=",
+        "lastModified": 1776419082,
+        "narHash": "sha256-BIyd2Pj++JRv3Ax07BpDZeEIjBzwCzMy9HrDUrvJ0WQ=",
         "ref": "refs/heads/main",
-        "rev": "156486c757c43647b003787e7091c2ae789b4f5c",
-        "revCount": 1130,
+        "rev": "e562c6d9b14681c9e958e57fcc7604c17695cad7",
+        "revCount": 1129,
         "type": "git",
         "url": "ssh://git@github.com/assise/maille"
       },
@@ -326,11 +326,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776262633,
-        "narHash": "sha256-TQJG1XMMysD0FcJWPUIw+oPdjoj2+42EmxBx/dAcrPg=",
+        "lastModified": 1776360441,
+        "narHash": "sha256-1o1+ao36SIWk89n3qAXVpCm6IqRQdsKZoaZT3S6XdFk=",
         "ref": "refs/heads/main",
-        "rev": "76e053a1d267c8957a234a8bd213e0e6ee5234ca",
-        "revCount": 264,
+        "rev": "395c80af759f35b8c2a7418ee92c0148ed39943e",
+        "revCount": 272,
         "type": "git",
         "url": "ssh://git@github.com/assise/nix-skills"
       },

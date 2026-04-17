@@ -5,6 +5,12 @@
       "files": {},
       "inputHash": "eb1622e3ed23fc5a1b7235328df7aa975a57dec31be262542c1d4cc0fa976a9d"
     },
+    "_policy/_shared": {
+      "ageHash": {},
+      "depFilesHash": "ede71d95f59c8fe5e6cbd4e32f0150016a666247af5c50b912a6ee5c66045212",
+      "files": {},
+      "inputHash": "39aec505b384becbc2e6f8276c90cd4ad9aef307e37102f2d49e1646cbc1468a"
+    },
     "attest/signing-key/_shared": {
       "ageHash": {
         "key": "dd1abe372c5546c34a33d9883272ef67d0b8fcb6e7e88fe579a8ae44e033e7df"
@@ -24,7 +30,7 @@
         "ssh-ca": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b",
         "tls-ca.key": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
       },
-      "inputHash": "6e53d4ac3ded58f76a471a0545a5e7e2f0736ba9310d9ba841b0e2556657b31a"
+      "inputHash": "ac6297643e4c21178d79863e1cd377c502bb0a364f46f5381bc027ecd8c4472e"
     },
     "identity/machine/nv1": {
       "ageHash": {
@@ -36,7 +42,7 @@
         "ssh-host": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63",
         "tls.key": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63"
       },
-      "inputHash": "78ebf722c6e749cb434968a0513394350b3a46f97347e08ce14852359359a93b"
+      "inputHash": "bdadea662092815deaaee773ed381b96834e84103bd036f1a72c690773ae4c00"
     },
     "identity/machine/relay1": {
       "ageHash": {
@@ -48,7 +54,7 @@
         "ssh-host": "996aa73155bd2a5f8b4d97b4d747b03a47695ce5210364e49b7c9aed7dd36f2d",
         "tls.key": "996aa73155bd2a5f8b4d97b4d747b03a47695ce5210364e49b7c9aed7dd36f2d"
       },
-      "inputHash": "64d51854d5d8bc474df08d8b6d290712caafca85eca6842c9fea8e9febfb525b"
+      "inputHash": "7a6df0ba0c5851925efa9000088e7c269d7d23ed095340805d4f84ebef6a3849"
     },
     "identity/machine/web2": {
       "ageHash": {
@@ -60,7 +66,7 @@
         "ssh-host": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc",
         "tls.key": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc"
       },
-      "inputHash": "0e92244aea3487989a73e09bc2a2153505cbc2528746e50fd8bad74b112b4935"
+      "inputHash": "9d5c9203b5e510efbb3767b045208bbba717983f72099ced9e31eb7df6d85c3d"
     },
     "identity/user-claude/_shared": {
       "ageHash": {},
@@ -76,7 +82,7 @@
     },
     "mesh/fingerprints/_shared": {
       "ageHash": {},
-      "depFilesHash": "a865a11491ce56aa112e598fb4681096dffaca1d0d325fcc071b0ac808a0a8cc",
+      "depFilesHash": "1c8b37f0bea34c7e9e737f7d247a05e3626f973d00bb1ec70221b5c9923c084b",
       "files": {},
       "inputHash": "8e82129efbaad334c7f507022d81f2c8e93ddef292fc5e4c96280cd16be85022"
     },
