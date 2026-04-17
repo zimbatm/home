@@ -14,3 +14,4 @@ keys/**/*.key
 .claude/workflows/.grind-assembled.js
 _grind-*.js
 .claude/commands/nix-*.md
+.kin-cache/

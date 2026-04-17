@@ -72,9 +72,11 @@
           inherit system;
           config.allowUnfree = true;
         };
+      # Takes pkgs (not system) so callers can reuse an already-evaluated
+      # nixpkgs instance instead of forcing a second `import nixpkgs {}`.
       treefmtFor =
-        system:
-        inputs.treefmt-nix.lib.evalModule (pkgsFor system) {
+        pkgs:
+        inputs.treefmt-nix.lib.evalModule pkgs {
           projectRootFile = "flake.nix";
           programs.nixfmt.enable = true;
         };
@@ -151,7 +153,7 @@
           ]
           ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
             inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.iets
-            (treefmtFor pkgs.stdenv.hostPlatform.system).config.build.wrapper
+            (treefmtFor pkgs).config.build.wrapper
           ];
         devShell.extraAgentPackages = pkgs: [
           (pkgs.callPackage ./packages/agent-eyes { })
@@ -166,11 +168,13 @@
       inherit nixosModules homeModules packages;
       inherit (kinOut) nixosConfigurations kinManifest devShells;
 
-      formatter = forAllSystems (system: (treefmtFor system).config.build.wrapper);
+      formatter = forAllSystems (
+        system: (treefmtFor inputs.nixpkgs.legacyPackages.${system}).config.build.wrapper
+      );
       checks = forAllSystems (
         system:
         {
-          fmt = (treefmtFor system).config.build.check inputs.self;
+          fmt = (treefmtFor inputs.nixpkgs.legacyPackages.${system}).config.build.check inputs.self;
         }
         // lib.optionalAttrs (system == "x86_64-linux") (
           {
