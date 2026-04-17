@@ -13,11 +13,12 @@ pkgs.writeShellApplication {
   runtimeInputs = [
     llama
     pkgs.coreutils
+    pkgs.curl
     pkgs.python3
   ];
   text = ''
     # One-shot offline LLM on the Intel Arc iGPU (vulkan). Mirrors ptt-dictate:
-    # model lives under XDG_DATA_HOME, wrapper prints the fetch line if missing.
+    # model lives under XDG_DATA_HOME, auto-fetched on first run.
     #   ask-local "<prompt>"                  → llama-cli, prints completion to stdout
     #   ask-local --grammar <gbnf> "<prompt>" → constrained decoding (used by
     #                                           ptt-dictate --intent for JSON-only output)
@@ -36,14 +37,11 @@ pkgs.writeShellApplication {
     #   ask-local --agent "<goal>"            → bounded ReAct loop: GBNF-forced JSON tool
     #                                           calls over packages/ CLIs (tools.json),
     #                                           ≤4 turns. See bench-agent.jsonl.
+    # shellcheck source=/dev/null
+    . ${../lib/fetch-model.sh}
     MODEL="''${ASK_LOCAL_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/llama/Phi-3-mini-4k-instruct-Q4_K_M.gguf}"
-    mkdir -p "$(dirname "$MODEL")"
-
-    if [[ ! -f "$MODEL" ]]; then
-      echo "ask-local: model not found: $MODEL" >&2
-      echo "  fetch: curl -L -o \"$MODEL\" https://huggingface.co/bartowski/Phi-3-mini-4k-instruct-GGUF/resolve/main/Phi-3-mini-4k-instruct-Q4_K_M.gguf" >&2
-      exit 1
-    fi
+    fetch_model "$MODEL" \
+      https://huggingface.co/bartowski/Phi-3-mini-4k-instruct-GGUF/resolve/main/Phi-3-mini-4k-instruct-Q4_K_M.gguf
 
     CACHE="''${XDG_CACHE_HOME:-$HOME/.cache}/ask-local"
     mkdir -p "$CACHE"
