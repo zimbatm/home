@@ -5,7 +5,6 @@ pkgs.rustPlatform.buildRustPackage {
     version
     src
     cargoDeps
-    cargoPatches
     ;
 
   nativeBuildInputs = with pkgs; [
