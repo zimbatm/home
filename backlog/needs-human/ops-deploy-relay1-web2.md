@@ -194,3 +194,35 @@ carries 4** (35c8232 + 26cb8a9 + e4d45cd + 6673c0c). Reconcile
 unchanged: `kin deploy relay1 web2`. Same nixpkgs 4c1018d throughout.
 have unprobed 4th round running — can't confirm no out-of-band changes
 since 53bed8f.
+
+---
+
+## drift @ ead5fd4 (2026-04-17): both want MOVED (b0b4acd+0319657 all-host); have UNPROBEABLE 5th round
+
+`kin status`: both unreachable — `~/.ssh/kin-bir7vyhu*` still absent
+(only kin-dwqfzbq5+kin-infra mtime Apr-15-12:17 unchanged;
+ops-kin-login-worker.md unactioned 5th round). **have carried forward**
+from 53bed8f: relay1=`dpxnfwvk`, web2=`l6wwl43y`.
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want ljb7slc2…  (MOVED from 6dxixaw6)
+web2:   have l6wwl43y… (carried) ≠ want ai4xln7x…  (MOVED from 731rixqs)
+```
+
+**Bisect feac33c..ead5fd4** — 2 all-host commits broke the
+3-consecutive-unchanged streak:
+- b0b4acd modules/nixos/common.nix `nix.settings.experimental-features`
+  +ca-derivations (ALL 3 hosts)
+- 0319657 `kin gen` — gen/identity per-host certs + tls-ca + mesh fps
+  regenerated (ALL 3 hosts)
+- 497ddec flake.lock iets bump: relay1/web2-neutral (inputs.iets only
+  ref'd in machines/nv1/; grep'd modules/ kin.nix → 0 hits)
+- remaining delta nv1-only (ask-local, deepfilter) or non-closure
+  (.envrc, treefmtFor devshell, backlog, markers)
+
+**relay1 now carries 5** (f2c38c8 + bfcd408 + e4d45cd + b0b4acd +
+0319657); **web2 now carries 6** (35c8232 + 26cb8a9 + e4d45cd + 6673c0c
++ b0b4acd + 0319657). Reconcile unchanged: `kin deploy relay1 web2`.
+Same nixpkgs 4c1018d throughout. **+1 runtime check both hosts:** `nix
+config show | grep ca-derivations` shows enabled. have unprobed 5th
+round running — can't confirm no out-of-band changes since 53bed8f.

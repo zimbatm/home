@@ -185,3 +185,40 @@ home-module, nv1-only; relay1+web2-neutral verified):
 
 Same nixpkgs 4c1018d throughout. Reconcile unchanged: `kin deploy nv1`.
 2 append-log entries — META compacts at 3.
+
+### drift @ ead5fd4 (2026-04-17): want y1ii1g33→sw0fhi25 via 6; have UNPROBEABLE 5th round
+
+`kin status nv1`: `have=—` health=not-on-mesh — `~/.ssh/kin-bir7vyhu*`
+still absent (only kin-dwqfzbq5+kin-infra mtime Apr-15-12:17 unchanged;
+ops-kin-login-worker.md unactioned 5th round). **have carried forward**
+from 53bed8f: `sxmv9yvi` (off-main).
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed)
+want: /nix/store/sw0fhi25jaj1rfc5v312b1qi6lhkzhsz-nixos-system-nv1-26.05.20260409.4c1018d
+```
+
+**Bisect feac33c..ead5fd4** — 6 nv1-affecting commits (2 all-host, 4
+nv1-only):
+- dd5677f ask-local --agent {args} flag-injection guard + kin-hosts
+  split (agent.py/tools.json/bench-agent.jsonl)
+- b0b4acd modules/nixos/common.nix CA derivations (ALL 3 hosts)
+- 0319657 kin gen — per-host certs/fps regenerated (ALL 3 hosts)
+- cdd1904 ask-local default.nix mkdir-p before model-not-found check
+- 61459a1 deepfilter noise cancellation (modules/home/desktop/ + nv1
+  config `home.deepfilter.enable=true`)
+- 497ddec iets pkg added to nv1 home.packages + iets flake.lock bump
+  (nv1-only; relay1/web2 don't ref inputs.iets)
+- non-closure: 9ba7bf5 .envrc, ead5fd4 flake.nix treefmtFor devshell,
+  4ded977 backlog, marker commits
+
+**+3 runtime checks** (append to list above on next compact):
+- **deepfilter** — `pactl list sources short | grep -i deepfilter`
+  shows virtual mic; `systemctl --user status pipewire` clean; speak
+  into mic with fan noise → output denoised
+- **CA derivations** — `nix config show | grep ca-derivations` shows
+  enabled; build a trivial CA drv to confirm store accepts it
+- **iets** — `which iets` on PATH (nv1 home.packages); `iets --version`
+
+Same nixpkgs 4c1018d throughout. Reconcile unchanged: `kin deploy nv1`.
+**3 append-log entries — META compact threshold reached.**
