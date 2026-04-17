@@ -218,11 +218,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776261692,
-        "narHash": "sha256-/WNV36gX5HvfiUnAJnVn8uFXKXIi9iPOjzWC/Aum/kY=",
+        "lastModified": 1776421381,
+        "narHash": "sha256-Y15QFmdNt1Sl22a6HDgcQLRHVnyYo9bdJE1bXkemS6o=",
         "ref": "refs/heads/main",
-        "rev": "2785e63dc18c6352ea88b31734bf2da512c5076e",
-        "revCount": 2503,
+        "rev": "e7368019a39afa12e86c5c04c37313996b907ccc",
+        "revCount": 2878,
         "type": "git",
         "url": "ssh://git@github.com/assise/kin"
       },
@@ -266,11 +266,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776419772,
-        "narHash": "sha256-pACVQEtA9A9WkuszhokqdEaBBOBaPFLtzXkjVWze1t4=",
+        "lastModified": 1776419082,
+        "narHash": "sha256-BIyd2Pj++JRv3Ax07BpDZeEIjBzwCzMy9HrDUrvJ0WQ=",
         "ref": "refs/heads/main",
-        "rev": "156486c757c43647b003787e7091c2ae789b4f5c",
-        "revCount": 1130,
+        "rev": "e562c6d9b14681c9e958e57fcc7604c17695cad7",
+        "revCount": 1129,
         "type": "git",
         "url": "ssh://git@github.com/assise/maille"
       },
