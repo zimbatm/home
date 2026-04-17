@@ -13,6 +13,7 @@ pkgs.writeShellApplication {
     pkgs.pipewire
     pkgs.ydotool
     pkgs.coreutils
+    pkgs.curl
     pkgs.jq
     pkgs.yq-go
   ];
@@ -35,12 +36,10 @@ pkgs.writeShellApplication {
       exit 0
     fi
 
-    if [[ ! -f "$MODEL" ]]; then
-      echo "ptt-dictate: model not found: $MODEL" >&2
-      echo "  fetch: mkdir -p \"$(dirname "$MODEL")\" && \\" >&2
-      echo "    curl -L -o \"$MODEL\" https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin" >&2
-      exit 1
-    fi
+    # shellcheck source=/dev/null
+    . ${../lib/fetch-model.sh}
+    fetch_model "$MODEL" \
+      https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.en.bin
 
     REC="$STATE/rec.wav"
     pw-record --rate 16000 --channels 1 "$REC" &

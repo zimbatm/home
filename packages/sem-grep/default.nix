@@ -39,22 +39,15 @@ pkgs.writeShellApplication {
     STATE="''${SEM_GREP_STATE:-''${XDG_STATE_HOME:-$HOME/.local/state}/sem-grep}"
     REPOS="''${SEM_GREP_REPOS:-$HOME/src/home:$HOME/src/kin:$HOME/src/iets:$HOME/src/maille:$HOME/src/meta}"
 
-    if [[ ! -f "$MODEL/openvino_model.xml" ]]; then
-      echo "sem-grep: model not found: $MODEL" >&2
-      echo "  fetch: mkdir -p \"$MODEL\" && \\" >&2
-      echo "    huggingface-cli download OpenVINO/bge-small-en-v1.5-fp16-ov --local-dir \"$MODEL\"" >&2
-      exit 1
-    fi
+    # shellcheck source=/dev/null
+    . ${../lib/fetch-model.sh}
+    # huggingface-cli is on PATH via transformers → huggingface-hub in `py`.
+    fetch_hf_repo "$MODEL" OpenVINO/bge-small-en-v1.5-fp16-ov
 
-    # reranker is opt-in: only check presence when -r/--rerank requested
+    # reranker is opt-in: only fetch when -r/--rerank requested
     for a in "$@"; do
       if [[ "$a" == "-r" || "$a" == "--rerank" ]]; then
-        if [[ ! -f "$RERANK_MODEL/openvino_model.xml" ]]; then
-          echo "sem-grep: rerank model not found: $RERANK_MODEL" >&2
-          echo "  fetch: mkdir -p \"$RERANK_MODEL\" && \\" >&2
-          echo "    huggingface-cli download OpenVINO/bge-reranker-base-fp16-ov --local-dir \"$RERANK_MODEL\"" >&2
-          exit 1
-        fi
+        fetch_hf_repo "$RERANK_MODEL" OpenVINO/bge-reranker-base-fp16-ov
         break
       fi
     done

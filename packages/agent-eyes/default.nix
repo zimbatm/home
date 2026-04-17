@@ -8,6 +8,7 @@ let
       pkgs.grim
       pkgs.slurp
       pkgs.coreutils
+      pkgs.curl
       llama
     ];
     text = ''
@@ -21,7 +22,7 @@ let
       # Arc iGPU) and prints a short stdout answer — local triage so the agent
       # can gate "do I need to ship this PNG upstream?" on-device. Mirrors
       # ask-local: same llama-cpp+vulkan build, model under XDG_DATA_HOME/llama,
-      # fetch hint on first miss. Runs inline (not via infer-queue) on purpose:
+      # auto-fetched on first run. Runs inline (not via infer-queue) on purpose:
       # falsifies whether the Arc has headroom for a second resident model
       # alongside ask-local's Phi-3, or the 1-slot arc lane was the right call.
       ask="" region=0
@@ -45,17 +46,14 @@ let
         exit 0
       fi
 
+      # shellcheck source=/dev/null
+      . ${../lib/fetch-model.sh}
       d="''${XDG_DATA_HOME:-$HOME/.local/share}/llama"
       MODEL="''${PEEK_ASK_MODEL:-$d/moondream2-text-model-f16.gguf}"
       MMPROJ="''${PEEK_ASK_MMPROJ:-$d/moondream2-mmproj-f16.gguf}"
-      if [[ ! -f "$MODEL" || ! -f "$MMPROJ" ]]; then
-        echo "peek --ask: moondream2 model not found under $d" >&2
-        echo "  fetch: mkdir -p \"$d\" && \\" >&2
-        echo "    curl -L -o \"$MODEL\"  https://huggingface.co/vikhyatk/moondream2/resolve/main/moondream2-text-model-f16.gguf && \\" >&2
-        echo "    curl -L -o \"$MMPROJ\" https://huggingface.co/vikhyatk/moondream2/resolve/main/moondream2-mmproj-f16.gguf" >&2
-        rm -f "$out"
-        exit 1
-      fi
+      base=https://huggingface.co/vikhyatk/moondream2/resolve/main
+      fetch_model "$MODEL"  "$base/moondream2-text-model-f16.gguf" || { rm -f "$out"; exit 1; }
+      fetch_model "$MMPROJ" "$base/moondream2-mmproj-f16.gguf"     || { rm -f "$out"; exit 1; }
 
       exec llama-mtmd-cli -m "$MODEL" --mmproj "$MMPROJ" --image "$out" \
         -ngl 99 -n 128 --temp 0 -p "$ask" 2>/dev/null
