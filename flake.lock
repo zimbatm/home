@@ -266,11 +266,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776219171,
-        "narHash": "sha256-omsNpTPj58iquohZBoKyHA8FHjzJ3WLEk3TrkOjSh2M=",
+        "lastModified": 1776419772,
+        "narHash": "sha256-pACVQEtA9A9WkuszhokqdEaBBOBaPFLtzXkjVWze1t4=",
         "ref": "refs/heads/main",
-        "rev": "b849d73f64eab8c853052fc7bd296607e97dda6a",
-        "revCount": 976,
+        "rev": "156486c757c43647b003787e7091c2ae789b4f5c",
+        "revCount": 1130,
         "type": "git",
         "url": "ssh://git@github.com/assise/maille"
       },
