@@ -30,7 +30,7 @@
         "ssh-ca": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b",
         "tls-ca.key": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
       },
-      "inputHash": "ac6297643e4c21178d79863e1cd377c502bb0a364f46f5381bc027ecd8c4472e"
+      "inputHash": "504b4a54e6b6aec3dd2b1f0d44867f04bbdf5b5d5a20732350c070d36efc52db"
     },
     "identity/machine/nv1": {
       "ageHash": {
