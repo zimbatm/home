@@ -68,6 +68,11 @@
       },
       "inputHash": "9d5c9203b5e510efbb3767b045208bbba717983f72099ced9e31eb7df6d85c3d"
     },
+    "identity/peers/_shared": {
+      "ageHash": {},
+      "files": {},
+      "inputHash": "cb5cb5f67b65154fc1e72fea1e817eb4fa899cca746fba490f498902915ab9e3"
+    },
     "identity/user-claude/_shared": {
       "ageHash": {},
       "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",

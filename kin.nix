@@ -60,9 +60,17 @@ in
   services.identity = {
     domain = "ztm";
     on = [ "all" ];
+    # ADR-0011 reciprocal: trust kin-infra's CA so its leaves verify here.
+    # CA = ../kin-infra/gen/identity/ca/_shared/tls-ca.crt (URI-SAN
+    # assise://dwqfzbq5zxrlhfhcub6fsaeb4zitwfxa/ca), committed at
+    # keys/peers/kin-infra-ca.crt so `kin gen` needs no sibling read.
+    peers.kin-infra.tlsCaCert = builtins.readFile ./keys/peers/kin-infra-ca.crt;
   };
   services.mesh.on = [ "all" ];
   services.mesh.relay = [ "relay1" ];
+  # Reachability half of identity.peers.kin-infra (kin@a8d56b76, maille@eaefaae).
+  # hcloud-01 is kin-infra's ingress host; port 7850 is the kin default.
+  services.mesh.peerFleets.kin-infra.seeds = [ "5.75.246.255:7850" ];
   services.attest.on = [ "web2" ];
   services.attest.keyName = "attest.ztm-1";
 
