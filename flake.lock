@@ -91,11 +91,11 @@
         "voxterm-src": "voxterm-src"
       },
       "locked": {
-        "lastModified": 1776032391,
-        "narHash": "sha256-wMuFEe4YST6+MG8pTH85P5rNBBHsZw7kc1MBsGbnyHE=",
+        "lastModified": 1775930436,
+        "narHash": "sha256-bGsE1caDqWU9ZULf1ZKdWMX1LxNk4SOIdxCGSBcqVlI=",
         "ref": "refs/heads/main",
-        "rev": "0182fa2cde93f7d85995bbd74674771b0edcd9ee",
-        "revCount": 1,
+        "rev": "cad8614b776eb6cc3eb0699239291286a7c0e671",
+        "revCount": 301,
         "type": "git",
         "url": "ssh://git@github.com/assise/crops-demo"
       },
