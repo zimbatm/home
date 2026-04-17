@@ -147,3 +147,47 @@ Walk these at the nv1 desk after deploy:
 re-compacts into the table above when this section exceeds 3 entries)
 
 <!-- compacted @ aa28b38 (META r1, 2026-04-17): folded 0404fbb+b9b1d94+ead5fd4 into table+checks above -->
+
+### drift @ 605cd1b (2026-04-17): want MOVED (5 commits incl nixpkgs bump); have UNPROBEABLE 6th round
+
+`kin status --json`: empty — `~/.ssh/kin-bir7vyhu*` still absent (only
+dwqfzbq5+infra mtime Apr-15-12:17 unchanged; ops-kin-login-worker.md
+unactioned 6th round). **have carried forward** from 53bed8f:
+nv1=`sxmv9yvi` (off-main).
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed — worker blind 6th round)
+want: /nix/store/lhz6s49yw6x0mwf4ni0banamp42wc73k-nixos-system-nv1-26.05.20260414.4bd9165
+```
+
+**⚠ nixpkgs moved** — was 4c1018d throughout, now 4bd9165 (fa68a27).
+First nixpkgs bump in the pending stack since the e196255 deploy.
+
+**Bisect ead5fd4..605cd1b** (sw0fhi25→lhz6s49y, 5 nv1-affecting):
+- 6759648 model-autofetch: packages/{agent-eyes,ask-local,ptt-dictate,
+  say-back,sem-grep} → shared `fetch_model` helper, auto-fetch on first
+  run instead of hint+exit (sw0fhi25→hgm1srsh, nv1-only — relay1/web2
+  verified neutral)
+- 11edb95 maille bump b849d73→156486c peer_fleets cap (hgm1srsh→y7fkxsfh,
+  ALL 3)
+- fa68a27 **nixpkgs 4c1018d→4bd9165** + gitbutler-cli cargoPatches fix
+  (y7fkxsfh→ic973czy, ALL 3)
+- 4a60b42 internal bump kin 2785e63→e736801 + iets/nix-skills/llm-agents
+  + `kin gen` re-sign per-host certs/fps (ic973czy→c73x6kl3, ALL 3)
+- cadfc52 kin.nix `identity.peers.kin-infra` + `mesh.peerFleets` +
+  gen/identity/peers/ (ADR-0011 reciprocal) (c73x6kl3→lhz6s49y, ALL 3)
+
+Closure-neutral (verified): 7aa2a6e srvos bump (c73x6kl3 unchanged all
+3 hosts — none import the bumped srvos paths). aa28b38 keys/peers/ cert
+stage (unread until cadfc52). e41b5bc/f388e7e/a197fe6/ffdecfa/9904667/
+ed83b09/e4d1e1a/605cd1b markers+backlog only.
+
+**+2 runtime checks:**
+- **fetch_model** — `rm -rf ~/.local/share/ask-local/models/<one>`;
+  `ask-local "<q>"` auto-fetches (curl progress in stderr) instead of
+  printing fetch-hint+exit-1. Same for sem-grep/say-back/agent-eyes/
+  ptt-dictate first-run.
+- **peer-kin-infra trust** — `grep -c '@cert-authority' /etc/ssh/ssh_known_hosts`
+  includes kin-infra fleet CA; `maille config show | jq .peer_fleets`
+  lists kin-infra; ssh from a kin-infra host lands without TOFU prompt.
+

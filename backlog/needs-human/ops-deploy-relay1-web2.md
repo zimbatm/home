@@ -226,3 +226,44 @@ web2:   have l6wwl43y… (carried) ≠ want ai4xln7x…  (MOVED from 731rixqs)
 Same nixpkgs 4c1018d throughout. **+1 runtime check both hosts:** `nix
 config show | grep ca-derivations` shows enabled. have unprobed 5th
 round running — can't confirm no out-of-band changes since 53bed8f.
+---
+
+## drift @ 605cd1b (2026-04-17): both want MOVED (4 commits incl nixpkgs); have UNPROBEABLE 6th round
+
+`kin status --json`: empty — `~/.ssh/kin-bir7vyhu*` still absent (only
+dwqfzbq5+infra mtime Apr-15-12:17 unchanged; ops-kin-login-worker.md
+unactioned 6th round). **have carried forward** from 53bed8f:
+relay1=`dpxnfwvk`, web2=`l6wwl43y`.
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want 4v9sfxzk…  (MOVED from ljb7slc2)
+web2:   have l6wwl43y… (carried) ≠ want sasxqy66…  (MOVED from ai4xln7x)
+```
+
+**⚠ nixpkgs moved** — was 4c1018d throughout the whole pending stack,
+now 4bd9165 (fa68a27). Risk profile bumps from "internal lib only" to
+"full nixpkgs minor".
+
+**Bisect ead5fd4..605cd1b** — 4 commits move both hosts identically:
+- 11edb95 maille b849d73→156486c peer_fleets cap (relay1 ljb7slc2→
+  cc5gr4ll, web2 ai4xln7x→02rvlq7n; mesh transitive reaches both, 2nd
+  time after e4d45cd)
+- fa68a27 **nixpkgs 4c1018d→4bd9165** (relay1 →zrzdp9sh, web2 →jvwfslid)
+- 4a60b42 internal bump kin 2785e63→e736801 + iets/nix-skills/llm-agents
+  + `kin gen` per-host cert re-sign (relay1 →1kaj1gbh, web2 →4q1ihclg)
+- cadfc52 kin.nix `identity.peers.kin-infra` + `mesh.peerFleets` +
+  gen/identity/peers/ regen (relay1 →4v9sfxzk, web2 →sasxqy66)
+
+Closure-neutral both hosts (verified): 6759648 model-autofetch
+(packages/ nv1-only, relay1=ljb7slc2 web2=ai4xln7x unchanged); 7aa2a6e
+srvos bump (relay1=1kaj1gbh web2=4q1ihclg unchanged — neither imports
+the bumped srvos paths). aa28b38 keys/ stage unread until cadfc52.
+
+**relay1 now carries 9** (f2c38c8 bfcd408 e4d45cd b0b4acd 0319657 +
+11edb95 fa68a27 4a60b42 cadfc52); **web2 now carries 10** (35c8232
+26cb8a9 e4d45cd 6673c0c b0b4acd 0319657 + 11edb95 fa68a27 4a60b42
+cadfc52). Reconcile: `kin deploy relay1 web2`. **+1 runtime check both
+hosts:** peer-kin-infra trust — `grep '@cert-authority'
+/etc/ssh/ssh_known_hosts` includes kin-infra CA; maille peer_fleets
+lists kin-infra. have unprobed 6th round — can't confirm no out-of-band
+changes since 53bed8f.
