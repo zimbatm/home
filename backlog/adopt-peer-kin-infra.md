@@ -34,8 +34,11 @@ kin-infra-fleet-id,trust-bundle.crt}`.
 
 ## blockers
 
-- BLOCKED on backlog/bump-maille-peerfleets.md — pin b849d73 lacks
-  eaefaae; CA cert already staged at keys/peers/kin-infra-ca.crt.
+- BLOCKED on backlog/bump-kin-peerfleets-option.md — kin@2785e63 lacks
+  the `services.mesh.peerFleets` / `services.identity.peers` option
+  definitions (added kin@a8d56b76). kin/maille is at 156486c (≥eaefaae,
+  `peer_fleets` field present) so the maille-side cap probe will pass
+  once kin grows it. CA cert already staged at keys/peers/kin-infra-ca.crt.
 - maille p2 (dial-seeds runtime) for the actual cross-fleet dial; p1 is
   config+union-CA-verifier only.
 
