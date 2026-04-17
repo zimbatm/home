@@ -10,6 +10,11 @@
     "argv": ["sem-grep", "{args}"]
   },
   {
+    "name": "sem-grep-sig",
+    "desc": "find function/binding by interface shape; returns file:line  signature",
+    "argv": ["sem-grep", "sig", "{args}"]
+  },
+  {
     "name": "kin-opts",
     "desc": "evaluated NixOS option tree for this fleet; args = '<host> <option.path>'",
     "argv": ["kin-opts", "{args}"]

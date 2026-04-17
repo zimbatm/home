@@ -13,3 +13,12 @@ home-manager activation failed
 GDM session refused login
 restic backup failed
 firefox native messaging disconnected
+
+# Falsification bench for `sem-grep sig` (gated on ops-deploy-nv1):
+# 1. re-run the existing 20q grind bench against `sig` vs body-chunk on the
+#    "where is the function that…" subset; pass = sig recall ≥ body → flip
+#    default to sig-first-then-body. Fail → bge-small can't do interface-shape;
+#    look at jina-code/unixcoder next.
+# 2. re-run packages/ask-local/bench-agent.jsonl with sem-grep-sig in
+#    tools.json; pass = 3.8B picks sig for code-nav prompts AND token spend
+#    drops vs sem-grep alone.
