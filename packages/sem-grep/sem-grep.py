@@ -7,6 +7,7 @@ NPU co-residency with wake-listen's Silero and embed-vs-ripgrep recall
 are post-deploy falsification targets — see backlog/adopt-sem-grep.md.
 """
 import argparse
+import ctypes
 import json
 import os
 import sqlite3
@@ -19,6 +20,7 @@ import openvino as ov
 from transformers import AutoTokenizer
 
 MODEL = os.environ["SEM_GREP_MODEL"]
+GRAMMARS = os.environ.get("SEM_GREP_GRAMMARS")  # dir of <lang>.so from withPlugins
 RERANK_MODEL = os.environ.get("SEM_GREP_RERANK_MODEL")  # optional, -r only
 DEVICE = os.environ.get("SEM_GREP_DEVICE", "NPU")
 STATE = os.environ["SEM_GREP_STATE"]
@@ -97,6 +99,10 @@ def db():
       CREATE TABLE IF NOT EXISTS chunks(
         id INTEGER PRIMARY KEY, repo TEXT, path TEXT, line INTEGER, vec BLOB);
       CREATE INDEX IF NOT EXISTS chunks_rp ON chunks(repo, path);
+      CREATE TABLE IF NOT EXISTS sigs(
+        id INTEGER PRIMARY KEY, repo TEXT, path TEXT, line INTEGER,
+        sig TEXT, vec BLOB);
+      CREATE INDEX IF NOT EXISTS sigs_rp ON sigs(repo, path);
     """)
     return con
 
@@ -111,6 +117,72 @@ def git_tracked(repo):
         if os.path.splitext(path)[1].lower() in SKIP_EXT:
             continue
         yield path, sha
+
+
+# --- treesitter signature extraction (for the `sig` verb) ------------------
+# One query per language; each match yields @def (whole definition node),
+# @name (anchor for line number) and optional @doc. sig_text = first line of
+# @def (the natural signature) + first docstring line. Interface-shaped text
+# embeds differently from body chunks — that's the falsification target.
+TS_QUERIES = {
+    "nix": """
+      (binding attrpath: (attrpath) @name
+               expression: (function_expression)) @def
+    """,
+    "python": """
+      (function_definition name: (identifier) @name
+        body: (block . (expression_statement
+                         (string (string_content) @doc))?)) @def
+      (class_definition name: (identifier) @name
+        body: (block . (expression_statement
+                         (string (string_content) @doc))?)) @def
+    """,
+    "bash": "(function_definition name: (word) @name) @def",
+    "rust": """
+      (function_item name: (identifier) @name) @def
+      (struct_item name: (type_identifier) @name) @def
+      (impl_item type: (_) @name) @def
+    """,
+}
+TS_EXT = {".nix": "nix", ".py": "python", ".sh": "bash", ".bash": "bash",
+          ".rs": "rust"}
+_ts: dict[str, tuple] = {}  # lang → (Parser, Query) cache
+
+
+def _ts_lang(lang):
+    if lang not in _ts:
+        import tree_sitter as ts  # lazy: keep `query` path import-free
+        lib = ctypes.CDLL(os.path.join(GRAMMARS, f"{lang}.so"))
+        fn = getattr(lib, f"tree_sitter_{lang}")
+        fn.restype = ctypes.c_void_p
+        L = ts.Language(fn())
+        _ts[lang] = ts.Parser(L), ts.Query(L, TS_QUERIES[lang]), ts.QueryCursor
+    return _ts[lang]
+
+
+def sigs_of(repo, path):
+    """Yield (line, sig_text) for each top-level definition in the file."""
+    lang = TS_EXT.get(os.path.splitext(path)[1].lower())
+    if not lang or not GRAMMARS:
+        return
+    full = os.path.join(repo, path)
+    try:
+        if os.path.getsize(full) > 256 * 1024:
+            return
+        with open(full, "rb") as f:
+            src = f.read()
+    except OSError:
+        return
+    parser, query, QueryCursor = _ts_lang(lang)
+    tree = parser.parse(src)
+    for _, caps in QueryCursor(query).matches(tree.root_node):
+        d, n = caps["def"][0], caps["name"][0]
+        head = d.text.decode("utf-8", "replace").splitlines()[0].strip()[:200]
+        if doc := caps.get("doc"):
+            first = doc[0].text.decode("utf-8", "replace").splitlines()[0].strip()
+            if first:
+                head = f"{head} — {first[:120]}"
+        yield n.start_point[0] + 1, head
 
 
 def chunks_of(repo, path):
@@ -147,6 +219,8 @@ def cmd_index(_args):
                 continue
             con.execute("DELETE FROM chunks WHERE repo=? AND path=?",
                         (repo, path))
+            con.execute("DELETE FROM sigs WHERE repo=? AND path=?",
+                        (repo, path))
             batch = list(chunks_of(repo, path))
             for j in range(0, len(batch), BATCH):
                 part = batch[j:j + BATCH]
@@ -155,11 +229,21 @@ def cmd_index(_args):
                     "INSERT INTO chunks(repo,path,line,vec) VALUES(?,?,?,?)",
                     [(repo, path, ln, vecs[k].tobytes())
                      for k, (ln, _) in enumerate(part)])
+            sigs = list(sigs_of(repo, path))
+            for j in range(0, len(sigs), BATCH):
+                part = sigs[j:j + BATCH]
+                vecs = embed([t for _, t in part])
+                con.executemany(
+                    "INSERT INTO sigs(repo,path,line,sig,vec) VALUES(?,?,?,?,?)",
+                    [(repo, path, ln, t, vecs[k].tobytes())
+                     for k, (ln, t) in enumerate(part)])
             con.execute("INSERT OR REPLACE INTO files VALUES(?,?,?)",
                         (repo, path, sha))
             n_new += 1
         for path in set(prev) - live:
             con.execute("DELETE FROM chunks WHERE repo=? AND path=?",
+                        (repo, path))
+            con.execute("DELETE FROM sigs WHERE repo=? AND path=?",
                         (repo, path))
             con.execute("DELETE FROM files WHERE repo=? AND path=?",
                         (repo, path))
@@ -311,6 +395,30 @@ def cmd_log(args):
         print(f"{s:+.3f}  {unit}\t{when}\t{msg}")
 
 
+def cmd_sig(args):
+    """Rank treesitter-extracted signatures by interface shape. Output is
+    `file:line  signature` so an agent can Read(offset,limit) the hit directly
+    — the zat win without the zat dep."""
+    con = db()
+    rows = con.execute("SELECT repo, path, line, sig, vec FROM sigs").fetchall()
+    if not rows:
+        print("sem-grep sig: index empty — run `sem-grep index` first",
+              file=sys.stderr)
+        sys.exit(1)
+    embed = load_embedder()
+    q = embed(["Represent this sentence for searching relevant passages: "
+               + args.text])[0]
+    mat = np.frombuffer(b"".join(r[4] for r in rows),
+                        dtype=np.float32).reshape(-1, DIM)
+    scores = mat @ q
+    top = np.argsort(-scores)[: args.n]
+    home = os.path.expanduser("~") + "/"
+    for i in top:
+        repo, path, line, sig, _ = rows[i]
+        loc = os.path.join(repo, path).replace(home, "~/", 1)
+        print(f"{scores[i]:.3f}  {loc}:{line}  {sig}")
+
+
 def cmd_query(args):
     con = db()
     rows = con.execute("SELECT repo, path, line, vec FROM chunks").fetchall()
@@ -364,6 +472,10 @@ def main():
                     help="rerank cosine top-30 with bge-reranker-base on NPU")
     qp.add_argument("text")
     qp.set_defaults(fn=cmd_query)
+    sp = sub.add_parser("sig")
+    sp.add_argument("-n", type=int, default=10)
+    sp.add_argument("text")
+    sp.set_defaults(fn=cmd_sig)
     hp = sub.add_parser("hist")
     hp.add_argument("-n", type=int, default=10)
     hp.add_argument("--pick", type=int, metavar="N",
@@ -379,8 +491,8 @@ def main():
     lp.set_defaults(fn=cmd_log)
     # bare `sem-grep "<text>"` → query
     argv = sys.argv[1:]
-    if argv and argv[0] not in {"index", "query", "hist", "index-log", "log",
-                                "-h", "--help"}:
+    if argv and argv[0] not in {"index", "query", "sig", "hist", "index-log",
+                                "log", "-h", "--help"}:
         argv = ["query", *argv]
     args = ap.parse_args(argv)
     if not args.cmd:

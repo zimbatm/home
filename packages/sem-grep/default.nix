@@ -1,11 +1,21 @@
 { pkgs, ... }:
 let
   # Subset of transcribe-npu's closure (openvino+numpy+transformers) — no new
-  # python deps land on nv1. sqlite3 is stdlib.
+  # python deps land on nv1. sqlite3 is stdlib. tree-sitter is for the `sig`
+  # verb's signature extraction at index time (zero new flake inputs).
   py = pkgs.python3.withPackages (ps: [
     ps.openvino
     ps.numpy
     ps.transformers
+    ps.tree-sitter
+  ]);
+  # withPlugins emits a dir of <lang>.so → grammar parser; sem-grep.py loads
+  # them via ctypes. Covers ~all of home/kin/iets/maille source.
+  grammars = pkgs.tree-sitter.withPlugins (g: [
+    g.tree-sitter-nix
+    g.tree-sitter-python
+    g.tree-sitter-bash
+    g.tree-sitter-rust
   ]);
 in
 pkgs.writeShellApplication {
@@ -26,6 +36,7 @@ pkgs.writeShellApplication {
     #   sem-grep "<query>"       → ranked file:line hits (top 10)
     #   sem-grep -n 20 "<query>" → top N
     #   sem-grep -r "<query>"    → rerank cosine top-30 with bge-reranker-base
+    #   sem-grep sig "<query>"   → ranked file:line  signature (treesitter defs)
     #   sem-grep index           → (re)build; incremental on git blob-sha
     #   sem-grep hist "<query>"  → ranked shell-history commands (hist-sem alias)
     #   sem-grep log "<query>"   → ranked journald lines (last 7d, hour-deduped)
@@ -54,7 +65,7 @@ pkgs.writeShellApplication {
 
     export SEM_GREP_MODEL="$MODEL" SEM_GREP_RERANK_MODEL="$RERANK_MODEL" \
            SEM_GREP_DEVICE="$DEVICE" SEM_GREP_STATE="$STATE" \
-           SEM_GREP_REPOS="$REPOS"
+           SEM_GREP_REPOS="$REPOS" SEM_GREP_GRAMMARS="${grammars}"
     exec python3 ${./sem-grep.py} "$@"
   '';
 }
