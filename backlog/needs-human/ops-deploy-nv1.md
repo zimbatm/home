@@ -13,11 +13,11 @@ tree **twice** (d2ad1d1: `gfcs7jg5` matched no origin/main eval;
 delta on nv1 is committed+pushed before `kin deploy nv1` overwrites
 it.**
 
-## Latest status (drift @ 7f572ea, 2026-04-15)
+## Latest status (drift @ ead5fd4, 2026-04-17)
 
 ```
-have: sxmv9yvi…  (carried forward from 53bed8f, NOT re-probed — worker blind)
-want: /nix/store/9qwbl2bww0k5zpj0jz6f3jrlg6z7p3rx-nixos-system-nv1-26.05.20260409.4c1018d
+have: sxmv9yvi…  (carried forward from 53bed8f, NOT re-probed — worker blind 5th round)
+want: /nix/store/sw0fhi25jaj1rfc5v312b1qi6lhkzhsz-nixos-system-nv1-26.05.20260409.4c1018d
 ```
 
 Same nixpkgs 4c1018d throughout. Last confirmed have==want on
@@ -25,7 +25,7 @@ origin/main: `www09p3bx` @ 9403a95 (≈ e196255 deploy, 2026-04-11).
 Hostcert IPv6 chicken-and-egg (structural note) was **resolved** at
 that deploy. Since then probe was blind (worker key rotation) →
 unblind @ d2ad1d1 (007ccaa cert re-sign) → blind again @ e969d2c (fleet
-identity lost on worker).
+identity lost on worker; ops-kin-login-worker.md unactioned 5 rounds).
 
 ## Reconcile
 
@@ -35,7 +35,7 @@ kin deploy nv1
 
 Then walk the runtime checks. Then delete this file.
 
-## nv1-affecting commits since e196255 (cumulative bisect log, compacted 2026-04-15)
+## nv1-affecting commits since e196255 (cumulative bisect log, compacted 2026-04-17)
 
 | commit | what | scope |
 |---|---|---|
@@ -88,11 +88,22 @@ Then walk the runtime checks. Then delete this file.
 | e969d2c | wake-listen: res[p_out].item() ([1,1] output) | nv1 |
 | 02441a9 | live-caption-log: stop swallowing errors + heartbeat | nv1 |
 | e4d45cd | kin/iets/nix-skills/llm-agents bump (incl maille→b849d73) | all |
+| 85d68cd | ask-local --fast (llama-lookup speculative + bench.sh) | nv1 |
+| 2194b90 | sem-grep -r/--rerank (bge-reranker-base NPU stage-2) | nv1 |
+| 07b2b2f | ask-local --agent (bounded ReAct loop, tools.json) | nv1 |
+| 99e9212 | sem-grep log/index-log + modules/home/desktop/sem-grep.nix | nv1 |
+| dd5677f | ask-local --agent {args} guard + kin-hosts split | nv1 |
+| b0b4acd | common.nix: +ca-derivations experimental-feature | all |
+| 0319657 | kin gen — per-host certs/fps + tls-ca regen | all |
+| cdd1904 | ask-local: mkdir -p before model-not-found check | nv1 |
+| 61459a1 | deepfilter noise cancellation (hm module + nv1 enable) | nv1 |
+| 497ddec | iets pkg → nv1 home.packages + iets flake.lock bump | nv1 |
 
 Closure-neutral (verified): 2efe8bf, c27c5c1, e170608, 6bf3705,
 d00a686, 9dbb216, 8172dfe, 24cc8e8, 2898dcd, 26cb8a9 (nv1-neutral),
-bfcd408 (relay1-only). 821b625 srvos: relay1-neutral, nv1 not
-bisected (server-profile, unlikely).
+bfcd408 (relay1-only), 6673c0c (nv1-neutral internal bump), 9ba7bf5
+(.envrc), ead5fd4 (treefmtFor devshell), 4ded977 (backlog). 821b625
+srvos: relay1-neutral, nv1 not bisected (server-profile, unlikely).
 
 ## Runtime checks (cumulative, since e196255)
 
@@ -119,106 +130,20 @@ Walk these at the nv1 desk after deploy:
 - **foot** — `<Super>Return` opens foot (server mode); ghostty still launchable
 - **gsnap** — `gsnap capture` works under both GNOME (portal) and Niri (grim); per-session baseline dirs created
 - **sel-act** — select text, hit `<Super>a` → ask-local transform menu; result replaces selection
+- **ask-local --fast** — `ask-local --fast "<p>"` via llama-lookup; `packages/ask-local/bench.sh` tok/s ≥ plain on the 4 cases
+- **sem-grep -r** — `sem-grep -r "<q>"` loads bge-reranker-base on NPU (3rd tenant); evals.jsonl shows `rerank:true` rows; fetch-hint fires if model dir absent
+- **ask-local --agent** — `ask-local --agent "<goal>"` ≤4-turn ReAct; walk `packages/ask-local/bench-agent.jsonl` (20 goals, expect_tool+expect_substr); tools.json CLIs resolve on PATH
+- **sem-grep timer** — `systemctl --user list-timers | grep sem-grep` shows nightly index-log; `which sem-grep` on PATH (was only hist-sem alias before)
+- **deepfilter** — `pactl list sources short | grep -i deepfilter` shows virtual mic; `systemctl --user status pipewire` clean; speak with fan noise → output denoised
+- **CA derivations** — `nix config show | grep ca-derivations` shows enabled; build a trivial CA drv to confirm store accepts
+- **iets** — `which iets` on PATH; `iets --version`
 - **restic-gotosocial** (web2, carried) — `systemctl status restic-backups-gotosocial.{service,timer}`
 
 ---
 
 ## drift append-log
 
-(drift-checker appends new `## drift @ <rev>` sections below; META
+(drift-checker appends new `### drift @ <rev>` sections below; META
 re-compacts into the table above when this section exceeds 3 entries)
 
-### drift @ 0404fbb (2026-04-15): want 9qwbl2bw→x2p8iwvp; have UNPROBEABLE 3rd round
-
-`kin status --json`: nv1 `have=""` health=not-on-mesh — `~/.ssh/kin-bir7vyhu*`
-still absent (only kin-dwqfzbq5+kin-infra; ops-kin-login-worker.md
-unactioned). **have carried forward** from 53bed8f: `sxmv9yvi` (off-main).
-
-```
-have: sxmv9yvi…  (carried, NOT re-probed)
-want: /nix/store/x2p8iwvpl5g7y8f5casmi8pz23s2cxfa-nixos-system-nv1-26.05.20260409.4c1018d
-```
-
-**Bisect b411c2d..0404fbb** — 2 nv1-affecting commits (both packages/, nv1-only):
-- 85d68cd ask-local --fast (llama-lookup speculative decoding + bench.sh):
-  9qwbl2bw→vpdxwmdz
-- 2194b90 sem-grep -r/--rerank (bge-reranker-base NPU stage-2):
-  vpdxwmdz→x2p8iwvp
-- 6673c0c internal bump (kin/iets/nix-skills): nv1-neutral (x2p8iwvp
-  unchanged; per META r7, re-confirmed)
-
-**+2 runtime checks** (append to list above on next compact):
-- **ask-local --fast** — `ask-local --fast "<prompt>"` runs via llama-lookup;
-  `packages/ask-local/bench.sh` reports tok/s ≥ plain path on the 4 cases
-- **sem-grep -r** — `sem-grep -r "<q>"` loads bge-reranker-base on NPU
-  (3rd tenant alongside VAD+bge-small); evals.jsonl shows `rerank:true`
-  rows; fetch-hint fires if model dir absent
-
-Same nixpkgs 4c1018d throughout. Reconcile unchanged: `kin deploy nv1`.
-
-### drift @ b9b1d94 (2026-04-15): want x2p8iwvp→y1ii1g33; have UNPROBEABLE 4th round
-
-`kin status --json`: empty — `~/.ssh/kin-bir7vyhu*` still absent (only
-kin-dwqfzbq5+kin-infra mtime 12:17; ops-kin-login-worker.md unactioned
-4th round). **have carried forward** from 53bed8f: `sxmv9yvi` (off-main).
-
-```
-have: sxmv9yvi…  (carried, NOT re-probed)
-want: /nix/store/y1ii1g33cyc0aqqyhby6v6s6r4r9akw7-nixos-system-nv1-26.05.20260409.4c1018d
-```
-
-**Bisect 3a46943..b9b1d94** — 2 nv1-affecting merges (both packages/ +
-home-module, nv1-only; relay1+web2-neutral verified):
-- 07b2b2f ask-local --agent (bounded ReAct loop, tools.json +
-  bench-agent.jsonl): x2p8iwvp→9mdzqlsm
-- 99e9212 sem-grep log/index-log verbs + new
-  modules/home/desktop/sem-grep.nix (nightly timer, puts sem-grep on
-  PATH): 9mdzqlsm→y1ii1g33
-
-**+2 runtime checks** (append to list above on next compact):
-- **ask-local --agent** — `ask-local --agent "<goal>"` runs ≤4-turn
-  ReAct loop; walk `packages/ask-local/bench-agent.jsonl` (20 goals,
-  expect_tool+expect_substr); tools.json CLIs all resolve on PATH
-- **sem-grep timer** — `systemctl --user list-timers | grep sem-grep`
-  shows nightly index-log timer; `which sem-grep` on PATH (was only
-  hist-sem alias before, now via hm module)
-
-Same nixpkgs 4c1018d throughout. Reconcile unchanged: `kin deploy nv1`.
-2 append-log entries — META compacts at 3.
-
-### drift @ ead5fd4 (2026-04-17): want y1ii1g33→sw0fhi25 via 6; have UNPROBEABLE 5th round
-
-`kin status nv1`: `have=—` health=not-on-mesh — `~/.ssh/kin-bir7vyhu*`
-still absent (only kin-dwqfzbq5+kin-infra mtime Apr-15-12:17 unchanged;
-ops-kin-login-worker.md unactioned 5th round). **have carried forward**
-from 53bed8f: `sxmv9yvi` (off-main).
-
-```
-have: sxmv9yvi…  (carried, NOT re-probed)
-want: /nix/store/sw0fhi25jaj1rfc5v312b1qi6lhkzhsz-nixos-system-nv1-26.05.20260409.4c1018d
-```
-
-**Bisect feac33c..ead5fd4** — 6 nv1-affecting commits (2 all-host, 4
-nv1-only):
-- dd5677f ask-local --agent {args} flag-injection guard + kin-hosts
-  split (agent.py/tools.json/bench-agent.jsonl)
-- b0b4acd modules/nixos/common.nix CA derivations (ALL 3 hosts)
-- 0319657 kin gen — per-host certs/fps regenerated (ALL 3 hosts)
-- cdd1904 ask-local default.nix mkdir-p before model-not-found check
-- 61459a1 deepfilter noise cancellation (modules/home/desktop/ + nv1
-  config `home.deepfilter.enable=true`)
-- 497ddec iets pkg added to nv1 home.packages + iets flake.lock bump
-  (nv1-only; relay1/web2 don't ref inputs.iets)
-- non-closure: 9ba7bf5 .envrc, ead5fd4 flake.nix treefmtFor devshell,
-  4ded977 backlog, marker commits
-
-**+3 runtime checks** (append to list above on next compact):
-- **deepfilter** — `pactl list sources short | grep -i deepfilter`
-  shows virtual mic; `systemctl --user status pipewire` clean; speak
-  into mic with fan noise → output denoised
-- **CA derivations** — `nix config show | grep ca-derivations` shows
-  enabled; build a trivial CA drv to confirm store accepts it
-- **iets** — `which iets` on PATH (nv1 home.packages); `iets --version`
-
-Same nixpkgs 4c1018d throughout. Reconcile unchanged: `kin deploy nv1`.
-**3 append-log entries — META compact threshold reached.**
+<!-- compacted @ aa28b38 (META r1, 2026-04-17): folded 0404fbb+b9b1d94+ead5fd4 into table+checks above -->
