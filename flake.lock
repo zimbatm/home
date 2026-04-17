@@ -91,11 +91,11 @@
         "voxterm-src": "voxterm-src"
       },
       "locked": {
-        "lastModified": 1775930436,
-        "narHash": "sha256-bGsE1caDqWU9ZULf1ZKdWMX1LxNk4SOIdxCGSBcqVlI=",
+        "lastModified": 1776032391,
+        "narHash": "sha256-wMuFEe4YST6+MG8pTH85P5rNBBHsZw7kc1MBsGbnyHE=",
         "ref": "refs/heads/main",
-        "rev": "cad8614b776eb6cc3eb0699239291286a7c0e671",
-        "revCount": 301,
+        "rev": "0182fa2cde93f7d85995bbd74674771b0edcd9ee",
+        "revCount": 1,
         "type": "git",
         "url": "ssh://git@github.com/assise/crops-demo"
       },
@@ -153,11 +153,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776184304,
-        "narHash": "sha256-No6QGBmIv5ChiwKCcbkxjdEQ/RO2ZS1gD7SFy6EZ7rc=",
+        "lastModified": 1776454077,
+        "narHash": "sha256-7zSUFWsU0+jlD7WB3YAxQ84Z/iJurA5hKPm8EfEyGJk=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "3c7524c68348ef79ce48308e0978611a050089b2",
+        "rev": "565e5349208fe7d0831ef959103c9bafbeac0681",
         "type": "github"
       },
       "original": {
@@ -176,11 +176,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776424384,
-        "narHash": "sha256-8LMC9e0tQTLhx4TAObxY0raY9jVr2JPCFg06IXs0TYE=",
+        "lastModified": 1776456037,
+        "narHash": "sha256-9Z/s/lbSk4X5AZ/P2KV+KFM6z/nLEZGZjtbsNwWcFf8=",
         "ref": "refs/heads/main",
-        "rev": "b533233a6c3a81db9bc0137db0a8ee5d4152429f",
-        "revCount": 5041,
+        "rev": "714989b2b17c72516c86b5cbaf86fe563789b0b5",
+        "revCount": 5234,
         "type": "git",
         "url": "ssh://git@github.com/jonasc-ant/iets"
       },
@@ -218,11 +218,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776424172,
-        "narHash": "sha256-cSyXPWnW/LzmTpVau1hy6nOu+VcjaVmJmFZZtmJU8aM=",
+        "lastModified": 1776456008,
+        "narHash": "sha256-aMBF+enMQppWsM5Ue8foz3/5KlVer2iavl6lQ3XuIEA=",
         "ref": "refs/heads/main",
-        "rev": "df0a4b2427cb3f4e16f05e8c3b1e3b56c0de8841",
-        "revCount": 2891,
+        "rev": "26243512f7285a4eb3add886f4e7592b87ff18e8",
+        "revCount": 3041,
         "type": "git",
         "url": "ssh://git@github.com/assise/kin"
       },
@@ -245,11 +245,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776396092,
-        "narHash": "sha256-/u2hD8oduiJheEBw00CaogcGtY1J9Ej8GhyLqACFsSM=",
+        "lastModified": 1776437995,
+        "narHash": "sha256-wcV5CIe5s2IsSCGJdPqy/Q+gcBSR76JMaIQDNpLXZAk=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "f18497e5b190912fc7bfad822d3f6b7f02c43444",
+        "rev": "c4a2f76e29485eaafc90eebec5ef12b50f4dc8a1",
         "type": "github"
       },
       "original": {
@@ -266,11 +266,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776419082,
-        "narHash": "sha256-BIyd2Pj++JRv3Ax07BpDZeEIjBzwCzMy9HrDUrvJ0WQ=",
+        "lastModified": 1776445225,
+        "narHash": "sha256-BpqHwVwE6YnpPuxyKLgbbeObKKGwlK9nAcUJ+fqpMr4=",
         "ref": "refs/heads/main",
-        "rev": "e562c6d9b14681c9e958e57fcc7604c17695cad7",
-        "revCount": 1129,
+        "rev": "ac4fbc93948e8b72af6f875ebd8ec4d7eb1467db",
+        "revCount": 1178,
         "type": "git",
         "url": "ssh://git@github.com/assise/maille"
       },
@@ -385,11 +385,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776350339,
-        "narHash": "sha256-Rl+tnpvdpf66e/3m+LPNzUoebV3jpiJz7oMxas8FB3I=",
+        "lastModified": 1776452249,
+        "narHash": "sha256-tpCsY9kIEfcitiV3JwUqYTmxwewwZKQlZSNUBqb9kF0=",
         "owner": "nix-community",
         "repo": "nixvim",
-        "rev": "4f75992439d3d554a3681880510e4b645ca2d15b",
+        "rev": "698d17490e19e2e360a6ce49b1af9134d1c6eacd",
         "type": "github"
       },
       "original": {
