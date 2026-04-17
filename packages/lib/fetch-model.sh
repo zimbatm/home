@@ -27,12 +27,16 @@ fetch_model() {
 #   today are OV IR; generalise the sentinel if that changes.
 fetch_hf_repo() {
   local dest="$1" repo="$2"
+  if [[ ! "$repo" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+    echo "$(basename "$0"): bad HF repo id '$repo' (want owner/name)" >&2
+    return 1
+  fi
   if [[ -f "$dest/openvino_model.xml" ]]; then return 0; fi
   mkdir -p "$dest"
   echo "$(basename "$0"): fetching $repo (first run)..." >&2
-  if huggingface-cli download "$repo" --local-dir "$dest" >&2; then
+  if huggingface-cli download --local-dir "$dest" -- "$repo" >&2; then
     return 0
   fi
-  echo "$(basename "$0"): fetch failed; manual: huggingface-cli download '$repo' --local-dir '$dest'" >&2
+  echo "$(basename "$0"): fetch failed; manual: huggingface-cli download --local-dir '$dest' -- '$repo'" >&2
   return 1
 }
