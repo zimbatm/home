@@ -34,9 +34,8 @@ kin-infra-fleet-id,trust-bundle.crt}`.
 
 ## blockers
 
-- maille pin must carry feat-mesh-peer-fleets-config p1 (eaefaae) — check
-  `caps.peerFleets` doesn't throw at eval. kin-infra's pin 616e76d has it;
-  verify ../home's flake.lock maille rev.
+- BLOCKED on backlog/bump-maille-peerfleets.md — pin b849d73 lacks
+  eaefaae; CA cert already staged at keys/peers/kin-infra-ca.crt.
 - maille p2 (dial-seeds runtime) for the actual cross-fleet dial; p1 is
   config+union-CA-verifier only.
 
