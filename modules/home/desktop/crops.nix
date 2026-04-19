@@ -1,31 +1,14 @@
+{ config, lib, ... }:
 {
-  config,
-  lib,
-  inputs,
-  pkgs,
-  ...
-}:
-let
-  cp = inputs.crops-demo.packages.${pkgs.stdenv.hostPlatform.system};
-in
-{
-  # Combined closure 5.7 GiB (crops-voice/selftest pull CUDA llama). Opt-in;
-  # nv1 enables explicitly. Compare crops-voice wake-word vs ptt-dictate GBNF
-  # path side-by-side — same mic, same Arc iGPU, two implementations.
+  # crops-demo input removed 2026-04 (repo recreated-private, deploy key 404).
+  # Option kept so existing `home.crops.enable = false` doesn't error; enabling
+  # throws until access is restored or the packages are re-sourced.
   options.home.crops.enable = lib.mkEnableOption "crops-demo userland CLIs";
 
   config = lib.mkIf config.home.crops.enable {
-    home.packages = [
-      cp.crops-voice
-      cp.crops-tts
-      cp.crops-status
-      cp.crops-research
-      cp.crops-gpu-detect
-      cp.crops-selftest
-      # cp.run-crops — pulls inputs.tng → crane mkDummySrc reads Cargo.toml at
-      # eval time → IETS-0025 (iets bans IFD per ADR-0011). Use
-      # `nix run github:assise/crops-demo#run-crops` ad-hoc until
-      # ../tng/backlog/bug-crane-ifd-iets.md lands.
-    ];
+    home.packages = throw ''
+      home.crops.enable: crops-demo flake input was removed (repo recreated
+      private upstream). Re-add the input or source the packages elsewhere.
+    '';
   };
 }

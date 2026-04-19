@@ -43,15 +43,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.blueprint.follows = "llm-agents/blueprint";
     };
-    crops-demo = {
-      url = "git+ssh://git@github.com/assise/crops-demo";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.blueprint.follows = "llm-agents/blueprint";
-      inputs.tng.inputs.blueprint.follows = "llm-agents/blueprint";
-      inputs.tng.inputs.disko.follows = "crops-demo/disko";
-      inputs.tng.inputs.srvos.follows = "srvos";
-      inputs.tng.inputs.treefmt-nix.follows = "treefmt-nix";
-    };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -93,6 +84,7 @@
         pin-nixpkgs = ./modules/nixos/pin-nixpkgs.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;
+        vfio-host = ./modules/nixos/vfio-host.nix;
         zimbatm = ./modules/nixos/zimbatm.nix;
       };
       homeModules = {

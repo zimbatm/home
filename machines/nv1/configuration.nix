@@ -17,7 +17,7 @@
     inputs.self.nixosModules.niri
     inputs.self.nixosModules.steam
     inputs.srvos.nixosModules.mixins-systemd-boot
-    inputs.crops-demo.nixosModules.vfio-host
+    inputs.self.nixosModules.vfio-host
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
@@ -42,9 +42,8 @@
   programs.ydotool.enable = true;
 
   # Claim NVIDIA GPU + audio for vfio-pci at boot, before nvidia driver loads.
-  # Module owns boot.{kernelParams,initrd.kernelModules,extraModprobeConfig};
-  # IDs match crops-demo's gpu-default.nix (nv1 *is* the reference hardware)
-  # but set explicitly for locality.
+  # Module (vendored from crops-demo) owns boot.{kernelParams,initrd.kernelModules,
+  # extraModprobeConfig}.
   crops.vfio.enable = true;
   crops.gpu = {
     vendorId = "10de";
@@ -90,8 +89,9 @@
   home-manager.users.zimbatm = {
     imports = [ inputs.self.homeModules.desktop ];
     config.home.stateVersion = "22.11";
-    # crops-demo userland (5.7 GiB closure) — nv1 is the reference hardware.
-    config.home.crops.enable = true;
+    # crops-demo userland disabled — input removed (repo recreated-private,
+    # unfetchable). vfio-host vendored; userland packages await restored access.
+    config.home.crops.enable = false;
     # Policy 2026-04-14: sink-monitor → NPU transcript on; 30d retention; `live-caption off` to pause.
     config.home.live-caption.enable = true;
     # DeepFilterNet noise cancellation via PipeWire LADSPA — virtual mic source.
