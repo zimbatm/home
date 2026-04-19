@@ -111,11 +111,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776456037,
-        "narHash": "sha256-9Z/s/lbSk4X5AZ/P2KV+KFM6z/nLEZGZjtbsNwWcFf8=",
+        "lastModified": 1776626787,
+        "narHash": "sha256-nB49MxL4ulcQTJs2YIriM5IOBQPbrCCIQBBl9B0tU4Y=",
         "ref": "refs/heads/main",
-        "rev": "714989b2b17c72516c86b5cbaf86fe563789b0b5",
-        "revCount": 5234,
+        "rev": "d6739fad97bee2c754f65b8b37d987cbd5fc3a8a",
+        "revCount": 5414,
         "type": "git",
         "url": "ssh://git@github.com/jonasc-ant/iets"
       },
