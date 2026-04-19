@@ -158,7 +158,7 @@
     in
     {
       inherit nixosModules homeModules packages;
-      inherit (kinOut) nixosConfigurations kinManifest devShells;
+      inherit (kinOut) nixosConfigurations kinManifest fleetManifest devShells;
 
       formatter = forAllSystems (
         system: (treefmtFor inputs.nixpkgs.legacyPackages.${system}).config.build.wrapper
