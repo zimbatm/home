@@ -21,6 +21,7 @@ not the call. `token-cost.sh --by-tool` shows your profile.
 | `nix build 2>&1 \| tail -N` | `nix build --log-format bar-with-logs 2>&1 \| tail -N` (drops the per-drv "building…" spam) or `--log-format internal-json \| jq 'select(.type=="msg")'` |
 | `journalctl -u X -n N` | `journalctl -u X -n N -o cat` (drop timestamp/host prefix) or `-o json \| jq -r .MESSAGE` |
 | `nix eval EXPR` (errors) | `iets eval EXPR` where available — span-addressed errors |
+| `for X in $VAR; do …` | `printf '%s\n' "$VAR" \| while read X; do …` or `bash -c '…'` — zsh doesn't word-split `$VAR`; loop runs once |
 
 ## Structural / typed (devshell additions)
 
@@ -41,3 +42,5 @@ not the call. `token-cost.sh --by-tool` shows your profile.
 - Cap output: `\| head -N` or `\| tail -N` on anything that might be unbounded.
 - One dense Bash with a shell `for` loop, not N separate Bash calls (each call ≈ 2KB envelope).
 - Read what you need, not the whole file.
+- **Bumper cadence:** internal inputs (assise/jonasc-ant siblings, numtide/llm-agents.nix, numtide/nix-skills) bump *every round* — fastCheck is the gate. External inputs (nixpkgs, crates, third-party flakes) keep the 7d cap / 1-per-round limit.
+- **Documenter:** README + `docs/`, diff-driven from last `docs r<N>` commit; writes directly, doesn't file backlog. Audit = new CLI/options without README mention + stale refs to removed names. **Structure is Diátaxis** — `docs/{tutorials,howto,reference,explanation}/` (see diataxis.fr): tutorials = learning-by-doing walkthroughs, howto = task recipes, reference = exhaustive API/CLI/config, explanation = why/architecture. If the four dirs are absent, file a `docs-diataxis-restructure` backlog item once (don't restructure unilaterally — that's an implementer slice); thereafter audit placement (a how-to landing in reference/ is drift). README links the four. Dogfood/ops repos (no user-facing surface) are exempt — they keep README-only.
