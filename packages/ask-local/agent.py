@@ -119,8 +119,10 @@ def diff_gate() -> None:
         os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")),
         "diff-gate")
     try:
-        os.makedirs(state, exist_ok=True)
-        with open(os.path.join(state, "last.json"), "w") as f:
+        os.makedirs(state, mode=0o700, exist_ok=True)
+        fd = os.open(os.path.join(state, "last.json"),
+                     os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w") as f:
             json.dump({"risk": risk, "why": why, "ts": os.times().elapsed}, f)
     except OSError:
         pass
@@ -200,8 +202,10 @@ def main() -> None:
             os.environ.get("XDG_STATE_HOME",
                            os.path.expanduser("~/.local/state")), "ask-local")
         try:
-            os.makedirs(state, exist_ok=True)
-            with open(os.path.join(state, "runs.jsonl"), "a") as f:
+            os.makedirs(state, mode=0o700, exist_ok=True)
+            fd = os.open(os.path.join(state, "runs.jsonl"),
+                         os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+            with os.fdopen(fd, "a") as f:
                 f.write(json.dumps({"goal": goal, "tool_calls": calls_log,
                                     "final": final, "ok": ok}) + "\n")
         except OSError:
