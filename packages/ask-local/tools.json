@@ -15,6 +15,11 @@
     "argv": ["sem-grep", "sig", "{args}"]
   },
   {
+    "name": "sem-grep-refs",
+    "desc": "who references this exact symbol name (structural xref, no embed); args = identifier",
+    "argv": ["sem-grep", "refs", "{args}"]
+  },
+  {
     "name": "kin-opts",
     "desc": "evaluated NixOS option tree for this fleet; args = '<host> <option.path>'",
     "argv": ["kin-opts", "{args}"]
