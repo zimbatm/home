@@ -332,3 +332,46 @@ drv:  /nix/store/86mfsyd401rgdab65nxb8bn7vaq3f84s-nixos-system-nv1-26.05.2026041
 ```
 
 Risk profile: trivially-low (data-only, nv1-only, no service surface).
+
+### drift @ da0b27b (2026-04-22): want MOVED 2× since last journal; have UNPROBEABLE 9th round
+
+`kin status --json`: nv1 `not-on-mesh`, have="" — `~/.ssh/kin-bir7vyhu*`
+still absent (dwqfzbq5 mtime Apr-19-10:47 unchanged; kin-infra-hosts
+mtime Apr-22-07:31 hosts-only). **have carried forward**: `sxmv9yvi`
+(off-main).
+
+**⚠ Prior entry s946x49k was side-branch** — a6c394a is NOT a 206cf2d
+ancestor; merge 294585c kept journal-only. Main-line never evaluated to
+s946x49k; actual sequence zjw5mk6h→l7pfiyl7→km5rdiqw.
+
+**Bisect a6c394a-journal..da0b27b (main-line):**
+- ed7d465 simplify crops-residue (-28L): nv1 zjw5mk6h **unchanged**
+  (verified; drvPath-neutral as claimed)
+- 206cf2d internal bump kin 26243512→3118eb1d + iets 68367fb0→e4098058
+  + nix-skills 395c80af→9178f1f1 + llm-agents c4a2f76e→bb6fb1ef + `kin
+  gen` (NEW gen/identity attest.{key.age,pub} per-machine + operator-
+  {claude,zimbatm,migration-test} TLS + operator sign.key) + drop
+  modules/nixos/pin-nixpkgs.nix (-7L, kin upstream now handles):
+  zjw5mk6h→**l7pfiyl7** (ALL 3)
+- f1e5fca nix-index-db bedba598→c43246d4 (re-land on main-line):
+  l7pfiyl7→**km5rdiqw** (nv1-only)
+- 73d5ccf merge crops-residue: **unchanged** (km5rdiqw verified)
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed)
+want: /nix/store/km5rdiqwfnxzidv525vm82xgjpay0dig-nixos-system-nv1-26.05.20260418.b12141e
+drv:  /nix/store/2hvgz8d6cd7gnkwy4h6ln2bmxal9j4rg-nixos-system-nv1-26.05.20260418.b12141e.drv
+```
+
+Dry-build: 509 drvs / 1204 fetch (3.9 GiB).
+
+**Runtime check changes (206cf2d):**
+- **pin-nixpkgs** dropped — verify `nix registry list | grep nixpkgs`
+  and `echo $NIX_PATH` still resolve to the system nixpkgs (kin upstream
+  now provides this; regression = `nix-shell -p` pulls channel)
+- **attest identity** new — `ls /run/kin/identity/attest.*` exists
+  post-deploy (kin 3118eb1d feature; per-machine attestation key)
+
+Risk profile: internal-bump dominated (kin/iets/nix-skills/llm-agents,
+all assise-local) + identity-material regen + 1 module drop. Same
+nixpkgs b12141e since 608e987.

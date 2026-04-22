@@ -362,3 +362,35 @@ web2:   have l6wwl43y… (carried) ≠ want 48l2zlxg…  drv kanb14p8…
 **relay1 now carries 11** (+this bump); **web2 now carries 15**
 (+b7ea207 +this bump). **⚠ 2nd nixpkgs in pending stack** (after
 fa68a27). Reconcile: `kin deploy relay1 web2`.
+---
+
+## drift @ da0b27b (2026-04-22): both want MOVED (206cf2d); have UNPROBEABLE 9th round
+
+`kin status --json`: relay1+web2 `unreachable`, have="" —
+`~/.ssh/kin-bir7vyhu*` still absent (dwqfzbq5 mtime Apr-19-10:47
+unchanged). **have carried forward**: relay1=`dpxnfwvk`, web2=`l6wwl43y`.
+
+**Bisect 608e987..da0b27b (per META r3 deferral):**
+- 3dd9fb7/164b97c nixos-hardware c775c277→72674a6b: **neutral both**
+  (zero closure delta, prior verified)
+- ed7d465/73d5ccf simplify crops-residue: **neutral both** (touches
+  only nv1 + desktop hm + vfio-host; neither host imports)
+- 206cf2d internal bump kin 26243512→3118eb1d + iets 68367fb0→e4098058
+  + nix-skills + llm-agents + `kin gen` (NEW per-machine attest keys +
+  operator TLS) + drop pin-nixpkgs module: relay1 m39a2zk3→**9l7p6ryp**,
+  web2 48l2zlxg→**i6kjbnph** — sole mover both hosts
+- f1e5fca nix-index-db: **neutral both** (verified 9l7p6ryp/i6kjbnph
+  unchanged; neither imports nix-index/comma)
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want 9l7p6ryp…  drv b6vcxcrn…
+web2:   have l6wwl43y… (carried) ≠ want i6kjbnph…  drv 78vdw1gs…
+```
+
+Dry-build: relay1 75 drvs/9 fetch (140.7 MiB), web2 159 drvs/76 fetch
+(285.5 MiB).
+
+**relay1 now carries 12** (+206cf2d); **web2 now carries 16** (+206cf2d).
+Reconcile: `kin deploy relay1 web2`. Same nixpkgs b12141e since 608e987.
+Risk: internal-bump + identity-material regen + pin-nixpkgs drop (verify
+`nix registry list | grep nixpkgs` post-deploy resolves to system pin).
