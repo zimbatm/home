@@ -301,3 +301,43 @@ reach both hosts; re-bisect after eval fix lands.
 carries 11** (+483fadb). Reconcile unchanged: `kin deploy relay1 web2`.
 have unprobed 7th round — can't confirm no out-of-band changes since
 53bed8f.
+---
+
+## drift @ ec62a90 (2026-04-22): both want MOVED (5858216 re-bisect lands); have UNPROBEABLE 8th round
+
+`kin status --json`: relay1+web2 `have=""` health=unreachable.
+`~/.ssh/kin-bir7vyhu*` still absent — **dwqfzbq5+infra mtime CHANGED
+Apr-15-12:17→Apr-19-10:47** (kin-infra fleet re-logged-in Apr-19, NOT
+home; ops-kin-login-worker.md unactioned 8th round). **have carried
+forward** from 53bed8f: relay1=`dpxnfwvk`, web2=`l6wwl43y`.
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want cfz6z9c0…  (MOVED from 4v9sfxzk; UNCHANGED since 69f7bb4)
+web2:   have l6wwl43y… (carried) ≠ want y3nfx6q6…  (MOVED from kzz0zmsj via 69f7bb4→mzg6jhl8→c7939f0)
+```
+
+**Eval restored** — 5858216 was unevalable last round; META r1 (69f7bb4)
+surgical-reverted crops-demo, e98e1c5 dropped the input. The deferred
+5858216 re-bisect resolves as 69f7bb4-keep-6.
+
+**Bisect 3f3124d..ec62a90:**
+- 69f7bb4 META keep-6 of zimbatm 5858216 (hm/iets/kin/llm-agents/maille/
+  nixvim): relay1 4v9sfxzk→cfz6z9c0, web2 kzz0zmsj→mzg6jhl8 (per META
+  r1; maille+kin reach both)
+- e98e1c5 drop crops-demo + vendor vfio-host: relay1+web2-neutral
+  (cfz6z9c0/mzg6jhl8 verified — neither imports vfio-host nor crops hm)
+- 3092054 vfio-host original: relay1+web2-neutral (verified)
+- 69158d6 fleetManifest inherit + b911f6e `kin gen`: neutral (verified)
+- c7939f0 iets bump 714989b→d6739fad: relay1-neutral (cfz6z9c0
+  unchanged), **web2 mzg6jhl8→y3nfx6q6**. Iets-only bump now
+  web2-affecting (cf 497ddec was web2-neutral) — kin.inputs.iets.follows
+  has been in place since 2a6ea95; this particular iets delta reaches
+  web2's kin-surface where 497ddec's didn't.
+
+**relay1 now carries 10** (f2c38c8 bfcd408 e4d45cd b0b4acd 0319657
+11edb95 fa68a27 4a60b42 cadfc52 + 69f7bb4-keep-6); **web2 now carries
+13** (35c8232 26cb8a9 e4d45cd 6673c0c b0b4acd 0319657 11edb95 fa68a27
+4a60b42 cadfc52 483fadb + 69f7bb4-keep-6 + c7939f0). Reconcile: `kin
+deploy relay1 web2`. Same nixpkgs 4bd9165 throughout this round; risk
+unchanged from 605cd1b (one nixpkgs minor + internal/mesh bumps). have
+unprobed 8th round — can't confirm no out-of-band changes since 53bed8f.

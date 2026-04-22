@@ -239,3 +239,50 @@ lands.
 - **sem-grep sig** — `sem-grep sig 'def main'` returns tree-sitter
   signature matches across indexed repos.
 
+### drift @ ec62a90 (2026-04-22): want MOVED 4× (eval restored, crops-demo dropped); have UNPROBEABLE 8th round
+
+`kin status --json`: nv1 `have=""` health=not-on-mesh.
+`~/.ssh/kin-bir7vyhu*` still absent — **but dwqfzbq5+infra mtime CHANGED
+Apr-15-12:17→Apr-19-10:47** (someone re-ran `kin login` on the worker
+Apr-19 for the kin-infra fleet, NOT home; ops-kin-login-worker.md still
+unactioned 8th round). **have carried forward** from 53bed8f:
+nv1=`sxmv9yvi` (off-main).
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed — worker blind 8th round)
+want: /nix/store/zcz5jfkf4y1jhd5vz2klqjx6rm5c5pi5-nixos-system-nv1-26.05.20260414.4bd9165
+```
+
+**Eval restored** — 5858216 unevalable last round; META r1 (69f7bb4)
+surgical-reverted crops-demo, then e98e1c5 dropped the input entirely.
+69f7bb4 itself is now also unevalable (cad8614b store-GC'd) but
+e98e1c5-onwards is independent of it.
+
+**Bisect 3f3124d..ec62a90** (snfxm0c9→zcz5jfkf, 4 nv1-affecting; the
+deferred 5858216 re-bisect):
+- 69f7bb4 META keep-6 of zimbatm 5858216 (hm/iets/kin/llm-agents/maille/
+  nixvim, crops-demo reverted): snfxm0c9→fqdl5ns7 (per META r1 commit
+  msg; ALL 3 hosts — maille+kin reach all)
+- e98e1c5 **drop crops-demo input** — vendor modules/nixos/vfio-host.nix
+  (same crops.vfio.* interface), nv1 home.crops.enable=false, lock
+  −crops-demo−10-transitive: fqdl5ns7→agkzmf1s (nv1-only; relay1/web2
+  verified neutral)
+- 3092054 vfio-host: replace reconstruction w/ recovered original —
+  +crops.vfio.pciIds (overridable list), +crops.gpu.pciAddr nullable,
+  +softdep amdgpu, drop gpu-default.nix import: agkzmf1s→szw7bfc1
+  (nv1-only)
+- c7939f0 iets bump 714989b→d6739fad (zimbatm out-of-band):
+  szw7bfc1→zcz5jfkf (nv1+web2; relay1-neutral)
+
+Closure-neutral all 3 (verified): 69158d6 flake inherit fleetManifest
+from kinOut (eval-only), b911f6e `kin gen` (gen/manifest.lock rehash).
+
+**Runtime check changes:**
+- **crops-userland** check above is now **MOOT** — e98e1c5 set
+  home.crops.enable=false (modules/home/desktop/crops.nix stubbed,
+  throws on enable). Strike the "CLIs in PATH" half.
+- **vfio-host (kernel side)** still applies, now vendored: `lsmod | grep
+  -E 'vfio_pci|vfio_iommu'` loaded; `grep vfio-pci
+  /etc/modprobe.d/nixos.conf` shows `ids=10de:28a0,10de:22be` + 3
+  softdeps (nvidia/nouveau/amdgpu — amdgpu added @ 3092054).
+
