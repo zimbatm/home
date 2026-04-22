@@ -313,3 +313,22 @@ drv:  /nix/store/nxamxnp384876jdyajiy9jxhhlqkif2b-nixos-system-nv1-26.05.2026041
 **⚠ 2nd nixpkgs in pending stack** (after fa68a27 4c1018d→4bd9165).
 Risk profile: full nixpkgs minor ×2.
 
+### bump-nix-index-database @ 2a6538f+1 (grind, 2026-04-22): nv1-only
+
+Bumper round — `have` not re-probed. Interstitial since 608e987:
+3dd9fb7 nixos-hardware c775c277→72674a6b — **closure-neutral all 3**
+(zjw5mk6h unchanged, verified prior round).
+
+This commit — **nix-index-database bedba598→c43246d4** (2026-04-12→
+04-22, 10d): zjw5mk6h→**s946x49k** (nv1-only; relay1 m39a2zk3 + web2
+48l2zlxg verified unchanged — neither imports nix-index/comma).
+Data-only weekly index regen. Dry-build: 512 drvs to build, 1233 to
+fetch (4.4 GiB) — dominated by pending nixpkgs stack, not this bump.
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed)
+want: /nix/store/s946x49k8770hy156lw2j5q1gn6f3mz8-nixos-system-nv1-26.05.20260418.b12141e
+drv:  /nix/store/86mfsyd401rgdab65nxb8bn7vaq3f84s-nixos-system-nv1-26.05.20260418.b12141e.drv
+```
+
+Risk profile: trivially-low (data-only, nv1-only, no service surface).
