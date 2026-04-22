@@ -8,6 +8,7 @@ are post-deploy falsification targets — see backlog/adopt-sem-grep.md.
 """
 import argparse
 import ctypes
+import hashlib
 import json
 import os
 import sqlite3
@@ -457,6 +458,81 @@ def cmd_log(args):
         print(f"{s:+.3f}  {unit}\t{when}\t{msg}")
 
 
+def cmd_index_runs(_args):
+    """Embed ask-local --agent run traces (goal → vec) into a `runs` table for
+    retrieval-augmented few-shot. Dedupe by sha1(goal); runs.jsonl is
+    append-only so last-write-wins per goal within a batch. Same NPU bge-small
+    path as hist/log. Falsifies sub-4B-benefits-from-own-trace — see
+    backlog/adopt-trace-mem.md."""
+    con = db()
+    con.execute("""CREATE TABLE IF NOT EXISTS runs(
+        h TEXT PRIMARY KEY, goal TEXT, trace TEXT, ok INTEGER, vec BLOB)""")
+    log = os.path.join(
+        os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")),
+        "ask-local", "runs.jsonl")
+    if not os.path.isfile(log):
+        print(f"sem-grep index-runs: no runs yet at {log}", file=sys.stderr)
+        return
+    have = {h for (h,) in con.execute("SELECT h FROM runs")}
+    new: dict[str, dict] = {}
+    with open(log, encoding="utf-8") as f:
+        for ln in f:
+            try:
+                r = json.loads(ln)
+            except json.JSONDecodeError:
+                continue
+            goal = r.get("goal", "")
+            if not goal:
+                continue
+            h = hashlib.sha1(goal.encode()).hexdigest()
+            if h in have:
+                continue
+            new[h] = r  # dict keyed by h → last line for a goal wins
+    if not new:
+        print("sem-grep index-runs: 0 new goals", file=sys.stderr)
+        return
+    embed = load_embedder()
+    items = list(new.items())
+    for j in range(0, len(items), BATCH):
+        part = items[j:j + BATCH]
+        vecs = embed([r["goal"] for _, r in part])
+        con.executemany(
+            "INSERT OR REPLACE INTO runs(h,goal,trace,ok,vec) VALUES(?,?,?,?,?)",
+            [(h, r["goal"],
+              json.dumps({"tool_calls": r.get("tool_calls", []),
+                          "final": r.get("final", "")}),
+              int(bool(r.get("ok"))), vecs[k].tobytes())
+             for k, (h, r) in enumerate(part)])
+    con.commit()
+    print(f"sem-grep index-runs: embedded {len(new)} new goals → {DB}",
+          file=sys.stderr)
+
+
+def cmd_runs(args):
+    """Top-n past agent traces by goal similarity. One JSON line per hit
+    {"goal","tool_calls","final","ok"} so ask-local --agent --mem can prepend
+    them verbatim as few-shot examples. Silent on empty index so the cold-start
+    --mem path degrades to no-mem."""
+    con = db()
+    con.execute("""CREATE TABLE IF NOT EXISTS runs(
+        h TEXT PRIMARY KEY, goal TEXT, trace TEXT, ok INTEGER, vec BLOB)""")
+    rows = con.execute("SELECT goal, trace, ok, vec FROM runs").fetchall()
+    if not rows:
+        return
+    embed = load_embedder()
+    q = embed(["Represent this sentence for searching relevant passages: "
+               + args.text])[0]
+    mat = np.frombuffer(b"".join(r[3] for r in rows),
+                        dtype=np.float32).reshape(-1, DIM)
+    scores = mat @ q
+    top = np.argsort(-scores)[: args.n]
+    for i in top:
+        goal, trace, ok, _ = rows[i]
+        t = json.loads(trace)
+        print(json.dumps({"goal": goal, "tool_calls": t.get("tool_calls", []),
+                          "final": t.get("final", ""), "ok": bool(ok)}))
+
+
 def cmd_sig(args):
     """Rank treesitter-extracted signatures by interface shape. Output is
     `file:line  signature` so an agent can Read(offset,limit) the hit directly
@@ -573,10 +649,16 @@ def main():
     rp.add_argument("-n", type=int, default=50)
     rp.add_argument("symbol")
     rp.set_defaults(fn=cmd_refs)
+    sub.add_parser("index-runs").set_defaults(fn=cmd_index_runs)
+    tp = sub.add_parser("runs")
+    tp.add_argument("text")
+    tp.add_argument("-n", type=int, default=2)
+    tp.set_defaults(fn=cmd_runs)
     # bare `sem-grep "<text>"` → query
     argv = sys.argv[1:]
     if argv and argv[0] not in {"index", "query", "sig", "hist", "index-log",
-                                "log", "refs", "-h", "--help"}:
+                                "log", "refs", "index-runs", "runs",
+                                "-h", "--help"}:
         argv = ["query", *argv]
     args = ap.parse_args(argv)
     if not args.cmd:

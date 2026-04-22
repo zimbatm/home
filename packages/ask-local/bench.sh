@@ -11,7 +11,66 @@
 # (the wrapper sinks 2>/dev/null for interactive use).
 #
 # usage:  packages/ask-local/bench.sh [N_REPEAT]
+#         packages/ask-local/bench.sh --mem      (adopt-trace-mem axis, see below)
 set -euo pipefail
+
+if [[ "${1:-}" == "--mem" ]]; then
+  # adopt-trace-mem: does retrieval-augmented self-memory help Phi-3.8B on the
+  # 20-case agent bench? cold = ASK_LOCAL_MEM=0 ×3 (median pass@1 + p50 ms);
+  # warm = wipe runs.jsonl → one warm-up pass MEM=1 → sem-grep index-runs →
+  # MEM=1 ×3. Bar: warm ≥ cold+3 AND dP50 ≤ +150ms. Decides --mem default +
+  # llm-router rule for memory-shaped goals.
+  CASES="$(dirname "$0")/bench-agent.jsonl"
+  STATE="${XDG_STATE_HOME:-$HOME/.local/state}/ask-local"
+  tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+
+  pass_one() {  # $1=ASK_LOCAL_MEM → prints "pass p50_ms" for one 20-case sweep
+    local pass=0 lat=() goal et es t0 out first
+    while IFS= read -r line; do
+      goal=$(jq -r .goal <<<"$line")
+      et=$(jq -r .expect_tool <<<"$line")
+      es=$(jq -r .expect_substr <<<"$line")
+      t0=$(date +%s%3N)
+      out=$(ASK_LOCAL_MEM="$1" ask-local --agent "$goal" 2>"$tmp/trace" || true)
+      lat+=($(($(date +%s%3N) - t0)))
+      first=$(awk '/^\[1\] /{print $2; exit}' "$tmp/trace")
+      [[ "$first" == "$et" && "$out" == *"$es"* ]] && pass=$((pass + 1))
+    done <"$CASES"
+    local p50
+    p50=$(printf '%s\n' "${lat[@]}" | sort -n | sed -n '10p')
+    echo "$pass $p50"
+  }
+  median3() { sort -n | sed -n '2p'; }
+
+  echo "== cold (ASK_LOCAL_MEM=0) =="
+  cp=(); cl=()
+  for i in 1 2 3; do
+    read -r p l <<<"$(pass_one 0)"; cp+=("$p"); cl+=("$l")
+    echo "  run$i: $p/20 p50=${l}ms"
+  done
+  cold=$(printf '%s\n' "${cp[@]}" | median3)
+  cold_p50=$(printf '%s\n' "${cl[@]}" | median3)
+
+  echo "== warm-up: populate runs.jsonl + sem-grep index-runs =="
+  rm -f "$STATE/runs.jsonl"
+  pass_one 1 >/dev/null
+  sem-grep index-runs
+
+  echo "== warm (ASK_LOCAL_MEM=1) =="
+  wp=(); wl=()
+  for i in 1 2 3; do
+    read -r p l <<<"$(pass_one 1)"; wp+=("$p"); wl+=("$l")
+    echo "  run$i: $p/20 p50=${l}ms"
+  done
+  warm=$(printf '%s\n' "${wp[@]}" | median3)
+  warm_p50=$(printf '%s\n' "${wl[@]}" | median3)
+
+  d=$((warm_p50 - cold_p50))
+  verdict=FAIL; ((warm >= cold + 3 && d <= 150)) && verdict=PASS
+  echo
+  echo "cold=${cold}/20 warm=${warm}/20 dP50=+${d}ms ${verdict}"
+  exit 0
+fi
 
 REPEAT="${1:-3}"
 MODEL="${ASK_LOCAL_MODEL:-${XDG_DATA_HOME:-$HOME/.local/share}/llama/Phi-3-mini-4k-instruct-Q4_K_M.gguf}"
