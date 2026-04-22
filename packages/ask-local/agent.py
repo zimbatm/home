@@ -131,6 +131,13 @@ def diff_gate() -> None:
 def main() -> None:
     if sys.argv[1:2] == ["--diff-gate"]:
         return diff_gate()
+    # --mem / ASK_LOCAL_MEM=1: retrieval-augmented self-memory. Flag-gated so
+    # the cold path stays byte-identical for bench.sh --mem A/B. See
+    # backlog/adopt-trace-mem.md.
+    mem = os.environ.get("ASK_LOCAL_MEM") == "1"
+    if "--mem" in sys.argv:
+        sys.argv.remove("--mem")
+        mem = True
     if len(sys.argv) < 2:
         sys.exit("usage: ask-local --agent \"<goal>\"")
     goal = " ".join(sys.argv[1:])
@@ -148,19 +155,57 @@ def main() -> None:
     g.write(gbnf(list(by_name)))
     g.close()
 
-    transcript = f"{sys_p}\n\nGoal: {goal}\n"
+    examples = ""
+    if mem:
+        # retrieve-before: top-2 similar past traces as compact few-shot.
+        # Silently degrades to no-mem on cold start / sem-grep absent.
+        r = subprocess.run(["sem-grep", "runs", goal, "-n", "2"],
+                           capture_output=True, text=True)
+        for ln in (r.stdout.splitlines() if r.returncode == 0 else []):
+            try:
+                ex = json.loads(ln)
+            except json.JSONDecodeError:
+                continue
+            calls = " → ".join(f'{c["tool"]} {c.get("args", "")}'.strip()
+                               for c in ex.get("tool_calls", []))
+            examples += (f"# Example (ok={ex.get('ok')})\n"
+                         f"Goal: {ex.get('goal', '')}\n"
+                         f"Calls: {calls or '(none)'}\n"
+                         f"Final: {ex.get('final', '')}\n\n")
+
+    transcript = f"{sys_p}\n\n{examples}Goal: {goal}\n"
+    calls_log: list[dict] = []
+    final, ok = "", False
     for turn in range(1, MAX_TURNS + 1):
         act = ask(g.name, transcript + "Action:")
         if "final" in act:
-            print(act["final"])
-            return
+            final, ok = act["final"], True
+            print(final)
+            break
         tool, args = act["tool"], act.get("args", "")
+        calls_log.append({"tool": tool, "args": args})
         print(f"[{turn}] {tool} {args}", file=sys.stderr)
         obs = run_tool(by_name[tool], args)
         transcript += f"Action: {json.dumps(act)}\nObservation: {obs}\n"
-    # Turn budget spent — force a final answer.
-    act = ask(g.name, transcript + 'Action (you MUST use "final" now):')
-    print(act.get("final", "(turn limit reached, no final answer)"))
+    else:
+        # Turn budget spent — force a final answer.
+        act = ask(g.name, transcript + 'Action (you MUST use "final" now):')
+        final = act.get("final", "(turn limit reached, no final answer)")
+        print(final)
+
+    if mem:
+        # write-after: append trace; indexing is out-of-band (bench.sh /
+        # nightly) to keep the hot path lean.
+        state = os.path.join(
+            os.environ.get("XDG_STATE_HOME",
+                           os.path.expanduser("~/.local/state")), "ask-local")
+        try:
+            os.makedirs(state, exist_ok=True)
+            with open(os.path.join(state, "runs.jsonl"), "a") as f:
+                f.write(json.dumps({"goal": goal, "tool_calls": calls_log,
+                                    "final": final, "ok": ok}) + "\n")
+        except OSError:
+            pass
 
 
 if __name__ == "__main__":

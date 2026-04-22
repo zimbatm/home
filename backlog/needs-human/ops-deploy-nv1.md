@@ -133,6 +133,7 @@ Walk these at the nv1 desk after deploy:
 - **ask-local --fast** — `ask-local --fast "<p>"` via llama-lookup; `packages/ask-local/bench.sh` tok/s ≥ plain on the 4 cases
 - **sem-grep -r** — `sem-grep -r "<q>"` loads bge-reranker-base on NPU (3rd tenant); evals.jsonl shows `rerank:true` rows; fetch-hint fires if model dir absent
 - **ask-local --agent** — `ask-local --agent "<goal>"` ≤4-turn ReAct; walk `packages/ask-local/bench-agent.jsonl` (20 goals, expect_tool+expect_substr); tools.json CLIs resolve on PATH
+- **ask-local --mem** — `packages/ask-local/bench.sh --mem` runs cold×3 / warm-up+index / warm×3 over the 20-case agent bench; record `cold=X/20 warm=Y/20 dP50=+Nms PASS|FAIL`. Bar: warm ≥ cold+3 ∧ dP50 ≤ +150ms. PASS → flip `--mem` default on + llm-router keeps repeat-intent goals local; FAIL → memory-shaped goals route to cloud regardless of complexity gate. Also: `sem-grep index-runs && sem-grep runs "am I AFK?"` returns ≥1 JSON trace line
 - **sem-grep timer** — `systemctl --user list-timers | grep sem-grep` shows nightly index-log; `which sem-grep` on PATH (was only hist-sem alias before)
 - **deepfilter** — `pactl list sources short | grep -i deepfilter` shows virtual mic; `systemctl --user status pipewire` clean; speak with fan noise → output denoised
 - **CA derivations** — `nix config show | grep ca-derivations` shows enabled; build a trivial CA drv to confirm store accepts
