@@ -111,11 +111,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776839014,
-        "narHash": "sha256-ESzo8KKkGnCQ1QwkDtsQsxMcddw5UGXbeI09LPedlZs=",
+        "lastModified": 1776841460,
+        "narHash": "sha256-+hRQ3FSsURRfY+QXJ+6PVgozRxQRnoT0krhNdr9iWqg=",
         "ref": "refs/heads/main",
-        "rev": "68367fb08808d3cc4dd512dc9af59533e4fdc4a9",
-        "revCount": 6002,
+        "rev": "e40980588cbf3847254ef308828310914b5635aa",
+        "revCount": 6015,
         "type": "git",
         "url": "ssh://git@github.com/jonasc-ant/iets"
       },
@@ -150,14 +150,15 @@
         ],
         "nixpkgs": [
           "nixpkgs"
-        ]
+        ],
+        "settle": "settle"
       },
       "locked": {
-        "lastModified": 1776456008,
-        "narHash": "sha256-aMBF+enMQppWsM5Ue8foz3/5KlVer2iavl6lQ3XuIEA=",
+        "lastModified": 1776841043,
+        "narHash": "sha256-NojqY9El42ugo4n/a9T7tF+prqegZr4jyTg1/JuCQpg=",
         "ref": "refs/heads/main",
-        "rev": "26243512f7285a4eb3add886f4e7592b87ff18e8",
-        "revCount": 3041,
+        "rev": "3118eb1ddd59cca44c047ad45c2344b0ed37f988",
+        "revCount": 3772,
         "type": "git",
         "url": "ssh://git@github.com/assise/kin"
       },
@@ -180,11 +181,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776437995,
-        "narHash": "sha256-wcV5CIe5s2IsSCGJdPqy/Q+gcBSR76JMaIQDNpLXZAk=",
+        "lastModified": 1776828739,
+        "narHash": "sha256-Uo1SvxXlqcxbpoew8deTAbBWDlA/LnkiXQ1PIb95fUA=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "c4a2f76e29485eaafc90eebec5ef12b50f4dc8a1",
+        "rev": "bb6fb1ef73d5a46877a3fc623fedef5cbf3939e3",
         "type": "github"
       },
       "original": {
@@ -195,17 +196,22 @@
     },
     "maille": {
       "inputs": {
+        "iets": [
+          "kin",
+          "iets"
+        ],
         "nixpkgs": [
           "kin",
           "nixpkgs"
-        ]
+        ],
+        "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1776445225,
-        "narHash": "sha256-BpqHwVwE6YnpPuxyKLgbbeObKKGwlK9nAcUJ+fqpMr4=",
+        "lastModified": 1776787850,
+        "narHash": "sha256-vg1rZto0DZItFIyoFL/RuzXxwD22+hSNTPREzIJZrq4=",
         "ref": "refs/heads/main",
-        "rev": "ac4fbc93948e8b72af6f875ebd8ec4d7eb1467db",
-        "revCount": 1178,
+        "rev": "26fa8701ab6b926aaad7ddb8ac5a0f11ea5c0a8b",
+        "revCount": 1578,
         "type": "git",
         "url": "ssh://git@github.com/assise/maille"
       },
@@ -245,17 +251,39 @@
         ]
       },
       "locked": {
-        "lastModified": 1776360441,
-        "narHash": "sha256-1o1+ao36SIWk89n3qAXVpCm6IqRQdsKZoaZT3S6XdFk=",
+        "lastModified": 1776761488,
+        "narHash": "sha256-hZNoAHK8wvv/w1AMsQvi88/j3VfOLdENjZ3x9TdRwbs=",
         "ref": "refs/heads/main",
-        "rev": "395c80af759f35b8c2a7418ee92c0148ed39943e",
-        "revCount": 272,
+        "rev": "9178f1f19f6faa1bed071311e25ea6579cfd0397",
+        "revCount": 348,
         "type": "git",
         "url": "ssh://git@github.com/assise/nix-skills"
       },
       "original": {
         "type": "git",
         "url": "ssh://git@github.com/assise/nix-skills"
+      }
+    },
+    "nix-vm-test": {
+      "inputs": {
+        "nixpkgs": [
+          "kin",
+          "settle",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1776243694,
+        "narHash": "sha256-bmPLrDLMb2QjGhWzDHvahyq4nuoSoYEMsgmo+qHiq1k=",
+        "owner": "numtide",
+        "repo": "nix-vm-test",
+        "rev": "797184bcad6205f0360250298598de38cf781df0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "nix-vm-test",
+        "type": "github"
       }
     },
     "nixos-hardware": {
@@ -329,7 +357,52 @@
         "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
         "srvos": "srvos",
+        "treefmt-nix": "treefmt-nix_2"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "kin",
+          "maille",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1776741231,
+        "narHash": "sha256-k9G98qzn+7npROUaks8VqCFm7cFtEG8ulQLBBo5lItg=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "02061303f7c4c964f7b4584dabd9e985b4cd442b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "settle": {
+      "inputs": {
+        "nix-vm-test": "nix-vm-test",
+        "nixpkgs": [
+          "kin",
+          "nixpkgs"
+        ],
         "treefmt-nix": "treefmt-nix"
+      },
+      "locked": {
+        "lastModified": 1776629368,
+        "narHash": "sha256-7XLWIIkC9dl5vTr5/zcoLTPokV1OCtiUcGMLOXBZUu0=",
+        "ref": "refs/heads/main",
+        "rev": "41a4607a76597daf0472e654f03a077ae9024809",
+        "revCount": 498,
+        "type": "git",
+        "url": "ssh://git@github.com/assise/settle"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/assise/settle"
       }
     },
     "srvos": {
@@ -368,6 +441,28 @@
       }
     },
     "treefmt-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "kin",
+          "settle",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1775636079,
+        "narHash": "sha256-pc20NRoMdiar8oPQceQT47UUZMBTiMdUuWrYu2obUP0=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "790751ff7fd3801feeaf96d7dc416a8d581265ba",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "treefmt-nix_2": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"

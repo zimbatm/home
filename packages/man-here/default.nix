@@ -16,7 +16,7 @@ pkgs.writeShellApplication {
   text = ''
     # Version-exact docs assembled from /nix/store. Resolves <cmd> to its
     # installed store output and emits markdown: package id + meta.description
-    # (via pinned <nixpkgs> — modules/nixos/pin-nixpkgs.nix), rendered man
+    # (via kin's nix.registry.nixpkgs github pin), rendered man
     # page, capped --help, and $out/share/doc README*. Every section degrades
     # gracefully; nothing past arg-parse is fatal.
     #

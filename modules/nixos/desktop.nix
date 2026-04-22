@@ -4,7 +4,6 @@
   imports = [
     ./common.nix
     ./ubuntu-light.nix
-    ./pin-nixpkgs.nix
     inputs.srvos.nixosModules.desktop
   ];
 

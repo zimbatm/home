@@ -2,6 +2,8 @@
 Host nv1 relay1 web2
   IdentityFile ~/.ssh/kin-bir7vyhu_ed25519
   CertificateFile ~/.ssh/kin-bir7vyhu_ed25519-cert.pub
+  ServerAliveInterval 30
+  ServerAliveCountMax 20
 
 Host nv1
   HostName fd0c:3964:8cda::6e42:b995:2026:deae

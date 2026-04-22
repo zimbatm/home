@@ -34,44 +34,89 @@
     },
     "identity/machine/nv1": {
       "ageHash": {
+        "attest.key": "40fd80e3ecb567db7937ef785edb3dd6d3fe82f0c8bb071a17f80229b8d41f67",
         "ssh-host": "685ec34fd2cbb2f554274e04288dc32fd58aea906e6a7edadeb8e86d92f44795",
         "tls.key": "0b2ecd9a8429c6dbc1bf238443165178a8e1ac1dc5037575e65f260bfd41844b"
       },
       "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
       "files": {
+        "attest.key": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63",
         "ssh-host": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63",
         "tls.key": "3f304b26e2df49261dc29683bd9498aa7432e178fd27393170e26d9674bc6e63"
       },
-      "inputHash": "bdadea662092815deaaee773ed381b96834e84103bd036f1a72c690773ae4c00"
+      "inputHash": "d97f8ff5e749e1dd2d4702efe27a233d032db293d7a2ba39d1d317a5d7a5575b"
     },
     "identity/machine/relay1": {
       "ageHash": {
+        "attest.key": "3dba5577757ec89ec916736b1891073302db7254fd07e46579602c9156952546",
         "ssh-host": "d1f0a1e70b3b839ad3bc3c058a420f0b6627c9f0786fb21efe61a541d26044f2",
         "tls.key": "42881c4cbdf935cca834f24bdbd21c3e89f6cef1e467593fbb3b490bc3e8e54e"
       },
       "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
       "files": {
+        "attest.key": "996aa73155bd2a5f8b4d97b4d747b03a47695ce5210364e49b7c9aed7dd36f2d",
         "ssh-host": "996aa73155bd2a5f8b4d97b4d747b03a47695ce5210364e49b7c9aed7dd36f2d",
         "tls.key": "996aa73155bd2a5f8b4d97b4d747b03a47695ce5210364e49b7c9aed7dd36f2d"
       },
-      "inputHash": "7a6df0ba0c5851925efa9000088e7c269d7d23ed095340805d4f84ebef6a3849"
+      "inputHash": "9a2317864157b66c369afce57ccb9e9cf69886e742949bf594ce8a9959a5a049"
     },
     "identity/machine/web2": {
       "ageHash": {
+        "attest.key": "5bfb86365647123afd3fe5bca62fc9d84df0c4f2a75cc8ed497a9477a277a46d",
         "ssh-host": "306260fa179d12f9e9ee998f9b24847987f76e82fb184eb98c8cae5e7173245b",
         "tls.key": "3e4c4eddd026dcdfd0351784dca3b196ceed5cc094625ca37036bf4f409fa490"
       },
       "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
       "files": {
+        "attest.key": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc",
         "ssh-host": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc",
         "tls.key": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc"
       },
-      "inputHash": "9d5c9203b5e510efbb3767b045208bbba717983f72099ced9e31eb7df6d85c3d"
+      "inputHash": "6297a2b6e86e98ad6c6309a4ed863d5c0be8ab041331ba9758fe39637aff91ab"
+    },
+    "identity/operator-claude/_shared": {
+      "ageHash": {
+        "tls.key": "dbccd88485daff4bbad3c6db56735a0dcaec386fc5498896535b0a9edd0a7828"
+      },
+      "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
+      "files": {
+        "tls.key": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
+      },
+      "inputHash": "3ba4ce55d14e6e5fd1ecfd9c34d2feb9e779f784c90fc39e3be507e45538ccd2"
+    },
+    "identity/operator-migration-test/_shared": {
+      "ageHash": {
+        "tls.key": "381876008cdf0a234af24765296d9d0d51b9b1a64f0d76c31df7107d0c3962ab"
+      },
+      "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
+      "files": {
+        "tls.key": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
+      },
+      "inputHash": "53499829fdb396829afea8e3a31eb113cfa1517a678e1bde0be439d814006765"
+    },
+    "identity/operator-zimbatm/_shared": {
+      "ageHash": {
+        "tls.key": "12be6e52a7e8641d1785ae7293dcfbffaa3a754f23e1c3297d37506200768916"
+      },
+      "depFilesHash": "6b8eb30a998d6266d01318d86c4facc62cabb0a1dd16353b6feb6629341a353d",
+      "files": {
+        "tls.key": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
+      },
+      "inputHash": "f0848623b3ba917c797ae66405e3f6c35afc696708e0886b5d455dd6ad4ffd0e"
+    },
+    "identity/operator/_shared": {
+      "ageHash": {
+        "sign.key": "c2c73c7f5e454521a9c4c5b1b7962839e074b14027255ca8fd79227832a8e41c"
+      },
+      "files": {
+        "sign.key": "9d96fb64a7ebd236633e9ce28247b047929e6f4d63b45b456821a1133644196b"
+      },
+      "inputHash": "fbdacd18eee95886cc3913fadd9b0dad1d1600d8fc80238f65aeb52eeabf2a63"
     },
     "identity/peers/_shared": {
       "ageHash": {},
       "files": {},
-      "inputHash": "cb5cb5f67b65154fc1e72fea1e817eb4fa899cca746fba490f498902915ab9e3"
+      "inputHash": "5bb16c415bf004fc34d637f80068da07f4fcfb4bb5590f2bfc7187419a7c4a23"
     },
     "identity/user-claude/_shared": {
       "ageHash": {},
@@ -87,7 +132,7 @@
     },
     "mesh/fingerprints/_shared": {
       "ageHash": {},
-      "depFilesHash": "1c8b37f0bea34c7e9e737f7d247a05e3626f973d00bb1ec70221b5c9923c084b",
+      "depFilesHash": "0ef30922748e35657b00abec12df0ecd2afc24d107317226e4ba8ab706931a64",
       "files": {},
       "inputHash": "8e82129efbaad334c7f507022d81f2c8e93ddef292fc5e4c96280cd16be85022"
     },
@@ -95,7 +140,7 @@
       "ageHash": {},
       "depFilesHash": "ede71d95f59c8fe5e6cbd4e32f0150016a666247af5c50b912a6ee5c66045212",
       "files": {},
-      "inputHash": "78c40cd8276ae0836737c7b1e059dbbb04ba8f5f15204d8857a61477f1293e95"
+      "inputHash": "c2e686ed8c4535fda2a1308d8729a37c9e2934382ebb09dde412138a15af1469"
     },
     "user/gotosocial-restic/_shared": {
       "ageHash": {
@@ -104,7 +149,7 @@
       "files": {
         "password": "520935c6b73ee490a299ba17dab7c02a4df72e59add28826cfa34df0c51f1bdc"
       },
-      "inputHash": "49db6723a9a0ec974fd35113a37f17f1793e9dfbfaa8fb2913e55b1f3155c1fb"
+      "inputHash": "925942b23870fa4d903144b45d05ca314344fcc6b49733232ea3bf363b0e3527"
     },
     "user/gotosocial-rsyncnet/_shared": {
       "ageHash": {
