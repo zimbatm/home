@@ -235,12 +235,12 @@ in
       # gpg.format = "ssh";
       submodule.recurse = true;
       url."ssh://git@github.com/".pushInsteadOf = "https://github.com/";
+      # Seed new repos (git init / clone) with the diff-gate pre-commit hook.
+      # Non-invasive: existing repos keep their own .git/hooks; refresh them
+      # with `git init` if wanted. The hook is informational-only — it never
+      # blocks a commit.
+      init.templateDir = "${config.xdg.configHome}/git/template";
     };
-    # Seed new repos (git init / clone) with the diff-gate pre-commit hook.
-    # Non-invasive: existing repos keep their own .git/hooks; refresh them
-    # with `git init` if wanted. The hook is informational-only — it never
-    # blocks a commit.
-    settings.init.templateDir = "${config.xdg.configHome}/git/template";
   };
 
   xdg.configFile."git/template/hooks/pre-commit" = {
