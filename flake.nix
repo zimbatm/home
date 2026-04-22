@@ -69,7 +69,13 @@
         pkgs:
         inputs.treefmt-nix.lib.evalModule pkgs {
           projectRootFile = "flake.nix";
-          programs.nixfmt.enable = true;
+          # iets fmt: nixfmt-rfc-style byte-parity on lib/, ~30× faster on
+          # large trees. checks.fmt below is the idempotence guard.
+          settings.formatter.iets-fmt = {
+            command = "${inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.iets}/bin/iets";
+            options = [ "fmt" ];
+            includes = [ "*.nix" ];
+          };
         };
 
       # Explicit — no auto-discovery. ADR-0006: locality over abstraction.
