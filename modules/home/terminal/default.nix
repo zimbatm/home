@@ -7,6 +7,7 @@
 }:
 let
   self' = inputs.self.packages.${pkgs.stdenv.hostPlatform.system};
+  llm = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
 in
 {
   imports = [ inputs.nix-index-database.homeModules.nix-index ];
@@ -65,6 +66,7 @@ in
     git-absorb
     git-extras
     git-gone
+    llm.tuicr
   ];
 
   pam.sessionVariables = {
