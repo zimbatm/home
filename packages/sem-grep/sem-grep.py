@@ -103,6 +103,10 @@ def db():
         id INTEGER PRIMARY KEY, repo TEXT, path TEXT, line INTEGER,
         sig TEXT, vec BLOB);
       CREATE INDEX IF NOT EXISTS sigs_rp ON sigs(repo, path);
+      CREATE TABLE IF NOT EXISTS refs(
+        symbol TEXT, repo TEXT, path TEXT, line INTEGER);
+      CREATE INDEX IF NOT EXISTS refs_sym ON refs(symbol);
+      CREATE INDEX IF NOT EXISTS refs_rp ON refs(repo, path);
     """)
     return con
 
@@ -144,9 +148,32 @@ TS_QUERIES = {
       (impl_item type: (_) @name) @def
     """,
 }
+# Identifier-USE captures for the `refs` verb. Deliberately coarse — name
+# match only, no scope/type resolution. Precision vs hand-checked ground
+# truth on polyglot assise repos is the falsification target (bench-refs.txt).
+TS_REF_QUERIES = {
+    "nix": """
+      (variable_expression name: (identifier) @ref)
+      (inherit (identifier) @ref)
+    """,
+    "python": """
+      (call function: (identifier) @ref)
+      (call function: (attribute attribute: (identifier) @ref))
+      (identifier) @ref
+    """,
+    "bash": """
+      (command_name (word) @ref)
+      (variable_name) @ref
+    """,
+    "rust": """
+      (call_expression function: (identifier) @ref)
+      (call_expression function: (scoped_identifier name: (identifier) @ref))
+      (identifier) @ref
+    """,
+}
 TS_EXT = {".nix": "nix", ".py": "python", ".sh": "bash", ".bash": "bash",
           ".rs": "rust"}
-_ts: dict[str, tuple] = {}  # lang → (Parser, Query) cache
+_ts: dict[str, tuple] = {}  # lang → (Parser, sigQuery, refQuery, QueryCursor)
 
 
 def _ts_lang(lang):
@@ -156,7 +183,8 @@ def _ts_lang(lang):
         fn = getattr(lib, f"tree_sitter_{lang}")
         fn.restype = ctypes.c_void_p
         L = ts.Language(fn())
-        _ts[lang] = ts.Parser(L), ts.Query(L, TS_QUERIES[lang]), ts.QueryCursor
+        _ts[lang] = (ts.Parser(L), ts.Query(L, TS_QUERIES[lang]),
+                     ts.Query(L, TS_REF_QUERIES[lang]), ts.QueryCursor)
     return _ts[lang]
 
 
@@ -173,7 +201,7 @@ def sigs_of(repo, path):
             src = f.read()
     except OSError:
         return
-    parser, query, QueryCursor = _ts_lang(lang)
+    parser, query, _, QueryCursor = _ts_lang(lang)
     tree = parser.parse(src)
     for _, caps in QueryCursor(query).matches(tree.root_node):
         d, n = caps["def"][0], caps["name"][0]
@@ -183,6 +211,33 @@ def sigs_of(repo, path):
             if first:
                 head = f"{head} — {first[:120]}"
         yield n.start_point[0] + 1, head
+
+
+def refs_of(repo, path):
+    """Yield (symbol, line) for each identifier-use site. Same parse skeleton
+    as sigs_of; per-file (symbol,line) dedup keeps the table bounded when a
+    name appears many times on one line."""
+    lang = TS_EXT.get(os.path.splitext(path)[1].lower())
+    if not lang or not GRAMMARS:
+        return
+    full = os.path.join(repo, path)
+    try:
+        if os.path.getsize(full) > 256 * 1024:
+            return
+        with open(full, "rb") as f:
+            src = f.read()
+    except OSError:
+        return
+    parser, _, refq, QueryCursor = _ts_lang(lang)
+    tree = parser.parse(src)
+    seen = set()
+    for _, caps in QueryCursor(refq).matches(tree.root_node):
+        for node in caps.get("ref", ()):
+            sym = node.text.decode("utf-8", "replace")
+            ln = node.start_point[0] + 1
+            if (sym, ln) not in seen:
+                seen.add((sym, ln))
+                yield sym, ln
 
 
 def chunks_of(repo, path):
@@ -221,6 +276,8 @@ def cmd_index(_args):
                         (repo, path))
             con.execute("DELETE FROM sigs WHERE repo=? AND path=?",
                         (repo, path))
+            con.execute("DELETE FROM refs WHERE repo=? AND path=?",
+                        (repo, path))
             batch = list(chunks_of(repo, path))
             for j in range(0, len(batch), BATCH):
                 part = batch[j:j + BATCH]
@@ -237,6 +294,9 @@ def cmd_index(_args):
                     "INSERT INTO sigs(repo,path,line,sig,vec) VALUES(?,?,?,?,?)",
                     [(repo, path, ln, t, vecs[k].tobytes())
                      for k, (ln, t) in enumerate(part)])
+            con.executemany(
+                "INSERT INTO refs(symbol,repo,path,line) VALUES(?,?,?,?)",
+                [(sym, repo, path, ln) for sym, ln in refs_of(repo, path)])
             con.execute("INSERT OR REPLACE INTO files VALUES(?,?,?)",
                         (repo, path, sha))
             n_new += 1
@@ -244,6 +304,8 @@ def cmd_index(_args):
             con.execute("DELETE FROM chunks WHERE repo=? AND path=?",
                         (repo, path))
             con.execute("DELETE FROM sigs WHERE repo=? AND path=?",
+                        (repo, path))
+            con.execute("DELETE FROM refs WHERE repo=? AND path=?",
                         (repo, path))
             con.execute("DELETE FROM files WHERE repo=? AND path=?",
                         (repo, path))
@@ -419,6 +481,24 @@ def cmd_sig(args):
         print(f"{scores[i]:.3f}  {loc}:{line}  {sig}")
 
 
+def cmd_refs(args):
+    """Who references this exact symbol name. Pure sqlite — no embed/model load,
+    so it's the cheap structural leg of the embed/sig/refs tripod. Precision
+    bench: packages/sem-grep/bench-refs.txt."""
+    con = db()
+    rows = con.execute(
+        "SELECT repo, path, line FROM refs WHERE symbol=? "
+        "ORDER BY repo, path, line LIMIT ?", (args.symbol, args.n)).fetchall()
+    if not con.execute("SELECT 1 FROM refs LIMIT 1").fetchone():
+        print("sem-grep refs: index empty — run `sem-grep index` first",
+              file=sys.stderr)
+        sys.exit(1)
+    home = os.path.expanduser("~") + "/"
+    for repo, path, line in rows:
+        loc = os.path.join(repo, path).replace(home, "~/", 1)
+        print(f"{loc}:{line}")
+
+
 def cmd_query(args):
     con = db()
     rows = con.execute("SELECT repo, path, line, vec FROM chunks").fetchall()
@@ -489,10 +569,14 @@ def main():
                     help="rerank cosine top-30 with bge-reranker-base on NPU")
     lp.add_argument("text")
     lp.set_defaults(fn=cmd_log)
+    rp = sub.add_parser("refs")
+    rp.add_argument("-n", type=int, default=50)
+    rp.add_argument("symbol")
+    rp.set_defaults(fn=cmd_refs)
     # bare `sem-grep "<text>"` → query
     argv = sys.argv[1:]
     if argv and argv[0] not in {"index", "query", "sig", "hist", "index-log",
-                                "log", "-h", "--help"}:
+                                "log", "refs", "-h", "--help"}:
         argv = ["query", *argv]
     args = ap.parse_args(argv)
     if not args.cmd:
