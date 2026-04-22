@@ -286,3 +286,30 @@ from kinOut (eval-only), b911f6e `kin gen` (gen/manifest.lock rehash).
   /etc/modprobe.d/nixos.conf` shows `ids=10de:28a0,10de:22be` + 3
   softdeps (nvidia/nouveau/amdgpu — amdgpu added @ 3092054).
 
+### bump-nixpkgs @ f9f1694+1 (grind, 2026-04-22): want MOVED 2× since ec62a90
+
+Bumper round, not drift — `have` not re-probed (worker still blind,
+kin-bir7vyhu absent). Interstitial since last drift @ ec62a90:
+
+- b7ea207 iets d6739fad→68367fb0 + nixfmt→iets-fmt swap + 3-file
+  reformat: zcz5jfkf→**i1lvki9d** (nv1+web2; relay1-neutral). **⚠
+  Regressed iets-eval of nv1** — IETS-0025 on
+  `pathExists "${home-manager.src}/.git"` (hm `home.version.revision`);
+  pre-existing on origin/main, cross-filed
+  iets/backlog/bug-ifd-pathexists-realized-subpath.md. nix eval +
+  `nix flake check --no-allow-import-from-derivation` still pass.
+
+This commit — **nixpkgs 4bd9165→b12141e** (2026-04-14→04-18):
+i1lvki9d→**zjw5mk6h** (ALL 3). No package fixes needed (gitbutler-cli/
+nvim/llm-agents watch-points clean). Dry-build: 515 drvs to build,
+1235 to fetch (4.4 GiB).
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed)
+want: /nix/store/zjw5mk6hls5xy4gnvdval64mjk2mkc85-nixos-system-nv1-26.05.20260418.b12141e
+drv:  /nix/store/nxamxnp384876jdyajiy9jxhhlqkif2b-nixos-system-nv1-26.05.20260418.b12141e.drv
+```
+
+**⚠ 2nd nixpkgs in pending stack** (after fa68a27 4c1018d→4bd9165).
+Risk profile: full nixpkgs minor ×2.
+

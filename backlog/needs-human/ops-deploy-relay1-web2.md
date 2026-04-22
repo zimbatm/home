@@ -341,3 +341,24 @@ surgical-reverted crops-demo, e98e1c5 dropped the input. The deferred
 deploy relay1 web2`. Same nixpkgs 4bd9165 throughout this round; risk
 unchanged from 605cd1b (one nixpkgs minor + internal/mesh bumps). have
 unprobed 8th round — can't confirm no out-of-band changes since 53bed8f.
+---
+
+## bump-nixpkgs @ f9f1694+1 (grind, 2026-04-22): both want MOVED; b12141e
+
+Bumper round — `have` not re-probed. Interstitial since ec62a90:
+b7ea207 (iets d6739fad→68367fb0 + fmt swap) — **relay1-neutral**
+(cfz6z9c0 unchanged), web2 y3nfx6q6→**62xadr6g**.
+
+This commit — **nixpkgs 4bd9165→b12141e** (2026-04-14→04-18): relay1
+cfz6z9c0→**m39a2zk3**, web2 62xadr6g→**48l2zlxg**. No package fixes
+needed. Dry-build: relay1 76 drvs/9 fetch (140.7 MiB), web2 160 drvs/
+76 fetch (285.5 MiB).
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want m39a2zk3…  drv 838rqpjw…
+web2:   have l6wwl43y… (carried) ≠ want 48l2zlxg…  drv kanb14p8…
+```
+
+**relay1 now carries 11** (+this bump); **web2 now carries 15**
+(+b7ea207 +this bump). **⚠ 2nd nixpkgs in pending stack** (after
+fa68a27). Reconcile: `kin deploy relay1 web2`.
