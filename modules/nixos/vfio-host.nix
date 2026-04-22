@@ -2,9 +2,7 @@
 #
 # Vendored from crops-demo (repo recreated-private 2026-04). Original
 # pulled defaults from ./gpu-default.nix; here defaults are dropped —
-# nv1 sets all IDs explicitly. `pciAddr` is declared for interface
-# compatibility but not consumed by this module's own config block (the
-# crops-demo VM definition read it).
+# nv1 sets all IDs explicitly.
 #
 # Usage:
 #   crops.vfio.enable = true;
@@ -34,14 +32,6 @@ in
     audioId = lib.mkOption {
       type = lib.types.str;
       description = "PCI device ID of the GPU's HDMI/DP audio function (4 hex digits).";
-    };
-    pciAddr = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = ''
-        PCI bus address (domain:bus:slot.fn) of the GPU function.
-        Find yours with: lspci -Dnn | grep -i vga
-      '';
     };
   };
 

@@ -89,9 +89,6 @@
   home-manager.users.zimbatm = {
     imports = [ inputs.self.homeModules.desktop ];
     config.home.stateVersion = "22.11";
-    # crops-demo userland disabled — input removed (repo recreated-private,
-    # unfetchable). vfio-host vendored; userland packages await restored access.
-    config.home.crops.enable = false;
     # Policy 2026-04-14: sink-monitor → NPU transcript on; 30d retention; `live-caption off` to pause.
     config.home.live-caption.enable = true;
     # DeepFilterNet noise cancellation via PipeWire LADSPA — virtual mic source.
