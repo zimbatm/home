@@ -31,10 +31,15 @@ const CONFIG = {
   // not agentshell PATH — hence `nix develop -c`. Multi -A shares one root parse +
   // disk-caches across runs: warm +2s (~23s total), cold-cache +42s (rare; cache
   // persists in ~/.cache/iets across rounds). Correctness > speed here.
+  // outPath (not drvPath): bumper reports these hashes in commit msgs for drift's
+  // per-commit closure bisect, which compares outPath. NB until kin flake-shim
+  // synthesises lastModifiedDate/shortRev (../kin/backlog/bug-flake-shim-sourceinfo-derived-attrs)
+  // the iets-via-default.nix path carries a `19700101.dirty` nixos label and these
+  // hashes won't match `nix eval .#…outPath` — they're stable for diffing only.
   fastCheck:
     'nix flake check --no-build --no-allow-import-from-derivation && ' +
     'nix develop -c iets eval --no-warn default.nix ' +
-    HOSTS.map(h => `-A nixosConfigurations.${h}.config.system.build.toplevel.drvPath`).join(' '),
+    HOSTS.map(h => `-A nixosConfigurations.${h}.config.system.build.toplevel.outPath`).join(' '),
 
   triageExtra: () => `
    **kin.nix is the spine** — at most 1 pick per round that touches it.
