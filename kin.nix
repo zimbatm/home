@@ -65,6 +65,10 @@ in
     # assise://dwqfzbq5zxrlhfhcub6fsaeb4zitwfxa/ca), committed at
     # keys/peers/kin-infra-ca.crt so `kin gen` needs no sibling read.
     peers.kin-infra.tlsCaCert = builtins.readFile ./keys/peers/kin-infra-ca.crt;
+    # kin-infra's gen/_fleet/_shared/ula-prefix → maille [fleet.<id>].net so
+    # kinq0 gets a /48 route to peer-fleet ULAs (feat-mesh-peer-fleets-tun;
+    # ADR-0021 cedar curl-pair leg-2 datapath).
+    peers.kin-infra.net = "fdc5:e1a6:b03f";
   };
   services.mesh.on = [ "all" ];
   services.mesh.relay = [ "relay1" ];

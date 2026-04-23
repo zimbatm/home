@@ -73,6 +73,7 @@ After deploy, on each host:
 - **attest identity** — `ls /run/kin/identity/attest.*` exists post-deploy
 - **cache.assise substituter** — `nix config show | grep substituters` lists cache.assise.systems
 - **restic-gotosocial** (web2 only) — `systemctl status restic-backups-gotosocial.{service,timer}` active
+- **peer-fleet /48 route** — `ip -6 route show dev kinq0 | grep fdc5:e1a6:b03f::/48` present (identity.peers.kin-infra.net landed; this redeploy activates ADR-0021 cedar curl-pair leg-2 datapath — kin-infra side already reciprocal)
 
 Risk profile: kin 4-hop (3118eb1d→7d4c7bfd→45cd3818→ba0e1a81→757b0221)
 + iets 3-hop, same nixpkgs b12141e both ends. Only service-surface
