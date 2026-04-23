@@ -16,6 +16,12 @@ const CONFIG = {
   name: 'home',
   implementers: 2,
   archCadence: 6,
+  // Self-heal fleet identity. users.claude is enrolled with the soft key
+  // ~/.ssh/kin-infra_ed25519 (kin.nix:28) — no hardware key needed. Homespace
+  // state loss drops kin-bir7vyhu_* ~monthly; 16 rounds sat UNPROBEABLE on a
+  // false hardware-key gate before this was found.
+  treeGuard: `[[ -f ~/.ssh/kin-bir7vyhu_ed25519 ]] || \\
+  { [[ -f ~/.ssh/kin-infra_ed25519 ]] && kin login claude --key ~/.ssh/kin-infra_ed25519 >&2; } || true`,
   // checks.x86_64-linux = {fmt, nv1, relay1, web2}; --no-build = eval-only (dry-build parity).
   // ~21s vs ~23s for the old per-host loop — single process shares the nixpkgs import.
   // iets step: `kin deploy` evals via iets which bans IFD (ADR-0011 → IETS-0025); plain
