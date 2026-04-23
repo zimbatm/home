@@ -33,9 +33,15 @@ this re-login should stick.
 
 Hardware key. Worker can't self-heal.
 
-## Update @ 0beecde (2026-04-23)
+## Update @ 0beecde (drift, 2026-04-23)
 
-`kin-dwqfzbq5*` (kin-infra fleet) is **now also gone** — was present
-mtime Apr-19-10:47 through r7. Only `kin-infra-hosts` (known_hosts file,
-not an identity) remains in `~/.ssh/`. Likely homespace ephemeral state
-loss between r7 and this round. **Both** fleets now need `kin login`.
+`kin-dwqfzbq5*` (kin-infra fleet) was reported gone — was present mtime
+Apr-19-10:47 through r7. Likely homespace ephemeral state loss between
+r7 and this round.
+
+## Update @ ccb5047 (META, 2026-04-23)
+
+Re-probed: `kin-dwqfzbq5_ed25519{,-cert.pub,.pub}` are **back**, mtime
+Apr-23-05:25 (restored after drift's probe — sibling kin-infra grind or
+homespace re-mount). `kin-bir7vyhu*` (home fleet) **still absent**. Gate
+unchanged: only the home-fleet `kin login` is needed.
