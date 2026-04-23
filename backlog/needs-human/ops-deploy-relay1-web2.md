@@ -9,11 +9,11 @@ many times since on both.
 **Blockers:** Human-gated (CLAUDE.md). Worker probe RESTORED @ 139c681
 self-heal (kin-bir7vyhu mtime Apr-23-10:43) after 10 blind rounds.
 
-## Latest status (drift @ 6a4ed7a, 2026-04-23)
+## Latest status (drift @ 1490f45, 2026-04-23)
 
 ```
-relay1: have 9l7p6ryp… (PROBED — kin status live)  ≠ want xhcdw782…
-web2:   have gxj4h6lw… (PROBED — kin status live)  ≠ want z78zi5y7…
+relay1: have 9l7p6ryp… (PROBED — kin status live)  ≠ want 3w3kxh74…
+web2:   have gxj4h6lw… (PROBED — kin status live)  ≠ want a6lmyy7x…
 ```
 
 **Ground-truth replaces 10-round carry-forward:** both deployed @
@@ -23,7 +23,8 @@ l6wwl43y from 53bed8f" was stale by 12 commits — Jonas deployed both
 servers while worker was blind. **Carries drop: relay1 14→3, web2
 20→5.** Same nixpkgs b12141e deployed and declared (0 nixpkgs minors
 pending). Dry-build: relay1 73/9 (140.7 MiB), web2 160/76 (285.5 MiB)
-— DOWN from 352/264 + 424/376 (kin@ba0e1a81 in cache.assise).
+— UNCHANGED since 6a4ed7a (kin@757b0221 + iets@fa604918 already on
+cache.assise).
 
 **web2 degraded:** acme-order-renew-gts.zimbatm.com.service failed —
 see backlog/ops-web2-acme-renew.md (filed 6a4ed7a, surfaced by restored
@@ -44,9 +45,10 @@ Then walk runtime checks. Then delete this file.
 | b657104 | kin 3118eb1d→7d4c7bfd netrc bridge | both |
 | fee393d | kin →45cd3818 pin-back (drop EROFS regression) | both |
 | 28a9fe4 | kin →ba0e1a81 unpin (EROFS fixed; +iets-everywhere, kin show, fleetd-put) | both |
+| 575b547 | internal bump kin→757b0221 iets→fa604918 nix-skills llm-agents | both |
 
-Net relay1: 9l7p6ryp→xhcdw782 (kin 3-hop nets to 7d4c7bfd-era surface;
-a66409db..ba0e1a81 home-surface-neutral on relay1).
+Net relay1: 9l7p6ryp→3w3kxh74 (kin 4-hop; ba0e1a81..757b0221
+home-surface = 9d6da8cf RestartSec=2 on kin-secrets/kin-mesh units).
 
 ## web2-only additional commits since d7d1096
 
@@ -55,7 +57,7 @@ a66409db..ba0e1a81 home-surface-neutral on relay1).
 | 5963105 | zimbatm flake update (hm/iets/kin/nixvim/llm-agents/nix-skills) — relay1-neutral |
 | 1d32ccb | iets 34686f1f→2c5337f9 + llm-agents bd0e8933→03a24500 — relay1-neutral |
 
-(Totals: relay1 carries 3, web2 carries 3+2 = 5. Pre-d7d1096 stack
+(Totals: relay1 carries 4, web2 carries 4+2 = 6. Pre-d7d1096 stack
 deployed 2026-04-22 — see git log for the d2ad1d1..d7d1096 history.)
 
 Closure-neutral both since d7d1096 (verified): 6ecfb12 srvos, 7184a6d
@@ -72,9 +74,10 @@ After deploy, on each host:
 - **cache.assise substituter** — `nix config show | grep substituters` lists cache.assise.systems
 - **restic-gotosocial** (web2 only) — `systemctl status restic-backups-gotosocial.{service,timer}` active
 
-Risk profile: kin 3-hop only (3118eb1d→7d4c7bfd→45cd3818→ba0e1a81),
-same nixpkgs b12141e both ends. No service-surface changes either host.
-Low — internal-only since deployed-at.
+Risk profile: kin 4-hop (3118eb1d→7d4c7bfd→45cd3818→ba0e1a81→757b0221)
++ iets 3-hop, same nixpkgs b12141e both ends. Only service-surface
+change: kin 9d6da8cf adds RestartSec=2 to kin-secrets/kin-mesh units
+(tight-loop damper). Low — internal-only since deployed-at.
 
 ---
 
@@ -107,3 +110,30 @@ srvos closure-neutral 3/3 verified.
 web2 health=degraded: acme-order-renew-gts.zimbatm.com.service failed
 (uptime 15d2h). Filed backlog/ops-web2-acme-renew.md @ 6a4ed7a. relay1
 health=running, no failed units.
+
+### drift @ 1490f45 (2026-04-23)
+
+Ground-truth re-probed (kin status --json): relay1=9l7p6ryp
+web2=gxj4h6lw — UNCHANGED since 6a4ed7a (still @ d7d1096, no human
+deploy this session). web2 still degraded acme-order-renew (uptime
+15d3h, needs-human/ops-web2-acme-renew.md). relay1 running clean.
+
+Bisect 8f7f2db..1490f45 (2 flake.lock-touching): 575b547 internal bump
+kin ba0e1a81→757b0221 + iets 2c5337f9→fa604918 + nix-skills +
+llm-agents → ALL3 (relay1 xhcdw782→3w3kxh74, web2 z78zi5y7→a6lmyy7x);
+cb0180b hm 936d579f→667b3c47 → relay1+web2-NEUTRAL verified (3w3kxh74/
+a6lmyy7x unchanged across cb0180b). Carries: relay1 3→4, web2 5→6.
+
+kin ba0e1a81..757b0221 home-surface scan: 9d6da8cf adds RestartSec=2 to
+kin-secrets/kin-mesh renderedUnits (image.links→build-time, decrypt
+drops /etc ln-sf — EROFS-safe but image-path only); 6d721e7c ci-dispatch
++ e7a6a357 ci.pollInterval (home doesn't enable services.ci); rest =
+docs/backlog/coverage/meta. Net surface: RestartSec=2 only.
+
+Dry-build: relay1 73/9/140.7M web2 160/76/285.5M — IDENTICAL to 6a4ed7a
+(kin@757b0221 + iets@fa604918 already on cache.assise; closure-hash
+moved but build-set unchanged). Note: meta(r3) reported want=09jyamnj/
+m61f67w1 — those are iets-via-default.nix outPaths (19700101.dirty
+versionSuffix per 4e214f9 factor-2); kin-status flake-eval want=
+3w3kxh74/a6lmyy7x is deploy-authoritative. Divergence expected, kin
+cross-file 7ecc09f0 bug-flake-shim-sourceinfo open upstream.

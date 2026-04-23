@@ -16,16 +16,16 @@ delta on nv1 is committed+pushed before `kin deploy nv1` overwrites
 it.** Note: relay1+web2 were deployed @ d7d1096 while worker was blind
 — nv1 may also have been; carry-forward sxmv9yvi is suspect.
 
-## Latest status (drift @ 6a4ed7a, 2026-04-23)
+## Latest status (drift @ 1490f45, 2026-04-23)
 
 ```
 have: ???  (not-on-mesh — desktop unreachable; carry-forward sxmv9yvi… from 53bed8f now suspect)
-want: /nix/store/av9v7mmc6b69wraqi17nnjfakry822sq-nixos-system-nv1-26.05.20260418.b12141e
+want: /nix/store/glivxmgg0rvk6nbn6axfvlbwfy3xxshb-nixos-system-nv1-26.05.20260418.b12141e
 ```
 
 nixpkgs b12141e unchanged. Dry-build: 513 drvs / 1354 fetch (4.5 GiB) —
-DOWN from 726/1996/4.8 GiB (kin@ba0e1a81 in cache.assise vs 45cd3818
-wasn't). Last confirmed have==want on origin/main: `www09p3bx` @
+UNCHANGED since 6a4ed7a (kin@757b0221 + hm@667b3c47 already on
+cache.assise). Last confirmed have==want on origin/main: `www09p3bx` @
 9403a95 (≈ e196255 deploy, 2026-04-11).
 
 ## Reconcile
@@ -123,6 +123,10 @@ Then walk the runtime checks. Then delete this file.
 | b657104 | kin 3118eb1d→7d4c7bfd netrc bridge | all |
 | 5963105 | zimbatm flake update (hm/iets/kin/nixvim/llm-agents/nix-skills) | nv1+web2 |
 | fee393d | kin →45cd3818 pin-back (drop EROFS regression) | all |
+| 28a9fe4 | kin →ba0e1a81 unpin (EROFS fixed) | all |
+| 1d32ccb | iets →2c5337f9 + llm-agents →03a24500 | nv1+web2 |
+| 575b547 | internal bump kin→757b0221 iets→fa604918 +nix-skills+llm-agents | all |
+| cb0180b | home-manager 936d579f→667b3c47 | nv1 |
 
 Closure-neutral (verified): 2efe8bf, c27c5c1, e170608, 6bf3705,
 d00a686, 9dbb216, 8172dfe, 24cc8e8, 2898dcd, 26cb8a9 (nv1-neutral),
@@ -201,3 +205,25 @@ iets+llm-agents (→av9v7mmc); 7184a6d srvos closure-neutral verified.
 Dry-build 513/1354/4.5G (DOWN from 726/1996/4.8G — kin@ba0e1a81
 cached). No new runtime checks (3 commits all input bumps, no
 packages/ or modules/home delta).
+
+### drift @ 1490f45 (2026-04-23)
+
+nv1 still `not-on-mesh`; direct `kin ssh nv1` → root@95.216.188.155
+publickey-denied (same as 6a4ed7a). HAVE unprobeable. relay1+web2
+re-probed UNCHANGED — no human deploy this session, so nv1 sxmv9yvi
+carry-forward stays suspect-but-unchanged.
+
+want av9v7mmc→glivxmgg via: 575b547 internal bump (kin ba0e1a81→
+757b0221, iets 2c5337f9→fa604918, nix-skills 2bd47c55→d431f5cd,
+llm-agents 03a24500→c34d2134) → dl9ynvzi; cb0180b hm 936d579f→667b3c47
+→ glivxmgg (nv1-only; relay1+web2-neutral verified). kin range
+home-surface = 9d6da8cf RestartSec=2 on kin-secrets/kin-mesh units.
+iets range incl fa604918 attrcache hashFile dep-track + 09b806c8
+`iets store why-rebuild` (tooling, closure-neutral on host).
+
+Dry-build 513/1354/4.5G — UNCHANGED from 6a4ed7a (all bumped inputs
+cached on cache.assise). No new runtime checks (2 commits both
+flake.lock-only, no packages/ or modules/home delta). Note: meta(r3)
+reported want=7gnpx6ks — that's iets-via-default.nix outPath
+(19700101.dirty versionSuffix per 4e214f9 factor-2); flake-eval
+glivxmgg is deploy-authoritative. kin#7ecc09f0 tracks the shim fix.
