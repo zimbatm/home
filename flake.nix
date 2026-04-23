@@ -101,9 +101,23 @@
         let
           pkgs = pkgsFor system;
           call = p: pkgs.callPackage p { inherit inputs system; };
+          shell-squeeze = call ./packages/shell-squeeze;
         in
         {
-          inherit (kinOut.packages.${system}) devshell agentshell;
+          inherit (kinOut.packages.${system}) devshell;
+          inherit shell-squeeze;
+          # Wrap kin's agentshell so grind's `nix build .#agentshell` profile-link
+          # (grind-base.js:75, denylisted) picks up the squeeze shims first in PATH
+          # without touching the workflow file. symlinkJoin: first path wins, so
+          # shell-squeeze/bin/{git,nix,find,tree} shadow; marker propagates.
+          agentshell = pkgs.symlinkJoin {
+            name = "agentshell";
+            paths = [
+              shell-squeeze
+              kinOut.packages.${system}.agentshell
+            ];
+            postBuild = "touch $out/bin/.shell-squeeze";
+          };
           core = call ./packages/core;
           myvim = call ./packages/myvim;
           nvim = call ./packages/nvim;
