@@ -17,15 +17,38 @@ pkgs.writeShellApplication {
     pty-puppet @<name> send <keys...>                  send keys (no auto-Enter)
     pty-puppet @<name> expect <regex> [--timeout SEC]  wait for regex (default 10s)
     pty-puppet @<name> kill                            terminate session
+    pty-puppet @<name> record <file>                   tee subsequent send/expect into
+                                                       <file> as a replayable script
+                                                       (spawn header from live cmdline)
+    pty-puppet replay <file>                           bash -eo pipefail <file>;
+                                                       non-zero on first expect miss
     EOF
       exit 2
     }
 
     [[ $# -ge 2 ]] || usage
+
+    # replay has no session — handle before @<name> parse
+    if [[ "$1" == "replay" ]]; then
+      exec bash -eo pipefail "$2"
+    fi
+
     name="''${1#@}"; shift
     verb="$1"; shift
 
     t() { tmux -L pty-puppet -f /dev/null "$@"; }
+
+    # If `record` is active on this session, tee the call into the script.
+    rec=$(t show-option -t "$name" -qv @rec 2>/dev/null || true)
+    log() {
+      [[ -n "$rec" ]] || return 0
+      {
+        printf 'pty-puppet @%s %s' "$name" "$1"
+        shift
+        [[ $# -eq 0 ]] || printf ' %q' "$@"
+        printf '\n'
+      } >>"$rec"
+    }
 
     case "$verb" in
       spawn)
@@ -37,10 +60,12 @@ pkgs.writeShellApplication {
         ;;
       send)
         [[ $# -ge 1 ]] || usage
+        log send "$@"
         t send-keys -t "$name" -- "$@"
         ;;
       expect)
         [[ $# -ge 1 ]] || usage
+        log expect "$@"
         regex="$1"; shift
         timeout=10
         while [[ $# -gt 0 ]]; do
@@ -65,7 +90,22 @@ pkgs.writeShellApplication {
           sleep 0.2
         done
         ;;
+      record)
+        [[ $# -ge 1 ]] || usage
+        rec="$1"
+        # Spawn header from the live session's command — what `replay` re-runs.
+        cmd=$(t display-message -p -t "$name" '#{pane_start_command}') || {
+          echo "pty-puppet: session @$name not found" >&2; exit 1
+        }
+        t set-option -t "$name" @rec "$rec"
+        printf '#!/usr/bin/env bash\n' >"$rec"
+        # shellcheck disable=SC2016 # literal trap in the emitted script
+        printf "trap 'pty-puppet @%s kill 2>/dev/null || true' EXIT\n" "$name" >>"$rec"
+        printf 'pty-puppet @%s spawn %s\n' "$name" "$cmd" >>"$rec"
+        chmod +x "$rec"
+        ;;
       kill)
+        log kill
         t kill-session -t "$name"
         ;;
       *)
