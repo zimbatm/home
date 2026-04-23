@@ -6,27 +6,28 @@
 `zv4kapl1`); web2 re-converged @ 53bed8f (`l6wwl43y`). Want has moved
 many times since on both.
 
-**Blockers:** Human-gated (CLAUDE.md). From this grind worker `kin
-status` is currently UNPROBEABLE (ops-kin-login-worker.md — fleet
-identity `~/.ssh/kin-bir7vyhu*` lost, blind since e969d2c).
+**Blockers:** Human-gated (CLAUDE.md). Worker probe RESTORED @ 139c681
+self-heal (kin-bir7vyhu mtime Apr-23-10:43) after 10 blind rounds.
 
-## Latest status (drift @ 0beecde, 2026-04-23)
+## Latest status (drift @ 6a4ed7a, 2026-04-23)
 
 ```
-relay1: have dpxnfwvk… (carried from 53bed8f, NOT re-probed — blind 10th round) ≠ want bg6drqcb…  drv igdnpx3x…
-web2:   have l6wwl43y… (carried from 53bed8f, NOT re-probed — blind 10th round) ≠ want 375jz32a…  drv szm4pz75…
+relay1: have 9l7p6ryp… (PROBED — kin status live)  ≠ want xhcdw782…
+web2:   have gxj4h6lw… (PROBED — kin status live)  ≠ want z78zi5y7…
 ```
 
-nixpkgs b12141e (since 608e987; was 4c1018d at 53bed8f → 4bd9165 @
-fa68a27 → b12141e @ 608e987). **2 nixpkgs minors in pending stack.**
-Dry-build: relay1 352 drvs/264 fetch (222.4 MiB), web2 424 drvs/376
-fetch (437.3 MiB) — JUMP from 75/9 + 159/76 @ da0b27b (cache.assise
-hasn't built kin@45cd3818 pinned-back rev). **relay1 carries 14
-deltas, web2 carries 20.** have unprobed 10th round — can't confirm no
-out-of-band changes since 53bed8f.
+**Ground-truth replaces 10-round carry-forward:** both deployed @
+d7d1096 (2026-04-22, ~28h ago — verified relay1=9l7p6ryp web2=gxj4h6lw
+both eval-match d7d1096). Prior journal's "carried have dpxnfwvk/
+l6wwl43y from 53bed8f" was stale by 12 commits — Jonas deployed both
+servers while worker was blind. **Carries drop: relay1 14→3, web2
+20→5.** Same nixpkgs b12141e deployed and declared (0 nixpkgs minors
+pending). Dry-build: relay1 73/9 (140.7 MiB), web2 160/76 (285.5 MiB)
+— DOWN from 352/264 + 424/376 (kin@ba0e1a81 in cache.assise).
 
-**Post-journal:** 28a9fe4 (this META round) unpins kin 45cd3818→ba0e1a81
-(EROFS fixed) — moves both again; next drift bisects.
+**web2 degraded:** acme-order-renew-gts.zimbatm.com.service failed —
+see backlog/ops-web2-acme-renew.md (filed 6a4ed7a, surfaced by restored
+probe).
 
 ## Reconcile
 
@@ -36,46 +37,29 @@ kin deploy relay1 web2
 
 Then walk runtime checks. Then delete this file.
 
-## relay1-affecting commits since d2ad1d1 (cumulative bisect log, compacted 2026-04-23)
+## relay1-affecting commits since d7d1096 (deployed-at; reset 2026-04-23 ground-truth)
 
 | commit | what | scope |
 |---|---|---|
-| f2c38c8 | kin/iets/nix-skills/llm-agents bump | both |
-| bfcd408 | relay1/configuration.nix: +cache.assise.systems substituter | relay1 |
-| e4d45cd | kin/iets/nix-skills/llm-agents bump (incl maille→b849d73) | both |
-| b0b4acd | common.nix: +ca-derivations experimental-feature | both |
-| 0319657 | kin gen — per-host certs/fps + tls-ca regen | both |
-| 11edb95 | maille bump b849d73→156486c peer_fleets cap | both |
-| fa68a27 | **nixpkgs 4c1018d→4bd9165** | both |
-| 4a60b42 | internal bump kin→e736801 + gen re-sign | both |
-| cadfc52 | kin.nix identity.peers.kin-infra + mesh.peerFleets | both |
-| 69f7bb4 | META keep-6 of 5858216 (hm/iets/kin/llm-agents/maille/nixvim) | both |
-| 608e987 | **nixpkgs 4bd9165→b12141e** | both |
-| 206cf2d | internal bump kin→3118eb1d + gen attest + drop pin-nixpkgs | both |
 | b657104 | kin 3118eb1d→7d4c7bfd netrc bridge | both |
 | fee393d | kin →45cd3818 pin-back (drop EROFS regression) | both |
+| 28a9fe4 | kin →ba0e1a81 unpin (EROFS fixed; +iets-everywhere, kin show, fleetd-put) | both |
 
-## web2-only additional commits (cumulative)
+Net relay1: 9l7p6ryp→xhcdw782 (kin 3-hop nets to 7d4c7bfd-era surface;
+a66409db..ba0e1a81 home-surface-neutral on relay1).
+
+## web2-only additional commits since d7d1096
 
 | commit | what |
 |---|---|
-| 35c8232 | common.nix: cache.assise.systems substituter |
-| 26cb8a9 | internal bump kin/iets/nix-skills/llm-agents |
-| 6673c0c | internal bump kin/iets/nix-skills |
-| 483fadb | internal bump kin→df0a4b2 + iets/llm-agents |
-| c7939f0 | iets bump 714989b→d6739fad |
-| b7ea207 | iets bump →68367fb0 + nixfmt→iets-fmt swap |
-| d7d1096 | iets bump e4098058→e1cd6980 |
 | 5963105 | zimbatm flake update (hm/iets/kin/nixvim/llm-agents/nix-skills) — relay1-neutral |
+| 1d32ccb | iets 34686f1f→2c5337f9 + llm-agents bd0e8933→03a24500 — relay1-neutral |
 
-(Totals: relay1 carries 14, web2 carries 14+6 web2-only = 20. 65e3984 +
-082a29f web2-affecting pre-53bed8f, already deployed.)
+(Totals: relay1 carries 3, web2 carries 3+2 = 5. Pre-d7d1096 stack
+deployed 2026-04-22 — see git log for the d2ad1d1..d7d1096 history.)
 
-Closure-neutral both (verified): 821b625 srvos, 7aa2a6e srvos, 6ecfb12
-srvos, 3a809a9 nixvim, 3dd9fb7 nixos-hardware, f1e5fca nix-index-db,
-e98e1c5 vfio-vendor, 3092054 vfio-original, 69158d6 fleetManifest,
-b911f6e kin gen, ed7d465 crops-residue, 6759648 model-autofetch, all
-packages/+modules/home/desktop changes (nv1-only).
+Closure-neutral both since d7d1096 (verified): 6ecfb12 srvos, 7184a6d
+srvos, c10990b ask-local-perms (nv1-only), 7e6e5d5 tuicr (nv1-only).
 
 ## Runtime checks (cumulative)
 
@@ -88,9 +72,9 @@ After deploy, on each host:
 - **cache.assise substituter** — `nix config show | grep substituters` lists cache.assise.systems
 - **restic-gotosocial** (web2 only) — `systemctl status restic-backups-gotosocial.{service,timer}` active
 
-Risk profile: 2× nixpkgs minor + internal/mesh bumps + identity regen +
-kin 4-hop churn (3118eb1d→7d4c7bfd→a66409db→45cd3818→ba0e1a81). No
-service-surface changes either host.
+Risk profile: kin 3-hop only (3118eb1d→7d4c7bfd→45cd3818→ba0e1a81),
+same nixpkgs b12141e both ends. No service-surface changes either host.
+Low — internal-only since deployed-at.
 
 ---
 
@@ -100,3 +84,26 @@ service-surface changes either host.
 re-compacts into the table above when this section exceeds 3 entries)
 
 <!-- compacted @ ccb5047 (META r1, 2026-04-23): folded 0251202+53bed8f+e969d2c+7f572ea+0404fbb+b9b1d94+ead5fd4+605cd1b+5858216+ec62a90+bump-nixpkgs+da0b27b+0beecde into tables+checks above -->
+
+### drift @ 6a4ed7a (2026-04-23)
+
+**PROBEABLE — first live `kin status` after 10 blind rounds.** Identity
+kin-bir7vyhu restored (mtime Apr-23-10:43, via 139c681 self-heal `kin
+login claude --key kin-infra`).
+
+Ground-truth HAVE: relay1=9l7p6ryp web2=gxj4h6lw — both eval-match
+d7d1096 (deployed 2026-04-22 while worker blind). Prior carry-forward
+(dpxnfwvk/l6wwl43y from 53bed8f) stale by 12 commits; tables above
+reset to d7d1096 baseline. Carries: relay1 14→3, web2 20→5.
+
+Bisect 5f9422b8..6a4ed7a (3 .nix-touching): 28a9fe4 kin→ba0e1a81 ALL3
+(nv1 dvgqw9cg→b5cn8gij relay1 bg6drqcb→xhcdw782 web2 375jz32a→fzzrmr1l;
+result == 5963105-era, kin a66409db..ba0e1a81 home-surface-neutral);
+1d32ccb iets+llm-agents nv1+web2 (b5cn8gij→av9v7mmc fzzrmr1l→z78zi5y7,
+relay1-neutral; ⚠ bumper msg hashes l05iw1sz/jjd1z1z3/qzc3adw1/3ybvppf2
+don't match flake-eval — likely iets-eval path divergence); 7184a6d
+srvos closure-neutral 3/3 verified.
+
+web2 health=degraded: acme-order-renew-gts.zimbatm.com.service failed
+(uptime 15d2h). Filed backlog/ops-web2-acme-renew.md @ 6a4ed7a. relay1
+health=running, no failed units.

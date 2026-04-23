@@ -3,33 +3,30 @@
 **What:** Run `kin deploy nv1` from a mesh-connected machine, then walk
 the deferred runtime checks below.
 
-**Blockers:** Human-gated (CLAUDE.md). From this grind worker `kin
-status nv1` is currently UNPROBEABLE (ops-kin-login-worker.md — fleet
-identity `~/.ssh/kin-bir7vyhu*` lost).
+**Blockers:** Human-gated (CLAUDE.md). Worker identity RESTORED
+(kin-bir7vyhu @ 139c681 self-heal) but nv1 reports `not-on-mesh` —
+desktop offline or off the maille mesh from this homespace; direct ssh
+`root@95.216.188.155` denied (publickey). HAVE still unprobeable, but
+for mesh-reachability not identity.
 
 **⚠ Off-main `have`:** nv1 has been deployed from a dirty/off-branch
 tree **twice** (d2ad1d1: `gfcs7jg5` matched no origin/main eval;
 53bed8f: `sxmv9yvi` again off-main). **Confirm any intentional local
 delta on nv1 is committed+pushed before `kin deploy nv1` overwrites
-it.**
+it.** Note: relay1+web2 were deployed @ d7d1096 while worker was blind
+— nv1 may also have been; carry-forward sxmv9yvi is suspect.
 
-## Latest status (drift @ 0beecde, 2026-04-23)
+## Latest status (drift @ 6a4ed7a, 2026-04-23)
 
 ```
-have: sxmv9yvi…  (carried forward from 53bed8f, NOT re-probed — worker blind 10th round)
-want: /nix/store/dvgqw9cgdls3v76qsd8jxzakr2sfjgfn-nixos-system-nv1-26.05.20260418.b12141e
-drv:  /nix/store/i7fn1sbawaci8r7k51m041a9zddqshlj-nixos-system-nv1-26.05.20260418.b12141e.drv
+have: ???  (not-on-mesh — desktop unreachable; carry-forward sxmv9yvi… from 53bed8f now suspect)
+want: /nix/store/av9v7mmc6b69wraqi17nnjfakry822sq-nixos-system-nv1-26.05.20260418.b12141e
 ```
 
-nixpkgs b12141e (since 608e987; was 4c1018d at e196255 deploy → 4bd9165
-@ fa68a27 → b12141e @ 608e987). **2 nixpkgs minors in pending stack.**
-Dry-build: 726 drvs / 1996 fetch (4.8 GiB) — JUMP from 509/1204/3.9 GiB
-@ da0b27b (cache.assise hasn't built kin@45cd3818 pinned-back rev). Last
-confirmed have==want on origin/main: `www09p3bx` @ 9403a95 (≈ e196255
-deploy, 2026-04-11). Probe blind since e969d2c (fleet identity lost).
-
-**Post-journal:** 28a9fe4 (this META round) unpins kin 45cd3818→ba0e1a81
-(EROFS fixed) — moves nv1 again; next drift bisects.
+nixpkgs b12141e unchanged. Dry-build: 513 drvs / 1354 fetch (4.5 GiB) —
+DOWN from 726/1996/4.8 GiB (kin@ba0e1a81 in cache.assise vs 45cd3818
+wasn't). Last confirmed have==want on origin/main: `www09p3bx` @
+9403a95 (≈ e196255 deploy, 2026-04-11).
 
 ## Reconcile
 
@@ -189,3 +186,18 @@ Walk these at the nv1 desk after deploy:
 re-compacts into the table above when this section exceeds 3 entries)
 
 <!-- compacted @ ccb5047 (META r1, 2026-04-23): folded 605cd1b+5858216+ec62a90+bump-nixpkgs+bump-nix-index+da0b27b+0beecde into table+checks above -->
+
+### drift @ 6a4ed7a (2026-04-23)
+
+Identity restored (kin-bir7vyhu mtime 10:43 via 139c681 self-heal) but
+nv1 `not-on-mesh` — desktop offline/off-mesh from homespace; HAVE
+unprobeable for reachability not identity. relay1+web2 PROBED live and
+both at d7d1096 — nv1 likely also redeployed then; sxmv9yvi
+carry-forward suspect.
+
+want dvgqw9cg→av9v7mmc via: 28a9fe4 kin→ba0e1a81 ALL3 (→b5cn8gij; ==
+5963105-era, kin a66409db..ba0e1a81 home-surface-neutral); 1d32ccb
+iets+llm-agents (→av9v7mmc); 7184a6d srvos closure-neutral verified.
+Dry-build 513/1354/4.5G (DOWN from 726/1996/4.8G — kin@ba0e1a81
+cached). No new runtime checks (3 commits all input bumps, no
+packages/ or modules/home delta).
