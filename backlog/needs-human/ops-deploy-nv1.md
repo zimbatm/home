@@ -16,11 +16,11 @@ delta on nv1 is committed+pushed before `kin deploy nv1` overwrites
 it.** Note: relay1+web2 were deployed @ d7d1096 while worker was blind
 — nv1 may also have been; carry-forward sxmv9yvi is suspect.
 
-## Latest status (drift @ 1490f45, 2026-04-23)
+## Latest status (drift @ f4d909c, 2026-04-23)
 
 ```
 have: ???  (not-on-mesh — desktop unreachable; carry-forward sxmv9yvi… from 53bed8f now suspect)
-want: /nix/store/glivxmgg0rvk6nbn6axfvlbwfy3xxshb-nixos-system-nv1-26.05.20260418.b12141e
+want: /nix/store/48k7pdv5gfmyq07h5rrlgxhldwpgpili-nixos-system-nv1-26.05.20260418.b12141e
 ```
 
 nixpkgs b12141e unchanged. Dry-build: 513 drvs / 1354 fetch (4.5 GiB) —
@@ -227,3 +227,27 @@ flake.lock-only, no packages/ or modules/home delta). Note: meta(r3)
 reported want=7gnpx6ks — that's iets-via-default.nix outPath
 (19700101.dirty versionSuffix per 4e214f9 factor-2); flake-eval
 glivxmgg is deploy-authoritative. kin#7ecc09f0 tracks the shim fix.
+
+### drift @ f4d909c (2026-04-23)
+
+nv1 still `not-on-mesh`; `kin ssh nv1` → root@95.216.188.155
+publickey-denied (unchanged since 6a4ed7a). HAVE unprobeable.
+relay1+web2 re-probed UNCHANGED — no human deploy this session, so nv1
+sxmv9yvi carry-forward stays suspect-but-unchanged.
+
+want glivxmgg→48k7pdv5 via: 9d52d68 internal kin 757b0221→76d8b7b2 +
+iets fa604918→c00eafa8 → raqgjc4v (per bumper fastCheck); ecada5b kin
+76d8b7b2→ba4514b9 + iets c00eafa8→14e50511 + settle 40c11486→de9e8efe
+→ 48k7pdv5. kin range home-surface = 053a8092 flake-shim epochToDate/
+shortRev (CLOSES iets-vs-flake outPath divergence — kin#7ecc09f0
+RESOLVED, NB above stale) + 76d8b7b2 deploy batched-build CLI-only;
+a20955cf transitive re-pin; rest meta/architect. iets range =
+git-credential helper auth (d8816ec) + ietsd FOD credential injection
+(14e5051), in nv1 closure via kin→iets. settle range narHash
+content-identical (analysis-only).
+
+Dry-build 513/1343/4.5G — built UNCHANGED, fetched 1354→1343 (11 paths
+landed in local store between rounds). No new runtime checks (packages/
+pty-puppet+shell-squeeze c68e31a/e8a19f2 are agentshell-only per
+simplifier 95d853b, host-closure-neutral; 2 lock-touching commits both
+internal-input-only, no modules/home delta).

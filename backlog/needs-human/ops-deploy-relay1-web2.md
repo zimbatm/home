@@ -9,11 +9,11 @@ many times since on both.
 **Blockers:** Human-gated (CLAUDE.md). Worker probe RESTORED @ 139c681
 self-heal (kin-bir7vyhu mtime Apr-23-10:43) after 10 blind rounds.
 
-## Latest status (drift @ 1490f45, 2026-04-23)
+## Latest status (drift @ f4d909c, 2026-04-23)
 
 ```
 relay1: have 9l7p6ryp… (PROBED — kin status live)  ≠ want 3w3kxh74…
-web2:   have gxj4h6lw… (PROBED — kin status live)  ≠ want a6lmyy7x…
+web2:   have gxj4h6lw… (PROBED — kin status live)  ≠ want lm3szkqw…
 ```
 
 **Ground-truth replaces 10-round carry-forward:** both deployed @
@@ -137,3 +137,33 @@ m61f67w1 — those are iets-via-default.nix outPaths (19700101.dirty
 versionSuffix per 4e214f9 factor-2); kin-status flake-eval want=
 3w3kxh74/a6lmyy7x is deploy-authoritative. Divergence expected, kin
 cross-file 7ecc09f0 bug-flake-shim-sourceinfo open upstream.
+
+### drift @ f4d909c (2026-04-23)
+
+Ground-truth re-probed (kin status --json): relay1=9l7p6ryp
+web2=gxj4h6lw — UNCHANGED (still @ d7d1096, no human deploy this
+session). web2 still degraded acme-order-renew-gts.zimbatm.com (uptime
+15d11h, needs-human/ops-web2-acme-renew.md). relay1 running clean.
+
+Bisect c65afb4..f4d909c (2 flake.lock-touching): 9d52d68 internal kin
+757b0221→76d8b7b2 + iets fa604918→c00eafa8 → web2 a6lmyy7x→ixvc24yz,
+**relay1 NEUTRAL 3w3kxh74**; ecada5b kin 76d8b7b2→ba4514b9 + iets
+c00eafa8→14e50511 + settle 40c11486→de9e8efe → web2 ixvc24yz→lm3szkqw,
+**relay1 NEUTRAL 3w3kxh74**. relay1 want UNCHANGED 2 rounds — closure
+excludes kin-CLI/iets/settle (mesh-relay minimal; only renderedUnits).
+Carries: relay1 4→5, web2 6→7.
+
+kin 757b0221..ba4514b9 home-surface = 053a8092 flake-shim epochToDate/
+shortRev (CLOSES iets-vs-flake outPath divergence — kin#7ecc09f0
+resolved, NB above now stale) + 76d8b7b2 deploy batched-build CLI-only;
+a20955cf transitive iets/settle re-pin; rest meta/architect analysis.
+iets fa604918..14e50511 = git-credential helper auth (d8816ec) + ietsd
+FOD credential injection (14e5051) — daemon/fetch-layer, in web2
+closure via kin→iets dep. settle 40c11486..de9e8efe = meta/analysis
+only, narHash content-identical per kin a20955cf.
+
+Dry-build: relay1 73/9/140.7M web2 160/76/285.5M — IDENTICAL to
+1490f45 (bumped iets/kin on cache.assise; build-set unchanged). f4d909c
+adopt-peer-kin-infra-net.md couples here: same maille redeploy picks up
+kinq0 /48 route once implemented. No new runtime checks (packages/
+pty-puppet+shell-squeeze are agentshell-only, host-closure-neutral).
