@@ -394,3 +394,47 @@ Dry-build: relay1 75 drvs/9 fetch (140.7 MiB), web2 159 drvs/76 fetch
 Reconcile: `kin deploy relay1 web2`. Same nixpkgs b12141e since 608e987.
 Risk: internal-bump + identity-material regen + pin-nixpkgs drop (verify
 `nix registry list | grep nixpkgs` post-deploy resolves to system pin).
+---
+
+## drift @ 0beecde (2026-04-23): both want MOVED (kin churn); have UNPROBEABLE 10th round
+
+`kin status`: relay1+web2 `unreachable`, have="". `~/.ssh/kin-bir7vyhu*`
+still absent — **and `kin-dwqfzbq5*` NOW ALSO ABSENT** (was present
+mtime Apr-19-10:47 through r7; only `kin-infra-hosts` remains). Likely
+homespace state loss. **have carried forward** from 53bed8f:
+relay1=`dpxnfwvk`, web2=`l6wwl43y`.
+
+```
+relay1: have dpxnfwvk… (carried) ≠ want bg6drqcb…  drv igdnpx3x…
+web2:   have l6wwl43y… (carried) ≠ want 375jz32a…  drv szm4pz75…
+```
+
+**Bisect 22ab7e3..0beecde:**
+- 0e4dd69+eb6794c r5 packages/ + c10990b ask-local perms + 7e6e5d5
+  tuicr — all packages/+modules/home nv1-only; relay1=9l7p6ryp
+  web2=i6kjbnph unchanged (verified)
+- d7d1096 iets e4098058→e1cd6980: relay1-neutral (9l7p6ryp unchanged),
+  **web2 i6kjbnph→gxj4h6lw** (confirms bumper)
+- 6ecfb12 srvos 01d98209→4968d2a4: **neutral both** (verified, confirms
+  bumper)
+- b657104 kin 3118eb1d→7d4c7bfd (netrc bridge): **relay1
+  9l7p6ryp→xhcdw782**, **web2 gxj4h6lw→vv853xw3** — kin reaches both
+- 5963105 zimbatm `flake update` (hm/iets/kin→a66409db/nixvim/
+  llm-agents/nix-skills): **relay1-neutral** (xhcdw782 unchanged — kin
+  7d4c7bfd..a66409db relay1-surface-neutral, others relay1-absent),
+  **web2 vv853xw3→fzzrmr1l**
+- fee393d kin a66409db→45cd3818 pin-back (drop EROFS regression):
+  **relay1 xhcdw782→bg6drqcb**, **web2 fzzrmr1l→375jz32a** — kin
+  45cd3818 vs both 7d4c7bfd and a66409db is relay1-distinct
+
+Dry-build: relay1 352 drvs/264 fetch (222.4 MiB), web2 424 drvs/376
+fetch (437.3 MiB) — **JUMP from 75/9 + 159/76** @ da0b27b
+(cache.assise.systems likely hasn't built kin@45cd3818 pinned-back rev).
+
+**relay1 now carries 14** (+b657104 +fee393d; 5963105 neutral); **web2
+now carries 20** (+d7d1096 +b657104 +5963105 +fee393d). Reconcile: `kin
+deploy relay1 web2`. Same nixpkgs b12141e since 608e987. Risk: kin 3-hop
+churn settles at 45cd3818 pin-back (ahead of EROFS regression, behind
+kin HEAD); web2 also +iets/hm/nixvim/llm-agents/nix-skills via 5963105.
+have unprobed 10th round — can't confirm no out-of-band changes since
+53bed8f.

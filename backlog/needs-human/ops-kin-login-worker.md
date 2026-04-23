@@ -32,3 +32,10 @@ this re-login should stick.
 ## Blockers
 
 Hardware key. Worker can't self-heal.
+
+## Update @ 0beecde (2026-04-23)
+
+`kin-dwqfzbq5*` (kin-infra fleet) is **now also gone** — was present
+mtime Apr-19-10:47 through r7. Only `kin-infra-hosts` (known_hosts file,
+not an identity) remains in `~/.ssh/`. Likely homespace ephemeral state
+loss between r7 and this round. **Both** fleets now need `kin login`.

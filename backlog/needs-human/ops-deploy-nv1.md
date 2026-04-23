@@ -376,3 +376,62 @@ Dry-build: 509 drvs / 1204 fetch (3.9 GiB).
 Risk profile: internal-bump dominated (kin/iets/nix-skills/llm-agents,
 all assise-local) + identity-material regen + 1 module drop. Same
 nixpkgs b12141e since 608e987.
+
+### drift @ 0beecde (2026-04-23): want MOVED 7× since da0b27b; have UNPROBEABLE 10th round
+
+`kin status nv1`: empty output. `~/.ssh/kin-bir7vyhu*` still absent —
+**and `kin-dwqfzbq5*` NOW ALSO ABSENT** (was present mtime Apr-19-10:47
+through r7; only `kin-infra-hosts` remains, mtime Apr-23-05:22 = this
+round's `kin status` write). Likely homespace state loss; both fleets
+need `kin login` now. ops-kin-login-worker.md unactioned 10th drift
+round. **have carried forward**: `sxmv9yvi` (off-main).
+
+```
+have: sxmv9yvi…  (carried, NOT re-probed — worker blind 10th round)
+want: /nix/store/dvgqw9cgdls3v76qsd8jxzakr2sfjgfn-nixos-system-nv1-26.05.20260418.b12141e
+drv:  /nix/store/i7fn1sbawaci8r7k51m041a9zddqshlj-nixos-system-nv1-26.05.20260418.b12141e.drv
+```
+
+**Bisect 22ab7e3..0beecde** (km5rdiqw→dvgqw9cg, 7 nv1 moves):
+- 0e4dd69+eb6794c r5-merges sem-grep `refs` verb + ask-local `--mem`
+  trace-retrieval + sem-grep `runs`/`index-runs`: km5rdiqw→**8bfq9s56**
+  (nv1-only — relay1/web2 verified neutral)
+- d7d1096 iets e4098058→e1cd6980: 8bfq9s56→**zyn8gd7w** (nv1+web2;
+  relay1-neutral, confirms bumper)
+- c10990b ask-local owner-only perms 0o700/0o600 on state+traces:
+  zyn8gd7w→**xy3vk45v** (nv1-only)
+- 7e6e5d5 terminal +tuicr (llm-agents pkg, TUI diff review):
+  xy3vk45v→**1qml6kwp** (nv1-only)
+- b657104 kin 3118eb1d→7d4c7bfd (access-tokens→netrc bridge):
+  1qml6kwp→**q66g1har** (ALL 3)
+- 5963105 **zimbatm out-of-band `flake update`** — hm 565e5349→936d579f
+  + iets e1cd6980→34686f1f + kin 7d4c7bfd→a66409db + nixvim
+  698d1749→53aad7a9 + llm-agents bb6fb1ef→bd0e8933 + nix-skills
+  9178f1f1→4199b5e6: q66g1har→**b5cn8gij** (nv1+web2; **relay1-neutral**
+  — kin 7d4c7bfd..a66409db delta doesn't reach relay1 surface, hm/nixvim/
+  llm-agents/nix-skills relay1-absent)
+- fee393d kin a66409db→**45cd3818 pin-back** (keep netrc bridge, drop
+  `--store local://` EROFS regression; see bump-kin-blocked-erofs.md):
+  b5cn8gij→**dvgqw9cg** (ALL 3)
+
+Closure-neutral all 3 (verified): 6ecfb12 srvos 01d98209→4968d2a4
+(zyn8gd7w/9l7p6ryp/gxj4h6lw unchanged — confirms bumper claim). 0beecde
+backlog-only.
+
+Dry-build: 726 drvs / 1996 fetch (4.8 GiB) — **JUMP from 509/1204/3.9
+GiB** @ da0b27b (hm+nixvim bump + kin-stack churn; cache.assise.systems
+likely hasn't built kin@45cd3818 yet — pinned-back rev).
+
+**+3 runtime checks:**
+- **sem-grep refs** — `sem-grep refs <symbol>` returns file:line for
+  every ts-identifier use across indexed repos; walk
+  `packages/sem-grep/bench-refs.txt` ground truth
+- **tuicr** — `tuicr` over a staged diff renders TUI; comments export
+  as markdown for backlog/ round-trip
+- **ask-local perms** — `stat -c '%a' ~/.local/state/ask-local{,/*.jsonl}`
+  shows 700/600 (c10990b hardening)
+
+Risk profile: internal-bump dominated + 1 hm bump + 1 nixvim bump + kin
+3-hop churn (3118eb1d→7d4c7bfd→a66409db→45cd3818-pin). Same nixpkgs
+b12141e since 608e987. ⚠ kin@45cd3818 is a pin-back — deployed kin
+runtime will be ahead of the EROFS regression but behind kin HEAD.
