@@ -111,11 +111,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776947192,
-        "narHash": "sha256-L7d27wV0t4gXzCBuf+JGvPCCQQxbWvJ+EM1hE/0SGDI=",
+        "lastModified": 1776948947,
+        "narHash": "sha256-+TSnwKGe56apEctXB1mjcEkINIDapkG9mlsQaawcZzs=",
         "ref": "refs/heads/main",
-        "rev": "c00eafa847fd8b450d53784630f290150442f85a",
-        "revCount": 6275,
+        "rev": "14e5051117df343eee9975005652d99a298e3e19",
+        "revCount": 6281,
         "type": "git",
         "url": "ssh://git@github.com/jonasc-ant/iets"
       },
@@ -176,11 +176,11 @@
         "settle": "settle"
       },
       "locked": {
-        "lastModified": 1776947333,
-        "narHash": "sha256-LiAXUeRRGtsD0sMZ4rQOL8YjmV8xgxofVVvFLsvR5Ww=",
+        "lastModified": 1776949478,
+        "narHash": "sha256-Ia92yIeAPZ4wzLQhcR1EJCwQmOqzAp88/BRM2quFScw=",
         "ref": "refs/heads/main",
-        "rev": "76d8b7b2cdaffe1e8bb603a8397461ff706fb8d7",
-        "revCount": 3988,
+        "rev": "ba4514b9e453f51f96808c703c925b20ad144cf4",
+        "revCount": 3991,
         "type": "git",
         "url": "ssh://git@github.com/assise/kin"
       },
@@ -419,11 +419,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1776936263,
+        "lastModified": 1776941502,
         "narHash": "sha256-9epb4SlqFgUMHb7A376X2PPC8LQISpBqFHFcu/GSjXE=",
         "ref": "refs/heads/main",
-        "rev": "40c11486d6dbd3b4ea6383d56165ca3f17a87096",
-        "revCount": 552,
+        "rev": "de9e8efec46e07eed327f071c7e71bd697045a71",
+        "revCount": 557,
         "type": "git",
         "url": "ssh://git@github.com/assise/settle"
       },
