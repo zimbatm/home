@@ -111,11 +111,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776873206,
-        "narHash": "sha256-gDDISa/FjTubvxBpJ229zBvwl84gRuebIbrwNTtrZgo=",
+        "lastModified": 1776922507,
+        "narHash": "sha256-Y/vgSc3ptdk+LPurmM6pH6rVIdkBQN4tLF0L3EqIAVg=",
         "ref": "refs/heads/main",
-        "rev": "34686f1fc2db46cbcd59d840c51242084ed4673e",
-        "revCount": 6123,
+        "rev": "2c5337f9c8539c28260c1b72bb1a800365b1e346",
+        "revCount": 6204,
         "type": "git",
         "url": "ssh://git@github.com/jonasc-ant/iets"
       },
@@ -203,11 +203,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776870400,
-        "narHash": "sha256-PleMddBk0Vp2iVsNVgqmL00u1xX1cFx8FVYOEOur/1Q=",
+        "lastModified": 1776917308,
+        "narHash": "sha256-ih1+piERuN4l8/ixqbHiT+AR28YFMLA2MMkJIrtfsRQ=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "bd0e8933483e6e1b33bd83c5e844926b33db0f75",
+        "rev": "03a2450015a30bab3be98ba90a8e66cd665724dc",
         "type": "github"
       },
       "original": {
