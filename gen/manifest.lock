@@ -116,7 +116,7 @@
     "identity/peers/_shared": {
       "ageHash": {},
       "files": {},
-      "inputHash": "5bb16c415bf004fc34d637f80068da07f4fcfb4bb5590f2bfc7187419a7c4a23"
+      "inputHash": "d9c014b44020ecf242f2a39dff79d78d771fe9edfc0186d41830be67f1936fbc"
     },
     "identity/user-claude/_shared": {
       "ageHash": {},
