@@ -275,3 +275,28 @@ hm/nixvim/srvos landing on cache.assise; nv1 still heaviest 14.8G
 unpacked). New runtime check: peer-fleet /48 route `ip -6 route show
 dev kinq0 | grep fdc5:e1a6:b03f::/48` (bdef5f7; verified-live on
 relay1 post-deploy). No modules/home delta this window.
+
+### drift @ fcc6b68 (2026-04-24)
+
+nv1 still `not-on-mesh`; kin ssh nv1 returns empty (mesh unroutable,
+unchanged since 6a4ed7a). HAVE unprobeable. **relay1+web2 BOTH
+HUMAN-DEPLOYED this round** (Apr 24 20:06 batch: relay1 gen-16, web2
+gen-25, both CONVERGED at fcc6b68-tip) — nv1 NOT in batch (still
+off-mesh from homespace), so sxmv9yvi carry-forward stays suspect; if
+Jonas deployed nv1 locally at the same time it'd be at 77dfr1xn.
+
+want z0b9vg9s→77dfr1xn via: 778e7b8 internal kin 68623880→bc87fa28 +
+iets 9c40ead5→5e52f1c2 + llm-agents 8ff0f2a7→6c3ff21f + follows
+kin/maille→3f9ed16b kin/settle→8004f476 (gen/ regen settle inputHash).
+kin range home-surface = f2a377d7 spec(publishes) per-host TCP-port
+uniqueness fold + 5d3d0bae mesh.nix drop streamPortClash sibling-scan
++ 85b7e65b app-wiring splice + 66b91856 port-check msg; rest
+image-side (home has no image machines). iets range = 27855d720 cage
+DEFAULT_RESERVE 8G→16G (directly relevant, nv1 toplevel) + 8517974db
+project-marker-root fix. 39f3354 hm 6012cf1f→ffbd94a1 closure-neutral
+verified.
+
+Dry-build 469/1233/4.4G — DOWN from 475/1234 (kin@bc87fa28 +
+maille@3f9ed16b on cache.assise). No new runtime checks (2 commits
+both flake.lock+gen/-only, no packages/ or modules/home delta).
+**META: append-log now 5 entries (>3), needs re-compact into table.**

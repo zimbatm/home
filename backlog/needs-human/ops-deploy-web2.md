@@ -76,3 +76,31 @@ Closure-neutral verified: b657104/fee393d (superseded by 28a9fe4),
 re-compacts into the table above when this section exceeds 3 entries)
 
 <!-- compacted @ 7c1602a (META r1, 2026-04-24): folded 6a4ed7a+1490f45+f4d909c+68ab318 into tables+checks above; relay1 split off (converged gen-15) -->
+
+### drift @ fcc6b68 (2026-04-24)
+
+**web2 CONVERGED** — HUMAN DEPLOYED gen-25 @ c27fxv31 (Apr 24 20:06,
+same minute as relay1 gen-16; batch deploy). carries 8→0. have == want
+== c27fxv31. **0 failed units** (was 1 — acme-order-renew degraded
+cleared from failed-state by redeploy).
+
+Want moved gxj4h6lw→c27fxv31 since gen-24 via the 8 carried + 778e7b8
+(internal kin 68623880→bc87fa28, iets→5e52f1c2, llm-agents→6c3ff21f,
+maille→3f9ed16b, settle→8004f476; gen/ regen). 39f3354 hm bump
+closure-neutral. Jonas deployed at fcc6b68-tip (or 39f3354; both eval
+c27fxv31).
+
+Spot-checks PASS: `fdc5:e1a6:b03f::/48` on kinq0 PRESENT (bdef5f7
+peer-route active); `ca-derivations` in experimental-features (b0b4acd
+active); `cache.assise.systems` in substituters (35c8232 active).
+
+**acme-order-renew**: now `inactive (dead)`, last invocation exited
+status=1/FAILURE at Apr 24 02:26 (PRE-deploy). Not in failed-units
+list post-deploy. Next timer fire will tell if redeploy + lego/acme
+churn since d7d1096 fixed it — see needs-human/ops-web2-acme-renew.md.
+
+**Remaining human work**: walk the 8 runtime checks above (3 of 8
+spot-checked PASS here; pin-nixpkgs/attest/restic/@cert-authority
+unverified — non-root probe insufficient). Then triage acme. Then
+delete this file. **META: file header "redeploy (drifted)" now stale —
+restructure to runtime-checks-only or fold into ops-web2-acme-renew.**
