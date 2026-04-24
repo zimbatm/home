@@ -5,28 +5,32 @@ the deferred runtime checks below.
 
 **Blockers:** Human-gated (CLAUDE.md). Worker identity RESTORED
 (kin-bir7vyhu @ 139c681 self-heal) but nv1 reports `not-on-mesh` —
-desktop offline or off the maille mesh from this homespace; direct ssh
-`root@95.216.188.155` denied (publickey). HAVE still unprobeable, but
+desktop offline or off the maille mesh from this homespace. `kin ssh
+nv1` fails (mesh ULA fd0c:…deae unroutable); gen/ssh `ProxyJump
+root@95.216.188.155` also fails (proxy leg matches literal IP not `Host
+relay1` stanza, so kin-bir7vyhu cert doesn't apply). HAVE unprobeable
 for mesh-reachability not identity.
 
 **⚠ Off-main `have`:** nv1 has been deployed from a dirty/off-branch
 tree **twice** (d2ad1d1: `gfcs7jg5` matched no origin/main eval;
 53bed8f: `sxmv9yvi` again off-main). **Confirm any intentional local
 delta on nv1 is committed+pushed before `kin deploy nv1` overwrites
-it.** Note: relay1+web2 were deployed @ d7d1096 while worker was blind
-— nv1 may also have been; carry-forward sxmv9yvi is suspect.
+it.** relay1+web2 were both human-deployed Apr-24 20:06 @ fcc6b68-tip
+but nv1 was NOT in that batch (off-mesh from homespace) — if Jonas
+deployed nv1 locally at the same time it'd be at 77dfr1xn; otherwise
+sxmv9yvi carry-forward stays suspect.
 
-## Latest status (drift @ f4d909c, 2026-04-23)
+## Latest status (drift @ fcc6b68, 2026-04-24)
 
 ```
-have: ???  (not-on-mesh — desktop unreachable; carry-forward sxmv9yvi… from 53bed8f now suspect)
-want: /nix/store/48k7pdv5gfmyq07h5rrlgxhldwpgpili-nixos-system-nv1-26.05.20260418.b12141e
+have: ???  (not-on-mesh — desktop unreachable; carry-forward sxmv9yvi… from 53bed8f suspect)
+want: /nix/store/77dfr1xn…-nixos-system-nv1-26.05.20260418.b12141e
 ```
 
-nixpkgs b12141e unchanged. Dry-build: 513 drvs / 1354 fetch (4.5 GiB) —
-UNCHANGED since 6a4ed7a (kin@757b0221 + hm@667b3c47 already on
-cache.assise). Last confirmed have==want on origin/main: `www09p3bx` @
-9403a95 (≈ e196255 deploy, 2026-04-11).
+nixpkgs b12141e unchanged. Dry-build: 469 drvs / 1233 fetch (4.4 GiB) —
+DOWN from 513/1354 (kin/maille/hm/nixvim/srvos all on cache.assise).
+Last confirmed have==want on origin/main: `www09p3bx` @ 9403a95
+(≈ e196255 deploy, 2026-04-11).
 
 ## Reconcile
 
@@ -36,7 +40,7 @@ kin deploy nv1
 
 Then walk the runtime checks. Then delete this file.
 
-## nv1-affecting commits since e196255 (cumulative bisect log, compacted 2026-04-23)
+## nv1-affecting commits since e196255 (cumulative bisect log, compacted 2026-04-24)
 
 | commit | what | scope |
 |---|---|---|
@@ -127,6 +131,12 @@ Then walk the runtime checks. Then delete this file.
 | 1d32ccb | iets →2c5337f9 + llm-agents →03a24500 | nv1+web2 |
 | 575b547 | internal bump kin→757b0221 iets→fa604918 +nix-skills+llm-agents | all |
 | cb0180b | home-manager 936d579f→667b3c47 | nv1 |
+| 9d52d68 | internal kin 757b0221→76d8b7b2 + iets fa604918→c00eafa8 | all |
+| ecada5b | kin →ba4514b9 + iets →14e50511 + settle →de9e8efe | all |
+| bdef5f7 | kin.nix identity.peers.kin-infra.net=fdc5:e1a6:b03f (maille /48 route) | all |
+| efd470a | internal kin →d1265fc0 iets →c70f78f8 llm-agents →b518f1b6 | nv1+web2 |
+| 8c47c57 | zimbatm flake update hm/iets/kin/llm-agents/maille/nix-skills/nixos-hw/nixvim/srvos (NOT nixpkgs) | all |
+| 778e7b8 | internal kin →bc87fa28 iets →5e52f1c2 llm-agents →6c3ff21f +maille+settle; gen/ regen | all |
 
 Closure-neutral (verified): 2efe8bf, c27c5c1, e170608, 6bf3705,
 d00a686, 9dbb216, 8172dfe, 24cc8e8, 2898dcd, 26cb8a9 (nv1-neutral),
@@ -135,7 +145,15 @@ bfcd408 (relay1-only), 6673c0c (nv1-neutral internal bump), 9ba7bf5
 srvos (relay1-neutral), 7aa2a6e srvos, aa28b38 keys stage, 3a809a9
 nixvim (enableMan=false makes paths unreferenced), 69158d6 fleetManifest
 inherit, b911f6e kin gen, 3dd9fb7 nixos-hardware, ed7d465 crops-residue,
-6ecfb12 srvos, 0beecde backlog-only.
+6ecfb12 srvos, 0beecde backlog-only, 7184a6d srvos, c68e31a/e8a19f2
+agentshell-only (host-closure-neutral), 39f3354 hm→ffbd94a1.
+
+kin home-surface across 9d52d68..778e7b8: 9d6da8cf RestartSec=2 on
+kin-secrets/kin-mesh + 053a8092 flake-shim sourceInfo (CLOSES iets-vs-
+flake outPath divergence — kin#7ecc09f0 RESOLVED) + ceb1f951 mesh-toml
+extract byte-identical + f2a377d7 publishes port-uniq + 5d3d0bae/
+85b7e65b mesh.nix simplify. iets: 27855d720 cage RESERVE 8G→16G
+(directly relevant, nv1 toplevel). maille: 93186cf half-open fast-start.
 
 ## Runtime checks (cumulative, since e196255)
 
@@ -172,7 +190,7 @@ Walk these at the nv1 desk after deploy:
 - **CA derivations** — `nix config show | grep ca-derivations` shows enabled; build a trivial CA drv to confirm store accepts
 - **iets** — `which iets` on PATH; `iets --version`
 - **fetch_model** — `rm -rf ~/.local/share/ask-local/models/<one>`; `ask-local "<q>"` auto-fetches (curl progress in stderr) instead of printing fetch-hint+exit-1. Same for sem-grep/say-back/agent-eyes/ptt-dictate first-run
-- **peer-kin-infra trust** — `grep -c '@cert-authority' /etc/ssh/ssh_known_hosts` includes kin-infra fleet CA; `maille config show | jq .peer_fleets` lists kin-infra; ssh from a kin-infra host lands without TOFU prompt
+- **peer-kin-infra trust** — `grep -c '@cert-authority' /etc/ssh/ssh_known_hosts` includes kin-infra fleet CA; `maille config show | jq .peer_fleets` lists kin-infra; `ip -6 route show dev kinq0 | grep fdc5:e1a6:b03f::/48` present (bdef5f7; verified-live on relay1+web2); ssh from a kin-infra host lands without TOFU prompt
 - **ask-local --diff-gate** — stage a diff, `ask-local --diff-gate` returns pass/fail JSON; pre-commit hook fires it; starship `diff_gate` segment renders on dirty tree; `curl -s localhost:8090/review -d @<diff>` responds
 - **sem-grep sig** — `sem-grep sig 'def main'` returns tree-sitter signature matches across indexed repos
 - **pin-nixpkgs dropped** — `nix registry list | grep nixpkgs` and `echo $NIX_PATH` still resolve to system nixpkgs (kin upstream now provides; regression = `nix-shell -p` pulls channel)
@@ -189,114 +207,4 @@ Walk these at the nv1 desk after deploy:
 (drift-checker appends new `### drift @ <rev>` sections below; META
 re-compacts into the table above when this section exceeds 3 entries)
 
-<!-- compacted @ ccb5047 (META r1, 2026-04-23): folded 605cd1b+5858216+ec62a90+bump-nixpkgs+bump-nix-index+da0b27b+0beecde into table+checks above -->
-
-### drift @ 6a4ed7a (2026-04-23)
-
-Identity restored (kin-bir7vyhu mtime 10:43 via 139c681 self-heal) but
-nv1 `not-on-mesh` — desktop offline/off-mesh from homespace; HAVE
-unprobeable for reachability not identity. relay1+web2 PROBED live and
-both at d7d1096 — nv1 likely also redeployed then; sxmv9yvi
-carry-forward suspect.
-
-want dvgqw9cg→av9v7mmc via: 28a9fe4 kin→ba0e1a81 ALL3 (→b5cn8gij; ==
-5963105-era, kin a66409db..ba0e1a81 home-surface-neutral); 1d32ccb
-iets+llm-agents (→av9v7mmc); 7184a6d srvos closure-neutral verified.
-Dry-build 513/1354/4.5G (DOWN from 726/1996/4.8G — kin@ba0e1a81
-cached). No new runtime checks (3 commits all input bumps, no
-packages/ or modules/home delta).
-
-### drift @ 1490f45 (2026-04-23)
-
-nv1 still `not-on-mesh`; direct `kin ssh nv1` → root@95.216.188.155
-publickey-denied (same as 6a4ed7a). HAVE unprobeable. relay1+web2
-re-probed UNCHANGED — no human deploy this session, so nv1 sxmv9yvi
-carry-forward stays suspect-but-unchanged.
-
-want av9v7mmc→glivxmgg via: 575b547 internal bump (kin ba0e1a81→
-757b0221, iets 2c5337f9→fa604918, nix-skills 2bd47c55→d431f5cd,
-llm-agents 03a24500→c34d2134) → dl9ynvzi; cb0180b hm 936d579f→667b3c47
-→ glivxmgg (nv1-only; relay1+web2-neutral verified). kin range
-home-surface = 9d6da8cf RestartSec=2 on kin-secrets/kin-mesh units.
-iets range incl fa604918 attrcache hashFile dep-track + 09b806c8
-`iets store why-rebuild` (tooling, closure-neutral on host).
-
-Dry-build 513/1354/4.5G — UNCHANGED from 6a4ed7a (all bumped inputs
-cached on cache.assise). No new runtime checks (2 commits both
-flake.lock-only, no packages/ or modules/home delta). Note: meta(r3)
-reported want=7gnpx6ks — that's iets-via-default.nix outPath
-(19700101.dirty versionSuffix per 4e214f9 factor-2); flake-eval
-glivxmgg is deploy-authoritative. kin#7ecc09f0 tracks the shim fix.
-
-### drift @ f4d909c (2026-04-23)
-
-nv1 still `not-on-mesh`; `kin ssh nv1` → root@95.216.188.155
-publickey-denied (unchanged since 6a4ed7a). HAVE unprobeable.
-relay1+web2 re-probed UNCHANGED — no human deploy this session, so nv1
-sxmv9yvi carry-forward stays suspect-but-unchanged.
-
-want glivxmgg→48k7pdv5 via: 9d52d68 internal kin 757b0221→76d8b7b2 +
-iets fa604918→c00eafa8 → raqgjc4v (per bumper fastCheck); ecada5b kin
-76d8b7b2→ba4514b9 + iets c00eafa8→14e50511 + settle 40c11486→de9e8efe
-→ 48k7pdv5. kin range home-surface = 053a8092 flake-shim epochToDate/
-shortRev (CLOSES iets-vs-flake outPath divergence — kin#7ecc09f0
-RESOLVED, NB above stale) + 76d8b7b2 deploy batched-build CLI-only;
-a20955cf transitive re-pin; rest meta/architect. iets range =
-git-credential helper auth (d8816ec) + ietsd FOD credential injection
-(14e5051), in nv1 closure via kin→iets. settle range narHash
-content-identical (analysis-only).
-
-Dry-build 513/1343/4.5G — built UNCHANGED, fetched 1354→1343 (11 paths
-landed in local store between rounds). No new runtime checks (packages/
-pty-puppet+shell-squeeze c68e31a/e8a19f2 are agentshell-only per
-simplifier 95d853b, host-closure-neutral; 2 lock-touching commits both
-internal-input-only, no modules/home delta).
-
-### drift @ 68ab318 (2026-04-24)
-
-nv1 still `not-on-mesh`; gen/ssh ProxyJump root@95.216.188.155
-publickey-denied (unchanged since 6a4ed7a — proxy leg matches literal
-IP not `Host relay1` stanza, so kin-bir7vyhu cert doesn't apply; kin
-ssh nv1 also fails, mesh ULA fd0c:…deae unroutable). HAVE unprobeable.
-**relay1 HUMAN-DEPLOYED this round** (gen-15 Apr-24 10:29) but web2
-not — partial deploy session, nv1 likely still at sxmv9yvi or wherever
-Jonas's local tree was; carry-forward stays suspect.
-
-want 48k7pdv5→z0b9vg9s via: bdef5f7 kin.nix identity.peers.kin-infra
-.net → m3vqfri6 (peer-route renders into mesh config); efd470a internal
-kin ba4514b9→d1265fc0 + iets→c70f78f8 + llm-agents → k5cs5m8i; 8c47c57
-zimbatm flake update hm/iets/kin/llm-agents/maille/nix-skills/nixos-hw/
-nixvim/srvos (NOT nixpkgs, b12141e holds) → z0b9vg9s. kin range
-home-surface = ceb1f951 mesh-toml.nix extract byte-identical + 05819b51
--C chaining CLI-only. maille range = 93186cf half-open fast-start.
-
-Dry-build 475/1234/4.4G — DOWN from 513/1343 (8c47c57 externals
-hm/nixvim/srvos landing on cache.assise; nv1 still heaviest 14.8G
-unpacked). New runtime check: peer-fleet /48 route `ip -6 route show
-dev kinq0 | grep fdc5:e1a6:b03f::/48` (bdef5f7; verified-live on
-relay1 post-deploy). No modules/home delta this window.
-
-### drift @ fcc6b68 (2026-04-24)
-
-nv1 still `not-on-mesh`; kin ssh nv1 returns empty (mesh unroutable,
-unchanged since 6a4ed7a). HAVE unprobeable. **relay1+web2 BOTH
-HUMAN-DEPLOYED this round** (Apr 24 20:06 batch: relay1 gen-16, web2
-gen-25, both CONVERGED at fcc6b68-tip) — nv1 NOT in batch (still
-off-mesh from homespace), so sxmv9yvi carry-forward stays suspect; if
-Jonas deployed nv1 locally at the same time it'd be at 77dfr1xn.
-
-want z0b9vg9s→77dfr1xn via: 778e7b8 internal kin 68623880→bc87fa28 +
-iets 9c40ead5→5e52f1c2 + llm-agents 8ff0f2a7→6c3ff21f + follows
-kin/maille→3f9ed16b kin/settle→8004f476 (gen/ regen settle inputHash).
-kin range home-surface = f2a377d7 spec(publishes) per-host TCP-port
-uniqueness fold + 5d3d0bae mesh.nix drop streamPortClash sibling-scan
-+ 85b7e65b app-wiring splice + 66b91856 port-check msg; rest
-image-side (home has no image machines). iets range = 27855d720 cage
-DEFAULT_RESERVE 8G→16G (directly relevant, nv1 toplevel) + 8517974db
-project-marker-root fix. 39f3354 hm 6012cf1f→ffbd94a1 closure-neutral
-verified.
-
-Dry-build 469/1233/4.4G — DOWN from 475/1234 (kin@bc87fa28 +
-maille@3f9ed16b on cache.assise). No new runtime checks (2 commits
-both flake.lock+gen/-only, no packages/ or modules/home delta).
-**META: append-log now 5 entries (>3), needs re-compact into table.**
+<!-- compacted @ b236e97 (META r1, 2026-04-24): folded 6a4ed7a+1490f45+f4d909c+68ab318+fcc6b68 into table+checks above. want progression dvgqw9cg→av9v7mmc→glivxmgg→48k7pdv5→z0b9vg9s→77dfr1xn. nv1 not-on-mesh entire window; relay1+web2 both human-deployed Apr-24 20:06. -->
