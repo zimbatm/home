@@ -16,6 +16,9 @@ const CONFIG = {
   name: 'home',
   implementers: 2,
   archCadence: 6,
+  // drift is the work-generator (declared-vs-deployed); weight it 3× so
+  // backlog refills faster than implementers drain (meta-roster p51).
+  rotation: ['drift', 'simplifier', 'drift', 'bumper', 'drift', 'scout'],
   // Self-heal fleet identity. users.claude is enrolled with the soft key
   // ~/.ssh/kin-infra_ed25519 (kin.nix:28) — no hardware key needed. Homespace
   // state loss drops kin-bir7vyhu_* ~monthly; 16 rounds sat UNPROBEABLE on a
