@@ -251,3 +251,27 @@ landed in local store between rounds). No new runtime checks (packages/
 pty-puppet+shell-squeeze c68e31a/e8a19f2 are agentshell-only per
 simplifier 95d853b, host-closure-neutral; 2 lock-touching commits both
 internal-input-only, no modules/home delta).
+
+### drift @ 68ab318 (2026-04-24)
+
+nv1 still `not-on-mesh`; gen/ssh ProxyJump root@95.216.188.155
+publickey-denied (unchanged since 6a4ed7a — proxy leg matches literal
+IP not `Host relay1` stanza, so kin-bir7vyhu cert doesn't apply; kin
+ssh nv1 also fails, mesh ULA fd0c:…deae unroutable). HAVE unprobeable.
+**relay1 HUMAN-DEPLOYED this round** (gen-15 Apr-24 10:29) but web2
+not — partial deploy session, nv1 likely still at sxmv9yvi or wherever
+Jonas's local tree was; carry-forward stays suspect.
+
+want 48k7pdv5→z0b9vg9s via: bdef5f7 kin.nix identity.peers.kin-infra
+.net → m3vqfri6 (peer-route renders into mesh config); efd470a internal
+kin ba4514b9→d1265fc0 + iets→c70f78f8 + llm-agents → k5cs5m8i; 8c47c57
+zimbatm flake update hm/iets/kin/llm-agents/maille/nix-skills/nixos-hw/
+nixvim/srvos (NOT nixpkgs, b12141e holds) → z0b9vg9s. kin range
+home-surface = ceb1f951 mesh-toml.nix extract byte-identical + 05819b51
+-C chaining CLI-only. maille range = 93186cf half-open fast-start.
+
+Dry-build 475/1234/4.4G — DOWN from 513/1343 (8c47c57 externals
+hm/nixvim/srvos landing on cache.assise; nv1 still heaviest 14.8G
+unpacked). New runtime check: peer-fleet /48 route `ip -6 route show
+dev kinq0 | grep fdc5:e1a6:b03f::/48` (bdef5f7; verified-live on
+relay1 post-deploy). No modules/home delta this window.

@@ -168,3 +168,38 @@ Dry-build: relay1 73/9/140.7M web2 160/76/285.5M — IDENTICAL to
 adopt-peer-kin-infra-net.md couples here: same maille redeploy picks up
 kinq0 /48 route once implemented. No new runtime checks (packages/
 pty-puppet+shell-squeeze are agentshell-only, host-closure-neutral).
+
+### drift @ 68ab318 (2026-04-24)
+
+**relay1 CONVERGED — HUMAN DEPLOYED.** gen 14→15 (9l7p6ryp→xzzh4496)
+@ Apr-24 10:29 UTC, post-8c47c57 flake-update. have==want xzzh4496.
+Runtime spot-check: `ip -6 route show dev kinq0` → fdc5:e1a6:b03f::/48
+PRESENT (bdef5f7 peer-route ACTIVE, ADR-0021 cedar leg-2 datapath
+live); 0 failed units. **Carries: relay1 5→0.** META: drop relay1 from
+this file's title/reconcile/tables; remaining runtime checks need
+verification on relay1 then this becomes web2-only.
+
+web2 re-probed: have gxj4h6lw (gen-24 Apr-22 11:40, @ d7d1096) ≠ want
+rpbncysm. UNCHANGED — Jonas deployed relay1-only this round. Still
+degraded acme-order-renew-gts.zimbatm.com (uptime 16d9h, needs-human/
+ops-web2-acme-renew). **Carries: web2 7→8.**
+
+Bisect 120e2d1..68ab318 (3 closure-touching): bdef5f7 kin.nix
+identity.peers.kin-infra.net → ALL3 (relay1 3w3kxh74→v261gni7, web2
+lm3szkqw→9bz2n0vn); efd470a internal kin d1265fc0/iets/llm-agents →
+web2 9bz2n0vn→9ajlnmii, **relay1-NEUTRAL v261gni7** (bumper msg
+misattributed relay1 move to maille-caps — actually bdef5f7); 8c47c57
+zimbatm flake update hm/iets/kin/llm-agents/maille/nix-skills/nixos-hw/
+nixvim/srvos (NOT nixpkgs) → ALL3 (relay1 v261gni7→xzzh4496, web2
+9ajlnmii→rpbncysm). kin d1265fc0..68623880 home-surface = ceb1f951
+mesh-toml.nix extract (mesh.nix 383→260L, byte-identical toml) +
+05819b51 -C chaining CLI-only + 06572ab7 transitive. maille d431f5cd..
+9a52913a = 93186cf half-open fast-start asym-supersede ~10s bound
+(mesh daemon, deploy-surface).
+
+Dry-build: relay1 72/9/140.7M web2 157/76/285.5M (-1/-3 built vs
+f4d909c, fetch identical — 8c47c57 inputs landing on cache.assise).
+web2 d7d1096..68ab318 net = same nixpkgs b12141e + bdef5f7 peer-route +
+4× internal-hop + hm/maille/nixos-hw/nixvim/srvos externals. New
+runtime check (web2): peer-fleet /48 route (already in list line 76,
+verified-live on relay1).
