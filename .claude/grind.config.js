@@ -38,10 +38,19 @@ const CONFIG = {
   // per-commit closure bisect, which compares outPath. Since kin@053a8092 the
   // flake-shim synthesises lastModifiedDate/shortRev, so iets-via-default.nix
   // outPaths match `nix eval .#…outPath` — both paths are deploy-authoritative.
+  // Cold-store leg (bug-kin-deploy-ifd-recurs): warm-store iets above masks
+  // IETS-0022/0025 (maille.src fileset.toSource, 3× escapes by 2026-04). Gate
+  // a fresh-store eval of one toplevel on flake.lock being in the diff — that's
+  // when new lock-node paths appear unrealised. `if…fi` so lock-untouched
+  // rounds pay zero; iets disk-cache (~/.cache/iets) is keyed on inputs so a
+  // lock change is cache-cold too (~+40s). Failure propagates (no `|| true`).
   fastCheck:
     'nix flake check --no-build --no-allow-import-from-derivation && ' +
     'nix develop -c iets eval --no-warn default.nix ' +
-    HOSTS.map(h => `-A nixosConfigurations.${h}.config.system.build.toplevel.outPath`).join(' '),
+    HOSTS.map(h => `-A nixosConfigurations.${h}.config.system.build.toplevel.outPath`).join(' ') +
+    ' && if git diff --name-only origin/main..HEAD | grep -qx flake.lock; then ' +
+    'nix develop -c iets eval --no-warn --store "$(mktemp -d /tmp/cold-XXXX)" default.nix ' +
+    '-A nixosConfigurations.nv1.config.system.build.toplevel.outPath; fi',
 
   triageExtra: () => `
    **kin.nix is the spine** — at most 1 pick per round that touches it.
