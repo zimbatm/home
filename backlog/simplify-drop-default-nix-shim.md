@@ -15,10 +15,12 @@ Partial-landed (mirrors kin-infra @46eafa0e). `.envrc` no longer reads
 
 `git rm default.nix` once BOTH hold:
 
-1. `../kin/backlog/feat-evaluator-iets-flake-entrypoint.md` lands
-   (`../kin/cli/kin/evaluator.py` `Iets.eval_attr` stops doing
-   `import {root}/default.nix`)
-2. a kin bump past that fix is pinned in `flake.lock` here
+1. ~~`../kin/backlog/feat-evaluator-iets-flake-entrypoint.md` lands~~
+   **DONE kin@8b24bfd5** (merged 75286174, backlog rm'd b03d8b37) —
+   `_iets_entry()` now bootstraps from `flake.lock` when `default.nix`
+   absent; `default.nix` kept as preferred-fallback for back-compat.
+2. a kin bump past 8b24bfd5 is pinned in `flake.lock` here
+   (current pin 65eccea0, 104 behind — see `backlog/bump-kin.md`)
 
 Gate for the final drop: `kin gen --check` green with `default.nix`
 absent; `nix develop -c iets eval default.nix -A …` step removed from
