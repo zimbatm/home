@@ -36,8 +36,13 @@ const CONFIG = {
   // persists in ~/.cache/iets across rounds). Correctness > speed here.
   // outPath (not drvPath): bumper reports these hashes in commit msgs for drift's
   // per-commit closure bisect, which compares outPath. Since kin@053a8092 the
-  // flake-shim synthesises lastModifiedDate/shortRev, so iets-via-default.nix
+  // flake-shim synthesises lastModifiedDate/shortRev, so iets-via-flake-shim
   // outPaths match `nix eval .#…outPath` — both paths are deploy-authoritative.
+  // Entrypoint: kin@8b24bfd5 evaluator.py bootstraps from flake.lock so fleets
+  // needn't ship a default.nix; here we mirror that by resolving the locked kin
+  // source via getFlake (cheap — input fetch only, no outputs eval) and feeding
+  // its lib/flake-shim.nix to `iets eval -E`. Keeps --store/--no-warn/multi-A
+  // that `iets-compat iets-flake eval` lacks.
   // Cold-store leg (bug-kin-deploy-ifd-recurs): warm-store iets above masks
   // IETS-0022/0025 (maille.src fileset.toSource, 3× escapes by 2026-04). Gate
   // a fresh-store eval of one toplevel on flake.lock being in the diff — that's
@@ -46,10 +51,11 @@ const CONFIG = {
   // lock change is cache-cold too (~+40s). Failure propagates (no `|| true`).
   fastCheck:
     'nix flake check --no-build --no-allow-import-from-derivation && ' +
-    'nix develop -c iets eval --no-warn default.nix ' +
+    'KIN=$(nix eval --raw --impure --expr \'(builtins.getFlake (toString ./.)).inputs.kin.outPath\') && ' +
+    'nix develop -c iets eval --no-warn -E "import $KIN/lib/flake-shim.nix ./." ' +
     HOSTS.map(h => `-A nixosConfigurations.${h}.config.system.build.toplevel.outPath`).join(' ') +
     ' && if git diff --name-only origin/main..HEAD | grep -qx flake.lock; then ' +
-    'nix develop -c iets eval --no-warn --store "$(mktemp -d /tmp/cold-XXXX)" default.nix ' +
+    'nix develop -c iets eval --no-warn --store "$(mktemp -d /tmp/cold-XXXX)" -E "import $KIN/lib/flake-shim.nix ./." ' +
     '-A nixosConfigurations.nv1.config.system.build.toplevel.outPath; fi',
 
   triageExtra: () => `
