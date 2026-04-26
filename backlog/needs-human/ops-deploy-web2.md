@@ -69,3 +69,20 @@ Spot-check (re-probed): web2 /48 route PRESENT + ca-derivations enabled
 failed. **web2 1 failed unit**: acme-order-renew-gts.zimbatm.com fired
 Apr-26 02:26 post-deploy and FAILED again — see ops-web2-acme-renew.md
 (redeploy did NOT fix it).
+
+### drift @ 671f35b (2026-04-26)
+
+**No-change re-probe** — declared UNCHANGED (66b1cfa nixvim+overlay-drop
+verified NEUTRAL: relay1 01g8xx8p, web2 9ngq03fj eval-identical at
+e960caf and 671f35b; 79eb0ac default.nix not in closure). Deployed
+unchanged, still carries 1 (f5bd72e). Reconcile unchanged: `kin deploy
+web2 relay1`.
+
+```
+web2:   have c27fxv31… (gen-25)  want 9ngq03fj…   carries 1   degraded (acme-order-renew)
+relay1: have xmb9mkd4… (gen-16)  want 01g8xx8p…   carries 1   running (0 failed)
+```
+
+Dry-build: web2 143/75/165.2M (identical), relay1 50/0/0 (was 50/1/0.4K
+— last fetch landed locally). Uptime web2 18d8h, relay1 18d6h. acme
+timer next-fire Apr-27 02:26 not yet reached.

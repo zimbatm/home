@@ -227,3 +227,24 @@ fetch↑169 from nixpkgs churn). Bisect fcc6b68..e960caf, 2 source commits:
 New runtime check: none (overlay is eval-fix only; tracked by
 backlog/bump-nixvim-drop-pname-workaround.md for removal once upstream
 catches up).
+
+### drift @ 671f35b (2026-04-26)
+
+```
+have: ???  (not-on-mesh — re-probed, kin status `?` unreachable; carry-forward sxmv9yvi… still suspect)
+want: /nix/store/n5smybmw…-nixos-system-nv1-26.05.20260422.0726a0e   (was 1mdzqizi)
+```
+
+Dry-build: 464 drvs / 1401 fetch / 4.3 GiB (was 464/1402/4.3G —
+near-identical, nixvim swap nets out). Bisect e960caf..671f35b, 1
+closure-affecting commit:
+
+| commit | what | scope |
+|---|---|---|
+| 66b1cfa | bump nixvim e61a31b5→d404af65; drop overlays/vim-utils-pname-fix.nix from flake.nix + common.nix + packages/nvim — upstream caught up, c37cecc workaround no longer needed | nv1 |
+
+79eb0ac (.envrc/default.nix iets-compat) + 1df9764 (merge marker)
+closure-NEUTRAL all 3 (default.nix is non-flake entrypoint, not in
+host closure). New runtime check: none (overlay removal is eval-only;
+nvim plugins should still load — covered by existing nvim startup
+check).
