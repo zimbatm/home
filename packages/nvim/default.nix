@@ -1,5 +1,6 @@
 { inputs, system, ... }:
 inputs.nixvim.legacyPackages.${system}.makeNixvim {
+  nixpkgs.overlays = [ (import ../../overlays/vim-utils-pname-fix.nix) ];
   enableMan = false;
   editorconfig.enable = true;
 

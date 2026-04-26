@@ -62,6 +62,7 @@
         import inputs.nixpkgs {
           inherit system;
           config.allowUnfree = true;
+          overlays = [ (import ./overlays/vim-utils-pname-fix.nix) ];
         };
       # Takes pkgs (not system) so callers can reuse an already-evaluated
       # nixpkgs instance instead of forcing a second `import nixpkgs {}`.

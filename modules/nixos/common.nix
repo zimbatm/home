@@ -53,6 +53,7 @@
   nix.settings.sandbox = "relaxed";
 
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.overlays = [ (import ../../overlays/vim-utils-pname-fix.nix) ];
 
   networking.firewall.allowPing = true;
 
