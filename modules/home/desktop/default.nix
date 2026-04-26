@@ -34,6 +34,8 @@ in
   ];
 
   programs.firefox.enable = true;
+  # pin legacy path; XDG migration would need manual ~/.mozilla move on nv1
+  programs.firefox.configPath = ".mozilla/firefox";
 
   # tab-tap native-messaging manifest: lets the (unsigned, local) extension at
   # ${tab-tap}/share/tab-tap/extension reach its host. Load the extension via
