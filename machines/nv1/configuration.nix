@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   inputs,
@@ -17,13 +18,14 @@
     inputs.self.nixosModules.niri
     inputs.self.nixosModules.steam
     inputs.srvos.nixosModules.mixins-systemd-boot
-    inputs.self.nixosModules.vfio-host
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
 
-  # Intel Arc (Meteor Lake) handles display.
-  # NVIDIA RTX 4060 Max-Q reserved for VFIO passthrough (CROPS VM).
+  # Hybrid graphics: Intel Arc (Meteor Lake iGPU) drives the display; NVIDIA
+  # RTX 4060 Max-Q is the compute dGPU (CUDA / llama.cpp). Apps stay on Intel
+  # by default and opt into the dGPU via the `nvidia-offload` wrapper from
+  # prime.offload.enableOffloadCmd.
   hardware.graphics.enable = true;
   hardware.graphics.extraPackages = with pkgs; [
     intel-compute-runtime
@@ -41,14 +43,25 @@
   # uinput access for ptt-dictate (ydotool type)
   programs.ydotool.enable = true;
 
-  # Claim NVIDIA GPU + audio for vfio-pci at boot, before nvidia driver loads.
-  # Module (vendored from crops-demo) owns boot.{kernelParams,initrd.kernelModules,
-  # extraModprobeConfig}.
-  crops.vfio.enable = true;
-  crops.gpu = {
-    vendorId = "10de";
-    deviceId = "28a0";
-    audioId = "22be";
+  # NVIDIA RTX 4060 Max-Q (Ada / AD107M) for CUDA compute. Open kernel
+  # modules — supported on Ada from the 555 series; production (595.58.03)
+  # ships the matching userspace and pairs with cudaPackages_13. Display
+  # stays on the Intel Arc iGPU; offload via `nvidia-offload <cmd>`.
+  services.xserver.videoDrivers = [ "nvidia" ];
+  hardware.nvidia = {
+    package = config.boot.kernelPackages.nvidiaPackages.production;
+    open = true;
+    modesetting.enable = true;
+    powerManagement.enable = true;
+    nvidiaSettings = false;
+    prime = {
+      offload = {
+        enable = true;
+        enableOffloadCmd = true;
+      };
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
   };
 
   boot.loader.systemd-boot.configurationLimit = lib.mkDefault 8;

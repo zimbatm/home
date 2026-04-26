@@ -89,7 +89,6 @@
         perlless = ./modules/nixos/perlless.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;
-        vfio-host = ./modules/nixos/vfio-host.nix;
         zimbatm = ./modules/nixos/zimbatm.nix;
       };
       homeModules = {
