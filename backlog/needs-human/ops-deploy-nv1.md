@@ -270,3 +270,27 @@ runtime check: none (kin/iets are agent-tooling, hm bump is path-only).
 Firefox configPath warning needs a decision (pin `.mozilla/firefox`
 legacy vs migrate XDG) — filed backlog/fix-hm-firefox-configpath.md;
 silencing it is the fix, no deploy-time check.
+
+### drift @ 8231b3d (2026-04-26)
+
+```
+have: ???  (not-on-mesh — re-probed, kin status `?` unreachable; carry-forward sxmv9yvi… still suspect)
+want: /nix/store/8l90l7hx…-nixos-system-nv1-26.05.20260422.0726a0e   (was zi5as60q)
+```
+
+Dry-build: 458 drvs / 1202 fetch / 3.7 GiB (was 464/1400/4.3G — DOWN
+~200 fetch / 0.6G; prior round's cache.assise paths landed locally).
+Bisect 799f203..8231b3d, 2 closure-affecting commits (progression
+zi5as60q→i9j4sbg7→8l90l7hx), both nv1-only — relay1/web2 NEUTRAL
+verified eval-identical:
+
+| commit | what | scope |
+|---|---|---|
+| 232ec0fb | man-here: annotate verb + pname-major notes + reads.jsonl instrument (self'.man-here in modules/home/terminal) | nv1 |
+| e2eda857 | merge adopt-parakeet-cpu-lane: NEW packages/transcribe-cpu (parakeet-tdt via sherpa-onnx) + ptt-dictate `--backend=auto` lane router + bench-dictate.sh; transcribe-cpu pulled into closure transitively via ptt-dictate (self'.ptt-dictate in modules/home/desktop) | nv1 |
+
+New runtime checks: (1) `man-here annotate <cmd>` emits pname-major
+notes + appends reads.jsonl; (2) `ptt-dictate --backend=cpu` invokes
+transcribe-cpu (sherpa-onnx parakeet model) and types result; (3)
+`ptt-dictate --backend=auto` picks cpu when NPU unavailable; (4)
+`bench-dictate.sh` runs both lanes and reports latency.
