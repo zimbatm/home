@@ -19,8 +19,11 @@ Partial-landed (mirrors kin-infra @46eafa0e). `.envrc` no longer reads
    **DONE kin@8b24bfd5** (merged 75286174, backlog rm'd b03d8b37) —
    `_iets_entry()` now bootstraps from `flake.lock` when `default.nix`
    absent; `default.nix` kept as preferred-fallback for back-compat.
-2. a kin bump past 8b24bfd5 is pinned in `flake.lock` here
-   (current pin 65eccea0, 104 behind — see `backlog/bump-kin.md`)
+2. ~~a kin bump past 8b24bfd5 is pinned in `flake.lock` here~~
+   **DONE 94dd7b4** — kin 65eccea0→0bfa6d35 (104c, past 8b24bfd5).
+
+**Both conditions met.** Ready for `git rm default.nix` — run the gate
+below to confirm evaluator.py's flake.lock-bootstrap path works here.
 
 Gate for the final drop: `kin gen --check` green with `default.nix`
 absent; `nix develop -c iets eval default.nix -A …` step removed from
