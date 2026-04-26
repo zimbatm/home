@@ -129,6 +129,7 @@
           agent-eyes = call ./packages/agent-eyes;
           gsnap = call ./packages/gsnap;
           ask-local = call ./packages/ask-local;
+          ask-cuda = call ./packages/ask-cuda;
           kin-opts = call ./packages/kin-opts;
           infer-queue = call ./packages/infer-queue;
           llm-router = call ./packages/llm-router;
