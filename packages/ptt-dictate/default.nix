@@ -2,6 +2,7 @@
 let
   whisper = pkgs.whisper-cpp.override { vulkanSupport = true; };
   transcribe-npu = pkgs.callPackage ../transcribe-npu { };
+  transcribe-cpu = pkgs.callPackage ../transcribe-cpu { };
   ask-local = pkgs.callPackage ../ask-local { };
 in
 pkgs.writeShellApplication {
@@ -9,6 +10,7 @@ pkgs.writeShellApplication {
   runtimeInputs = [
     whisper
     transcribe-npu
+    transcribe-cpu
     ask-local
     pkgs.pipewire
     pkgs.ydotool
@@ -16,6 +18,7 @@ pkgs.writeShellApplication {
     pkgs.curl
     pkgs.jq
     pkgs.yq-go
+    pkgs.pueue
   ];
   text = ''
     # Toggle push-to-talk: first call starts recording, second call stops and
@@ -28,8 +31,12 @@ pkgs.writeShellApplication {
     MODEL="''${PTT_DICTATE_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/whisper/ggml-base.en.bin}"
     mkdir -p "$STATE"
 
-    intent=0
-    [[ "''${1:-}" == "--intent" ]] && intent=1
+    intent=0; backend=""
+    while [[ $# -gt 0 ]]; do case "$1" in
+      --intent)    intent=1; shift ;;
+      --backend=*) backend="''${1#*=}"; shift ;;
+      *) break ;;
+    esac; done
 
     if [[ -f "$STATE/pid" ]] && kill -0 "$(cat "$STATE/pid")" 2>/dev/null; then
       kill "$(cat "$STATE/pid")"
@@ -47,14 +54,31 @@ pkgs.writeShellApplication {
     wait || true
     rm -f "$STATE/pid"
 
-    # Prefer the Meteor Lake NPU when present — frees the Arc iGPU for
-    # ask-local so voice + local-LLM run concurrently. Fall back to the
-    # whisper-cpp/vulkan path if the accel node is absent or the NPU run fails.
-    if [[ -e /dev/accel/accel0 ]] && TEXT=$(transcribe-npu "$REC" 2>/dev/null); then
-      :
-    else
-      TEXT=$(whisper-cli -m "$MODEL" -f "$REC" --no-timestamps --no-prints 2>/dev/null)
+    # --backend=auto: pick the infer-queue lane (arc|npu|cpu) with the fewest
+    # running+queued tasks so dictation routes around whatever ask-local /
+    # sem-grep / agent-eyes currently has resident. Opt-in this round; default
+    # stays NPU-then-vulkan until tests/bench-dictate.sh proves the cpu lane
+    # wins under load (≥200 ms p95, see backlog/adopt-parakeet-cpu-lane.md).
+    if [[ "$backend" == auto ]]; then
+      backend=$(pueue status --json 2>/dev/null | jq -r '
+        .tasks | map(select(.status|objects|has("Running") or has("Queued")) | .group)
+        | reduce .[] as $g ({arc:0,npu:0,cpu:0}; .[$g] += 1)
+        | to_entries | min_by(.value) | .key' 2>/dev/null) || backend=""
     fi
+    case "$backend" in
+      npu) TEXT=$(transcribe-npu "$REC" 2>/dev/null) ;;
+      cpu) TEXT=$(transcribe-cpu "$REC" 2>/dev/null) ;;
+      arc) TEXT=$(whisper-cli -m "$MODEL" -f "$REC" --no-timestamps --no-prints 2>/dev/null) ;;
+      *)
+        # Default: prefer the Meteor Lake NPU when present — frees the Arc iGPU
+        # for ask-local. Fall back to whisper-cpp/vulkan if the accel node is
+        # absent or the NPU run fails.
+        if [[ -e /dev/accel/accel0 ]] && TEXT=$(transcribe-npu "$REC" 2>/dev/null); then
+          :
+        else
+          TEXT=$(whisper-cli -m "$MODEL" -f "$REC" --no-timestamps --no-prints 2>/dev/null)
+        fi ;;
+    esac
     TEXT=$(printf %s "$TEXT" | tr -d '\n' | sed 's/^ *//;s/ *$//')
     [[ -n "$TEXT" ]] || exit 0
 
