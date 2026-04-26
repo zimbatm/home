@@ -8,7 +8,12 @@ whether the local lane is load-bearing.
 
 Opt-in: export OPENAI_BASE_URL=http://127.0.0.1:8090/v1 and start
 `llm-router` (or `ask-local --serve` in another terminal for the local
-lane). Env wiring into agentshell is a deliberate follow-up (ops-*).
+lane). For hosted OpenAI-compatible providers set, for example:
+  LLM_ROUTER_UPSTREAM=https://integrate.api.nvidia.com
+  LLM_ROUTER_REVIEW_MODEL=minimaxai/minimax-m2.7
+  NVIDIA_API_KEY=...
+The upstream may be either the origin or its /v1 base URL; duplicate /v1 is
+normalized away. Env wiring into agentshell is a deliberate follow-up (ops-*).
 """
 import json
 import os
@@ -48,15 +53,33 @@ class Router(BaseHTTPRequestHandler):
         n = int(self.headers.get("Content-Length") or 0)
         return self.rfile.read(n) if n else b""
 
-    def _forward(self, base, body):
-        req = urllib.request.Request(base + self.path, data=body,
+    def _target_url(self, base):
+        base = base.rstrip("/")
+        # Tools usually call the router with /v1/..., while provider docs give
+        # either an origin (https://api.openai.com) or a /v1 base URL
+        # (https://integrate.api.nvidia.com/v1). Accept both shapes.
+        if base.endswith("/v1") and self.path.startswith("/v1/"):
+            base = base[:-3]
+        return base + self.path
+
+    def _forward(self, base, body, inject_env_key=False):
+        req = urllib.request.Request(self._target_url(base), data=body,
                                      method=self.command)
         req.add_header("Content-Type",
                        self.headers.get("Content-Type", "application/json"))
+        have_auth = False
         for h in PASS_HDRS:
             v = self.headers.get(h)
             if v:
+                if h == "authorization":
+                    have_auth = True
                 req.add_header(h, v)
+        if inject_env_key and not have_auth:
+            key = (os.environ.get("LLM_ROUTER_API_KEY") or
+                   os.environ.get("OPENAI_API_KEY") or
+                   os.environ.get("NVIDIA_API_KEY"))
+            if key:
+                req.add_header("Authorization", "Bearer " + key)
         return urllib.request.urlopen(req, timeout=600)
 
     def _relay(self, resp):
@@ -115,7 +138,7 @@ class Router(BaseHTTPRequestHandler):
                     "messages": [{"role": "user", "content": content}],
                 }).encode()
                 self.path = "/v1/chat/completions"
-                r = json.load(self._forward(UPSTREAM, req))
+                r = json.load(self._forward(UPSTREAM, req, inject_env_key=True))
                 out["review"] = r["choices"][0]["message"]["content"]
         except Exception as e:
             out["error"] = str(e)
@@ -149,12 +172,12 @@ class Router(BaseHTTPRequestHandler):
         try:
             target = LOCAL if lane == "local" else UPSTREAM
             try:
-                resp = self._forward(target, body)
+                resp = self._forward(target, body, inject_env_key=(target == UPSTREAM))
             except urllib.error.URLError:
                 if lane != "local":
                     raise
                 lane = "local-unavailable"
-                resp = self._forward(UPSTREAM, body)
+                resp = self._forward(UPSTREAM, body, inject_env_key=True)
             status = resp.status
             self._relay(resp)
         except urllib.error.HTTPError as e:
