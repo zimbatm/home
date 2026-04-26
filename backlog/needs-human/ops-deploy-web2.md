@@ -86,3 +86,23 @@ relay1: have xmb9mkd4… (gen-16)  want 01g8xx8p…   carries 1   running (0 fai
 Dry-build: web2 143/75/165.2M (identical), relay1 50/0/0 (was 50/1/0.4K
 — last fetch landed locally). Uptime web2 18d8h, relay1 18d6h. acme
 timer next-fire Apr-27 02:26 not yet reached.
+
+### drift @ e3c1cea (2026-04-26)
+
+**DRIFTED again** — declared moved (94dd7b4 internal bump); both still
+on Apr-24 gen, **carries 1→2**. Reconcile unchanged: `kin deploy web2
+relay1`.
+
+```
+web2:   have c27fxv31… (gen-25)  want y6amiis8…   carries 2   degraded (acme-order-renew)
+relay1: have xmb9mkd4… (gen-16)  want 8mfqxwb0…   carries 2   running (0 failed)
+```
+
+Dry-build: web2 143/75/165.2M (identical), relay1 53/1/0.4K (was 50/0 —
++3 drv from kin bump, 1 new fetch). Bisect 671f35b..e3c1cea: 94dd7b4
+(kin 65eccea0→0bfa6d35 + iets/nix-skills/llm-agents + gen regen) is the
+only closure-affecting commit for both — 22bbd1c hm bump verified
+NEUTRAL (relay1 8mfqxwb0, web2 y6amiis8 eval-identical at 94dd7b4 and
+e3c1cea; servers have no home-manager). Uptime web2 18d9h, relay1 18d7h
+(no reboot). acme last-fire Apr-26 02:26 (same failure already known
+from e960caf, no new fire), next-fire Apr-27 02:26 ~8h away.

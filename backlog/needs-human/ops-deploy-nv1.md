@@ -248,3 +248,25 @@ closure-NEUTRAL all 3 (default.nix is non-flake entrypoint, not in
 host closure). New runtime check: none (overlay removal is eval-only;
 nvim plugins should still load — covered by existing nvim startup
 check).
+
+### drift @ e3c1cea (2026-04-26)
+
+```
+have: ???  (not-on-mesh — re-probed, kin status `?` unreachable; carry-forward sxmv9yvi… still suspect)
+want: /nix/store/zi5as60q…-nixos-system-nv1-26.05.20260422.0726a0e   (was n5smybmw)
+```
+
+Dry-build: 464 drvs / 1401 fetch / 4.3 GiB (identical to 671f35b).
+Bisect 671f35b..e3c1cea, 2 closure-affecting commits (progression
+n5smybmw→4pc9a44c→zi5as60q):
+
+| commit | what | scope |
+|---|---|---|
+| 94dd7b4 | bump internal — kin 65eccea0→0bfa6d35 (104c, picks up evaluator flake.lock-bootstrap 8b24bfd5 + hetzner-gc 849f82dd) + iets/nix-skills/llm-agents; `kin gen` regen ssh/_shared/config + manifest.lock | all |
+| 22bbd1c | bump home-manager 6f59831b→c55c498c — **NEW eval warning** `programs.firefox.configPath` legacy default; nv1-only (relay1/web2 NEUTRAL, no hm) | nv1 |
+
+30fe0e2/194e4eb/16af6a4/e3c1cea backlog+meta-only NEUTRAL all 3. New
+runtime check: none (kin/iets are agent-tooling, hm bump is path-only).
+Firefox configPath warning needs a decision (pin `.mozilla/firefox`
+legacy vs migrate XDG) — filed backlog/fix-hm-firefox-configpath.md;
+silencing it is the fix, no deploy-time check.
