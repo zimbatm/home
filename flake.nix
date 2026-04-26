@@ -85,6 +85,7 @@
         desktop = ./modules/nixos/desktop.nix;
         gnome = ./modules/nixos/gnome.nix;
         gotosocial = ./modules/nixos/gotosocial.nix;
+        limine-hotfix = ./modules/nixos/limine-hotfix.nix;
         niri = ./modules/nixos/niri.nix;
         perlless = ./modules/nixos/perlless.nix;
         steam = ./modules/nixos/steam.nix;
