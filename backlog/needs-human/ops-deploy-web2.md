@@ -106,3 +106,15 @@ NEUTRAL (relay1 8mfqxwb0, web2 y6amiis8 eval-identical at 94dd7b4 and
 e3c1cea; servers have no home-manager). Uptime web2 18d9h, relay1 18d7h
 (no reboot). acme last-fire Apr-26 02:26 (same failure already known
 from e960caf, no new fire), next-fire Apr-27 02:26 ~8h away.
+
+### deploy attempt @ fc1c14d (2026-04-26, human-instructed)
+
+**FAILED then ROLLED BACK** — `kin deploy relay1 web2` hit
+switchInhibitor (dbus→broker), retried `--action boot` + reboot per
+upstream guidance. relay1 went dark ~25min: limine 11.4.0 limlz BIOS
+decompressor bug (upstream-fixed 11.4.1, see
+backlog/bug-limine-11.4.0-bios-boot.md). Recovered via Hetzner rescue +
+gen-16 chroot bootloader reinstall. web2 boot rolled back to gen-25
+before reboot. **Both back on Apr-24 gens, carries-2 unchanged.**
+relay1 uptime reset; web2 18d13h unchanged. **Deploy BLOCKED on
+bug-limine-11.4.0-bios-boot.**
