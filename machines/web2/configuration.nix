@@ -3,6 +3,7 @@
   imports = [
     inputs.self.nixosModules.common
     inputs.self.nixosModules.gotosocial
+    inputs.self.nixosModules.limine-hotfix
     inputs.srvos.nixosModules.mixins-nginx
   ];
 
