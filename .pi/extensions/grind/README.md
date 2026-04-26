@@ -5,8 +5,10 @@ This extension is the first cut of a dedicated `grind` harness for pi. It delibe
 ## Commands
 
 - `/grind {"rounds":1}` — start a background grind run.
-- `/grind-status` — show active runs in this pi process.
+- `/grind-status` — show active runs in this pi process, plus the latest on-disk run if none are active.
 - `/grind-stop` — touch `.grind-stop` and ask active runs to stop after the current step.
+
+Do **not** run `/reload` during an active grind. The harness currently runs in-process; reloading extensions tears down the owning pi process state and can interrupt the active run. Use `/grind-stop` first, then `/reload` after the run exits.
 
 The model-callable `grind_start` tool is also registered for non-command use.
 
@@ -31,7 +33,7 @@ Each run writes under:
   agent-0002-<label>.jsonl
 ```
 
-`events.jsonl` is the durable progress log. The per-agent files contain the child `pi --mode json` stream.
+`events.jsonl` is the durable progress log. The per-agent files contain the child `pi --mode json` stream. If a reload/crash interrupts a run, inspect the latest `events.jsonl`; an `agent_start` without a matching `agent_end` marks where it stopped.
 
 ## Current scope
 

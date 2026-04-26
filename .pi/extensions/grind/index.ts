@@ -100,6 +100,40 @@ function loadConfig(cwd: string): GrindLoadedConfig {
   return loaded;
 }
 
+function latestRunSummary(cwd: string): string | null {
+  const root = path.join(cwd, ".pi", "grind-runs");
+  if (!fs.existsSync(root)) return null;
+  const runs = fs.readdirSync(root, { withFileTypes: true })
+    .filter(d => d.isDirectory() && d.name.startsWith("grind-"))
+    .map(d => {
+      const dir = path.join(root, d.name);
+      return { name: d.name, dir, mtime: fs.statSync(dir).mtimeMs };
+    })
+    .sort((a, b) => b.mtime - a.mtime);
+  const latest = runs[0];
+  if (!latest) return null;
+  const eventsFile = path.join(latest.dir, "events.jsonl");
+  if (!fs.existsSync(eventsFile)) return `Latest run: ${latest.name}\n  ${latest.dir}\n  no events.jsonl yet`;
+
+  const events = fs.readFileSync(eventsFile, "utf8").trim().split("\n")
+    .filter(Boolean)
+    .map(line => { try { return JSON.parse(line); } catch { return null; } })
+    .filter(Boolean);
+  const open = new Map<number, any>();
+  for (const e of events) {
+    if (e.type === "agent_start") open.set(e.idx, e);
+    if (e.type === "agent_end") open.delete(e.idx);
+  }
+  const last = events[events.length - 1];
+  const openLast = Array.from(open.values()).pop();
+  const state = openLast
+    ? `appears interrupted/running at ${openLast.phase}/${openLast.label}`
+    : last
+      ? `last event: ${last.phase ?? "-"}/${last.type}${last.message ? ` — ${last.message}` : ""}`
+      : "no parseable events";
+  return `Latest run: ${latest.name}\n  ${latest.dir}\n  ${state}`;
+}
+
 function getPiInvocation(args: string[]): { command: string; args: string[] } {
   const currentScript = process.argv[1];
   const isBunVirtualScript = currentScript?.startsWith("/$bunfs/root/");
@@ -523,7 +557,10 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("grind-status", {
     description: "Show active pi grind runs",
     handler: async (_args, ctx) => {
-      if (running.size === 0) return ctx.ui.notify("No active grind runs", "info");
+      if (running.size === 0) {
+        const latest = latestRunSummary(ctx.cwd);
+        return ctx.ui.notify(`No active grind runs in this pi process${latest ? `\n\n${latest}` : ""}`, "info");
+      }
       const lines = Array.from(running.values()).map(r => `${r.id}: ${r.status}\n  ${r.runDir}`);
       ctx.ui.notify(lines.join("\n"), "info");
     },
