@@ -208,3 +208,22 @@ Walk these at the nv1 desk after deploy:
 re-compacts into the table above when this section exceeds 3 entries)
 
 <!-- compacted @ b236e97 (META r1, 2026-04-24): folded 6a4ed7a+1490f45+f4d909c+68ab318+fcc6b68 into table+checks above. want progression dvgqw9cg→av9v7mmc→glivxmgg→48k7pdv5→z0b9vg9s→77dfr1xn. nv1 not-on-mesh entire window; relay1+web2 both human-deployed Apr-24 20:06. -->
+
+### drift @ e960caf (2026-04-26)
+
+```
+have: ???  (not-on-mesh — re-probed, kin status `?` unreachable; carry-forward sxmv9yvi… still suspect)
+want: /nix/store/1mdzqizi…-nixos-system-nv1-26.05.20260422.0726a0e   (was 77dfr1xn)
+```
+
+Dry-build: 464 drvs / 1402 fetch / 4.3 GiB (was 469/1233/4.4G — drvs↓5,
+fetch↑169 from nixpkgs churn). Bisect fcc6b68..e960caf, 2 source commits:
+
+| commit | what | scope |
+|---|---|---|
+| f5bd72e | **flake update** — nixpkgs b12141e→0726a0e + hm/iets/kin/llm-agents/maille/nix-index-db/nixvim/settle. **BROKE nv1 eval** (vim-utils packDir requires plugin.pname) until c37cecc | all |
+| c37cecc | overlays/vim-utils-pname-fix.nix workaround — restores nv1 eval. relay1/web2 closure-NEUTRAL (no nvim) | nv1 |
+
+New runtime check: none (overlay is eval-fix only; tracked by
+backlog/bump-nixvim-drop-pname-workaround.md for removal once upstream
+catches up).

@@ -6,11 +6,12 @@ status but not journal.
 
 ## What
 
-web2 redeployed gen-25 (Apr-24 20:06). acme-order-renew **cleared from
-failed-state** post-deploy — `systemctl --failed` now 0 units (was 1).
-But last invocation still shows `inactive (dead)` with exit
-status=1/FAILURE at Apr 24 02:26 (pre-deploy). Next timer fire tells if
-the redeploy + lego/acme churn since d7d1096 actually fixed it.
+web2 redeployed gen-25 (Apr-24 20:06). Timer **fired post-deploy Apr-26
+02:26 and FAILED again** (drift @ e960caf re-probe) — redeploy did NOT
+fix it. `systemctl --failed` back to 1 unit. Status shows `IP: 0B in, 0B
+out / IO: 248K read, 0B written / CPU: 53ms` — early-exit before any
+network, smells like missing/unreadable secret or config, not a
+DNS-01/LE issue. Next fire Mon Apr-27 02:26.
 
 Pull the journal and verify:
 
@@ -30,10 +31,11 @@ showed degraded.
 
 ## How much
 
-5min triage. Likely outcomes:
-- Redeploy fixed it (lego/acme module changed in pending bumps) → close
-- DNS-01 challenge token stale → `kin set` the DNS API secret, redeploy
-- Rate-limited by Let's Encrypt → wait, or check if config thrashed
+5min triage. Likely outcomes (re-ranked after Apr-26 0-byte-network failure):
+- DNS-01 challenge creds missing/unreadable → `kin set` the DNS API secret, redeploy
+- lego state dir perms/path broke across a module bump → check `/var/lib/acme/gts.zimbatm.com/`
+- ~~Redeploy fixed it~~ — ruled out, fired+failed post-gen-25
+- Rate-limited by Let's Encrypt → unlikely (0B network)
 
 ## Blockers
 
