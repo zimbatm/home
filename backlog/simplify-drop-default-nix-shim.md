@@ -41,3 +41,18 @@ builtins.attrNames` unchanged.
 Net −20L. Once home + kin-infra + fleet all land, kin's
 `lib/flake-shim.nix` (142L + 4 coverage tests + 2 fixtures) deletes —
 no remaining fetchTarball consumers.
+
+## Blocker — second consumer found
+
+kin-infra tried this @2f4c9454 and broke `kin gen --check`:
+`../kin/cli/kin/evaluator.py:254` `Iets.eval_attr` does
+`import {root}/default.nix` — `.envrc` is NOT the only consumer. home's
+grind runs `kin deploy` (grind.config.js:73) so `git rm default.nix`
+will fail the same way.
+
+**Partial-land option** (what kin-infra kept @46eafa0e): do step 1+3
+only — migrate `.envrc` to `iets-compat iets-flake build`, keep
+`default.nix` with a consumer comment. Then `git rm default.nix` after
+`../kin/backlog/feat-evaluator-iets-flake-entrypoint.md` lands and a
+kin bump past it is pinned here. kin-infra/default.nix has the
+reference comment shape.
