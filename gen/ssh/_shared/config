@@ -1,5 +1,5 @@
 # kin-generated — Include this from ~/.ssh/config
-Host nv1 relay1 web2
+Host nv1 relay1 web2 fd0c:3964:8cda::6e42:b995:2026:deae 95.216.188.155 89.167.46.118
   IdentityFile ~/.ssh/kin-bir7vyhu_ed25519
   CertificateFile ~/.ssh/kin-bir7vyhu_ed25519-cert.pub
   ServerAliveInterval 30
