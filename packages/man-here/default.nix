@@ -23,19 +23,25 @@ pkgs.writeShellApplication {
     # Not in PATH → nix-locate fallback names the providing attr (db from the
     # nix-index-database input already wired in modules/home/terminal).
     #
-    #   man-here jq          → markdown to stdout
-    #   man-here --raw jq    → uncapped (full man page)
+    #   man-here jq                    → markdown to stdout
+    #   man-here --raw jq              → uncapped (full man page)
+    #   man-here annotate jq "<note>"  → append to $XDG_STATE_HOME/man-here/<pname>-<major>.notes;
+    #                                    surfaces as the first section on next read
 
-    raw=0
+    raw=0; mode="read"
     [[ "''${1:-}" == "--raw" ]] && { raw=1; shift; }
-    [[ $# -ge 1 ]] || { echo "usage: man-here [--raw] <cmd>" >&2; exit 2; }
+    if [[ "''${1:-}" == annotate ]]; then
+      mode="annotate"; shift
+      [[ $# -ge 2 ]] || { echo "usage: man-here annotate <cmd> <note>" >&2; exit 2; }
+    fi
+    [[ $# -ge 1 ]] || { echo "usage: man-here [--raw] <cmd> | man-here annotate <cmd> <note>" >&2; exit 2; }
     cmd="$1"
 
     hdr() { printf '\n## %s\n\n' "$1"; }
     # awk reads to EOF → no SIGPIPE under pipefail (unlike head -n).
     cap() { if [[ $raw -eq 1 ]]; then cat; else awk -v n="$1" 'NR<=n'; fi; }
 
-    real=""; out=""; pname=""
+    real=""; out=""; pname=""; major=""
     if bin=$(command -v -- "$cmd" 2>/dev/null); then
       real=$(readlink -f "$bin")
       out=$(grep -oE '^/nix/store/[^/]+' <<<"$real" || true)
@@ -49,9 +55,33 @@ pkgs.writeShellApplication {
       fi
       [[ -n "$pname" ]] \
         || pname=$(basename "$out" | sed -E 's/^[a-z0-9]{32}-//; s/-[0-9].*$//')
+      # major: leading digits at the first -<digit> boundary in the store name
+      # (survives patch bumps; re-keys on real API churn).
+      major=$(basename "$out" | sed -E 's/^[a-z0-9]{32}-//' \
+        | awk 'match($0,/-[0-9]+/){print substr($0,RSTART+1,RLENGTH-1)}')
+    fi
+
+    state="''${XDG_STATE_HOME:-$HOME/.local/state}/man-here"
+    notes=""
+    [[ -z "$pname" ]] || notes="$state/$pname-''${major:-0}.notes"
+
+    if [[ $mode == annotate ]]; then
+      [[ -n "$notes" ]] \
+        || { echo "man-here: cannot resolve '$cmd' to a store package" >&2; exit 1; }
+      mkdir -p "$state"
+      printf '%s\n' "$2" >>"$notes"
+      echo "noted: $notes" >&2
+      exit 0
     fi
 
     printf '# %s\n' "$cmd"
+
+    had_notes=false
+    if [[ -n "$notes" && -s "$notes" ]]; then
+      had_notes=true
+      hdr "notes (local)"
+      cat "$notes"
+    fi
 
     hdr "package"
     if [[ -n "$out" ]]; then
@@ -103,5 +133,11 @@ pkgs.writeShellApplication {
         echo '```'
       done < <(find "$out/share/doc" -maxdepth 3 -type f -iname 'README*' 2>/dev/null | head -3)
     fi
+
+    # instrument: did the read see local notes? (adopt-man-here-annotate falsifier)
+    { mkdir -p "$state" \
+        && jq -nc --arg cmd "$cmd" --argjson hn "$had_notes" \
+             '{ts: now|floor, cmd: $cmd, had_notes: $hn}' >>"$state/reads.jsonl"
+    } 2>/dev/null || true
   '';
 }
