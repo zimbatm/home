@@ -27,7 +27,10 @@
                 {
                   type = "ladspa";
                   name = "DeepFilter Mono";
-                  plugin = "${pkgs.deepfilternet}/lib/ladspa/libdeep_filter_ladspa.so";
+                  # PipeWire 1.6 resolves LADSPA plugins by basename inside
+                  # LADSPA_PATH (wired by services.pipewire.extraLadspaPackages
+                  # on hosts that enable this home module).
+                  plugin = "libdeep_filter_ladspa";
                   label = "deep_filter_mono";
                   control = {
                     "Attenuation Limit (dB)" = config.home.deepfilter.attenuation;
