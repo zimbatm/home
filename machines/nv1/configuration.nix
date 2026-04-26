@@ -105,7 +105,11 @@
     # Policy 2026-04-14: sink-monitor → NPU transcript on; 30d retention; `live-caption off` to pause.
     config.home.live-caption.enable = true;
     # DeepFilterNet noise cancellation via PipeWire LADSPA — virtual mic source.
-    config.home.deepfilter.enable = true;
+    # DISABLED 2026-04-26: pipewire 1.6.3 filter-chain treats `plugin` as a
+    # basename inside pipewire-ladspa-plugins (which doesn't include
+    # deepfilternet), so the full-store-path form blocks pipewire startup
+    # (start-limit-hit → no audio). See backlog/bug-deepfilter-pw1.6.md.
+    config.home.deepfilter.enable = false;
     # infer-queue: device-tagged background inference (arc/npu/cpu lanes, nv1-only hardware).
     config.home.packages = [
       inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.default
