@@ -31,9 +31,11 @@ const CONFIG = {
   // iets step: `kin deploy` evals via iets which bans IFD (ADR-0011 → IETS-0025); plain
   // nix allows it, so flake check alone green-lights changes that break deploy
   // (hit 2026-04-13: cp.run-crops → crane mkDummySrc). iets is in devShell.extraPackages,
-  // not agentshell PATH — hence `nix develop -c`. Multi -A shares one root parse +
-  // disk-caches across runs: warm +2s (~23s total), cold-cache +42s (rare; cache
-  // persists in ~/.cache/iets across rounds). Correctness > speed here.
+  // not agentshell PATH — hence `nix develop -c`. Multi -A shares one root parse.
+  // ~/.cache/iets cleared before each call: the attr-cache is NOT keyed on
+  // flake.lock and returns stale outPaths across bumps (observed r4 @22bbd1c;
+  // cross-filed ../iets/backlog/bug-attrcache-stale-flake-shim.md). Every run
+  // is cold-cache (~+42s). Correctness > speed here.
   // outPath (not drvPath): bumper reports these hashes in commit msgs for drift's
   // per-commit closure bisect, which compares outPath. Since kin@053a8092 the
   // flake-shim synthesises lastModifiedDate/shortRev, so iets-via-default.nix
@@ -42,14 +44,14 @@ const CONFIG = {
   // IETS-0022/0025 (maille.src fileset.toSource, 3× escapes by 2026-04). Gate
   // a fresh-store eval of one toplevel on flake.lock being in the diff — that's
   // when new lock-node paths appear unrealised. `if…fi` so lock-untouched
-  // rounds pay zero; iets disk-cache (~/.cache/iets) is keyed on inputs so a
-  // lock change is cache-cold too (~+40s). Failure propagates (no `|| true`).
+  // rounds pay zero. Second rm: leg-2's just-populated cache would otherwise
+  // short-circuit the cold-store eval too (~+40s). Failure propagates (no `|| true`).
   fastCheck:
     'nix flake check --no-build --no-allow-import-from-derivation && ' +
-    'nix develop -c iets eval --no-warn default.nix ' +
+    'rm -rf ~/.cache/iets && nix develop -c iets eval --no-warn default.nix ' +
     HOSTS.map(h => `-A nixosConfigurations.${h}.config.system.build.toplevel.outPath`).join(' ') +
     ' && if git diff --name-only origin/main..HEAD | grep -qx flake.lock; then ' +
-    'nix develop -c iets eval --no-warn --store "$(mktemp -d /tmp/cold-XXXX)" default.nix ' +
+    'rm -rf ~/.cache/iets && nix develop -c iets eval --no-warn --store "$(mktemp -d /tmp/cold-XXXX)" default.nix ' +
     '-A nixosConfigurations.nv1.config.system.build.toplevel.outPath; fi',
 
   triageExtra: () => `
