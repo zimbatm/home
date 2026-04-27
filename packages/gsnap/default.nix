@@ -95,11 +95,10 @@ pkgs.writeShellApplication {
         awk -v p="$pct" 'BEGIN{exit (p > 5.0 ? 1 : 0)}'
         ;;
       -h|--help)
-        cat <<-EOF
-    		gsnap                    full screen -> /tmp/gsnap/last.png (~800px wide)
-    		gsnap --diff [BASELINE]  capture if needed, then perceptual diff; exit 1 if >5% pixels changed
-    		                         (BASELINE defaults to machines/nv1/baseline-$desktop.png)
-    		EOF
+        printf '%s\n' \
+          "gsnap                    full screen -> /tmp/gsnap/last.png (~800px wide)" \
+          "gsnap --diff [BASELINE]  capture if needed, then perceptual diff; exit 1 if >5% pixels changed" \
+          "                         (BASELINE defaults to machines/nv1/baseline-$desktop.png)"
         ;;
       *)
         die "unknown arg: $1 (try --help)"
