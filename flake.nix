@@ -150,6 +150,7 @@
       kinOut = inputs.kin.lib.mkFleet {
         root = ./.;
         config = import ./kin.nix;
+        extraServices.llm-nvidia-adapter = import ./services/llm-nvidia-adapter.nix;
         nixpkgsConfig.allowUnfree = true;
         specialArgs = { inherit inputs; };
         devShell.systems = [

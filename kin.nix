@@ -89,6 +89,15 @@ in
     takeover = false;
   };
 
+  # NVIDIA NIM is OpenAI-shaped; the local LiteLLM adapter republishes it as
+  # Anthropic-shaped for kin/Claude consumers. pendingOn keeps the unit inert
+  # until a human rotates+sets the API key with:
+  #   kin set llm-nvidia-adapter/api-key/_shared/key
+  services.llm-nvidia-adapter = {
+    on = [ "nv1" ];
+    pendingOn = "llm-nvidia-adapter/api-key/_shared/key";
+  };
+
   gen.gotosocial-restic = {
     for = [ "web2" ];
     perMachine = false;
