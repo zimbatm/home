@@ -28,7 +28,6 @@ in
   imports = [
     ../terminal
     ./activitywatch.nix
-    ./deepfilter.nix
     ./live-caption.nix
     ./sem-grep.nix
   ];

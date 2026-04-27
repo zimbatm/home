@@ -84,9 +84,6 @@
 
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Make DeepFilterNet's LADSPA plugin visible to PipeWire 1.6 filter-chain.
-  services.pipewire.extraLadspaPackages = [ pkgs.deepfilternet ];
-
   nix.settings.trusted-users = [ "zimbatm" ];
 
   # sudo/login/unlock via YubiKey touch (FIDO2). Enroll: pamu2fcfg > ~/.config/Yubico/u2f_keys
@@ -107,8 +104,6 @@
     config.home.stateVersion = "22.11";
     # Policy 2026-04-14: sink-monitor → NPU transcript on; 30d retention; `live-caption off` to pause.
     config.home.live-caption.enable = true;
-    # DeepFilterNet noise cancellation via PipeWire LADSPA — virtual mic source.
-    config.home.deepfilter.enable = true;
     # infer-queue: device-tagged background inference (arc/npu/cpu lanes, nv1-only hardware).
     config.home.packages = [
       inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.default

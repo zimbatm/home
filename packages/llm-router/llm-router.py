@@ -75,9 +75,11 @@ class Router(BaseHTTPRequestHandler):
                     have_auth = True
                 req.add_header(h, v)
         if inject_env_key and not have_auth:
-            key = (os.environ.get("LLM_ROUTER_API_KEY") or
-                   os.environ.get("OPENAI_API_KEY") or
-                   os.environ.get("NVIDIA_API_KEY"))
+            key = os.environ.get("LLM_ROUTER_API_KEY")
+            if not key:
+                key = os.environ.get("OPENAI_API_KEY")
+            if not key:
+                key = os.environ.get("NVIDIA_API_KEY")
             if key:
                 req.add_header("Authorization", "Bearer " + key)
         return urllib.request.urlopen(req, timeout=600)
