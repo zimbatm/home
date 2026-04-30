@@ -15,7 +15,8 @@
     inputs.nixos-hardware.nixosModules.common-pc-ssd
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.gnome
-    inputs.self.nixosModules.niri
+    inputs.distro.nixosModules.niri
+    inputs.distro.nixosModules.noctalia-bar
     inputs.self.nixosModules.steam
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
@@ -42,6 +43,15 @@
 
   # uinput access for ptt-dictate (ydotool type)
   programs.ydotool.enable = true;
+
+  # opencrow-chat panel in noctalia bar (Mod+N toggles); llama-swap
+  # serves the local LLM the chat talks to. opencrow runs in a NixOS
+  # container so override perlless's enableContainers=false default.
+  services.opencrow-local = {
+    enable = true;
+    noctaliaPlugin = true;
+  };
+  boot.enableContainers = true;
 
   # NVIDIA RTX 4060 Max-Q (Ada / AD107M) for CUDA compute. Open kernel
   # modules — supported on Ada from the 555 series; production (595.58.03)
@@ -102,14 +112,12 @@
   home-manager.users.zimbatm = {
     imports = [ inputs.self.homeModules.desktop ];
     config.home.stateVersion = "22.11";
-    # Policy 2026-04-14: sink-monitor → NPU transcript on; 30d retention; `live-caption off` to pause.
-    config.home.live-caption.enable = true;
-    # infer-queue: device-tagged background inference (arc/npu/cpu lanes, nv1-only hardware).
+    config.home.live-caption.enable = false;
     config.home.packages = [
       inputs.iets.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.infer-queue
     ];
-    config.services.pueue.enable = true;
+    config.services.pueue.enable = false;
   };
 
   # Auto-tune power management settings

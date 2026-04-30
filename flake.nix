@@ -43,6 +43,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.blueprint.follows = "llm-agents/blueprint";
     };
+    distro = {
+      url = "github:generational-infrastructure/distro";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+      inputs.llm-agents.follows = "llm-agents";
+    };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -86,7 +92,6 @@
         gnome = ./modules/nixos/gnome.nix;
         gotosocial = ./modules/nixos/gotosocial.nix;
         limine-hotfix = ./modules/nixos/limine-hotfix.nix;
-        niri = ./modules/nixos/niri.nix;
         perlless = ./modules/nixos/perlless.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;
