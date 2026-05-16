@@ -72,6 +72,7 @@
         perlless = ./modules/nixos/perlless.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;
+        zero-tailnet = ./modules/nixos/zero-tailnet.nix;
         zimbatm = ./modules/nixos/zimbatm.nix;
       };
       homeModules = {
@@ -115,6 +116,7 @@
           infer-queue = call ./packages/infer-queue;
           llm-router = call ./packages/llm-router;
           pty-puppet = call ./packages/pty-puppet;
+          rich-ssh-agent = call ./packages/rich-ssh-agent;
           man-here = call ./packages/man-here;
           sem-grep = call ./packages/sem-grep;
           tab-tap = call ./packages/tab-tap;

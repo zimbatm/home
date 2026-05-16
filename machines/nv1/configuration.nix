@@ -17,6 +17,7 @@
     inputs.distro.nixosModules.niri
     inputs.distro.nixosModules.noctalia-bar
     inputs.self.nixosModules.steam
+    inputs.self.nixosModules.zero-tailnet
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
@@ -160,7 +161,24 @@
     enable = true;
     settings.cue = true;
   };
-  security.pam.services.sudo.u2fAuth = true;
+
+  # Richer sudo approval: ask the user's SSH agent to sign a challenge first.
+  # The home-manager rich-ssh-agent proxy shows caller argv/cwd/process-tree
+  # context before forwarding to the Yubi-backed key for the hardware touch.
+  security.pam.rssh = {
+    enable = true;
+    settings.auth_key_file = "/etc/security/pam_rssh_authorized_keys.d/$ruser";
+  };
+  environment.etc."security/pam_rssh_authorized_keys.d/zimbatm" = {
+    mode = "0444";
+    text = ''
+      sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1
+    '';
+  };
+  security.pam.services.sudo.rssh = true;
+  # Do not fall back to blind pam_u2f for sudo. If the contextual SSH-agent
+  # path is unavailable, use the normal password path instead.
+  security.pam.services.sudo.u2fAuth = false;
   security.pam.services.gdm-password.u2fAuth = true;
   security.pam.services.login.u2fAuth = true;
   security.pam.services.polkit-1.u2fAuth = true;
