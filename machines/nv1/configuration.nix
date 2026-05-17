@@ -33,6 +33,9 @@
     intel-media-driver
   ];
 
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+
   # Meteor Lake NPU (Intel AI Boost) — exploration: OpenVINO Whisper offload off the iGPU.
   # nixos module wires intel-npu-driver.firmware (intel/vpu/vpu_37xx_v1.bin) + libze_intel_npu.so
   # into /run/opengl-driver, plus level-zero loader & npu validation tools in PATH.
@@ -155,6 +158,10 @@
     "uid-range"
     "recursive-nix"
   ];
+
+  # services.opencrow-local declares a NixOS container; the base
+  # container unit is only generated when this is enabled.
+  boot.enableContainers = true;
 
   # sudo/login/unlock via YubiKey touch (FIDO2). Enroll: pamu2fcfg > ~/.config/Yubico/u2f_keys
   security.pam.u2f = {
