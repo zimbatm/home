@@ -34,6 +34,7 @@ in
     h
     jq
     jujutsu
+    llm.workmux
     mdsh
     psmisc
     pueue
@@ -51,6 +52,7 @@ in
     # Linux man pages!
     man-pages
     self'.man-here
+    self'.rich-ssh-agent
 
     # Coding
     self'.myvim
@@ -76,6 +78,33 @@ in
     EDITOR = "vim";
   };
 
+  # Put a context-rich approval proxy in front of the real GNOME/GCR agent.
+  # The proxy still forwards to the Yubi-backed key; it just asks with caller
+  # argv/cwd/process-tree context before the hardware touch.
+  sshAuthSock.initialization = {
+    bash = ''export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rich-ssh-agent.sock"'';
+    fish = ''set -x SSH_AUTH_SOCK "$XDG_RUNTIME_DIR/rich-ssh-agent.sock"'';
+    nushell = ''$env.SSH_AUTH_SOCK = $"($env.XDG_RUNTIME_DIR)/rich-ssh-agent.sock"'';
+  };
+  systemd.user.sessionVariables.SSH_AUTH_SOCK = "\${XDG_RUNTIME_DIR}/rich-ssh-agent.sock";
+  systemd.user.services.rich-ssh-agent = {
+    Unit = {
+      Description = "Context-rich SSH agent approval proxy";
+      After = [
+        "graphical-session.target"
+        "gcr-ssh-agent.socket"
+      ];
+      Wants = [ "gcr-ssh-agent.socket" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${self'.rich-ssh-agent}/bin/rich-ssh-agent --listen %t/rich-ssh-agent.sock --upstream %t/gcr/ssh";
+      Restart = "on-failure";
+      RestartSec = "2s";
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
   programs.bash = {
     enable = true;
 
@@ -83,6 +112,13 @@ in
       # Eg: start your session with zsh and run bash, you'll have the wrong SHELL
       if [[ $(basename "$SHELL") != bash ]]; then
         SHELL=bash
+      fi
+
+      # Non-login terminals and existing desktop sessions may inherit the raw
+      # GCR socket. Local interactive shells should use the context proxy;
+      # forwarded SSH sessions keep their provided agent.
+      if [[ -z "''${SSH_CONNECTION:-}" && -n "''${XDG_RUNTIME_DIR:-}" ]]; then
+        export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/rich-ssh-agent.sock"
       fi
 
       if [[ "zimbatm" = $(id -u -n) ]]; then
@@ -102,6 +138,16 @@ in
       alias ssh='TERM=xterm ssh'
       alias drun='docker run -ti --rm'
       alias screenshot='grim -g "$(slurp)" - | wl-copy'
+      alias wm=workmux
+      workmux-pr() {
+        if [[ $# -lt 1 ]]; then
+          echo "Usage: workmux-pr <PR_NUMBER> [workmux add options...]" >&2
+          return 1
+        fi
+        local pr=$1
+        shift
+        workmux add --pr "$pr" --open-if-exists "$@"
+      }
 
       # hist-sem feeder: append (ts,cwd,cmd,exit) JSONL after every command so
       # `sem-grep hist "<english>"` can embed+rank it on the NPU. Falsification
@@ -306,7 +352,10 @@ in
         compression = true;
         serverAliveInterval = 60;
         controlMaster = "auto";
-        controlPersist = "10m";
+        addKeysToAgent = "confirm";
+        # Reuse the first FIDO/YubiKey-backed SSH auth for the rest of the
+        # work session instead of re-touching for every shell/git/deploy.
+        controlPersist = "8h";
         controlPath = "~/.ssh/control-%C";
         extraOptions = {
           # Breaks deploy_nixos
@@ -319,10 +368,35 @@ in
         identityFile = "~/.ssh/id_ed25519_sk";
         identitiesOnly = true;
       };
+      # zero/fleet Hetzner hosts (by name or tailnet IP). The zimbatm user
+      # there only has the FIDO2-SK key in authorized_keys, so the global
+      # agent's other keys would blow past MaxAuthTries — pin to that one.
+      "nibs-* 100.64.*" = {
+        user = "zimbatm";
+        identityFile = "~/.ssh/id_ed25519_sk";
+        identitiesOnly = true;
+      };
     };
   };
 
   programs.tmux.enable = true;
+  programs.tmux.extraConfig = ''
+    # workmux dashboard popups
+    bind C-s display-popup -h 30 -w 100 -E "workmux dashboard"
+    bind C-w display-popup -h 30 -w 100 -E "workmux dashboard --tab worktrees"
+  '';
+
+  xdg.configFile."workmux/config.yaml".text = ''
+    # Global defaults for workmux-managed git worktrees and tmux sessions.
+    nerdfont: false
+    agent: pi
+    mode: session
+    post_create:
+      - "if [[ -f .envrc ]]; then direnv allow; fi"
+    panes:
+      - command: pi
+        focus: true
+  '';
 
   programs.gh-dash = {
     enable = true;
