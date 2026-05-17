@@ -40,6 +40,10 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    subportal = {
+      url = "github:zimbatm/subportal";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

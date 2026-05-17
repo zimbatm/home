@@ -47,6 +47,28 @@
         "type": "github"
       }
     },
+    "blueprint_3": {
+      "inputs": {
+        "nixpkgs": [
+          "subportal",
+          "nixpkgs"
+        ],
+        "systems": "systems_5"
+      },
+      "locked": {
+        "lastModified": 1769353768,
+        "narHash": "sha256-zI+7cbMI4wMIR57jMjDSEsVb3grapTnURDxxJPYFIW0=",
+        "owner": "numtide",
+        "repo": "blueprint",
+        "rev": "c7da5c70ad1c9b60b6f5d4f674fbe205d48d8f6c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "blueprint",
+        "type": "github"
+      }
+    },
     "bun2nix": {
       "inputs": {
         "flake-parts": [
@@ -108,6 +130,28 @@
       "original": {
         "owner": "generational-infrastructure",
         "repo": "distro",
+        "type": "github"
+      }
+    },
+    "fenix": {
+      "inputs": {
+        "nixpkgs": [
+          "subportal",
+          "nixpkgs"
+        ],
+        "rust-analyzer-src": "rust-analyzer-src"
+      },
+      "locked": {
+        "lastModified": 1772261909,
+        "narHash": "sha256-8XbJXrhMFhLgoBrjFIJx5XJi+SD+7/gbvaIXCuqy9Z0=",
+        "owner": "nix-community",
+        "repo": "fenix",
+        "rev": "e4c413b9546d6c9e6426b33b4d6de1a49a375024",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "fenix",
         "type": "github"
       }
     },
@@ -359,11 +403,29 @@
         "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
         "srvos": "srvos",
+        "subportal": "subportal",
         "treefmt-nix": "treefmt-nix_2",
         "voxtype": [
           "distro",
           "voxtype"
         ]
+      }
+    },
+    "rust-analyzer-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772178959,
+        "narHash": "sha256-DkjUvrEnnhHjOcjMx6aXfYGIZ0PWmcYzvVayhRj1r4M=",
+        "owner": "rust-lang",
+        "repo": "rust-analyzer",
+        "rev": "8494a8b3b769c17e8594d811012cc1b0fab090c7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rust-lang",
+        "ref": "nightly",
+        "repo": "rust-analyzer",
+        "type": "github"
       }
     },
     "srvos": {
@@ -383,6 +445,28 @@
       "original": {
         "owner": "numtide",
         "repo": "srvos",
+        "type": "github"
+      }
+    },
+    "subportal": {
+      "inputs": {
+        "blueprint": "blueprint_3",
+        "fenix": "fenix",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1774863356,
+        "narHash": "sha256-+aSoUB2NxxLDNYtkrNCcpo9ryXsjl++kdS4pa33Euwc=",
+        "owner": "zimbatm",
+        "repo": "subportal",
+        "rev": "b8df5597c0281188bd08dd0ea55492c6e5d39dd3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zimbatm",
+        "repo": "subportal",
         "type": "github"
       }
     },
@@ -432,6 +516,21 @@
       }
     },
     "systems_4": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_5": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

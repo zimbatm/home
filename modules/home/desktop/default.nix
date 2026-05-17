@@ -43,7 +43,13 @@ in
     ../terminal
     ./live-caption.nix
     ./sem-grep.nix
+    inputs.subportal.homeModules.subportal-desktop
   ];
+
+  # subportal-desktop: receives xdg-open / notify-send / file forwards
+  # from enrolled servers (e.g. nibs-manager) over iroh p2p. Enroll once:
+  #   ssh zimbatm@nibs-manager subportal ticket | subportal-desktop enroll
+  services.subportal-desktop.enable = true;
 
   programs.firefox.enable = true;
   # pin legacy path; XDG migration would need manual ~/.mozilla move on nv1
