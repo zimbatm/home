@@ -25,6 +25,8 @@ in
   "web2-restic-password.age".publicKeys = web2Hosts;
   "web2-restic-ssh-key.age".publicKeys = web2Hosts;
   "stalwart-admin-secret.age".publicKeys = web2Hosts;
+  "stalwart-zimbatm-password.age".publicKeys = web2Hosts;
+  "workspace-zimbatm-app-password.age".publicKeys = web2Hosts;
   "chat-restic-password.age".publicKeys = chatHosts;
   "chat-restic-ssh-key.age".publicKeys = chatHosts;
 }

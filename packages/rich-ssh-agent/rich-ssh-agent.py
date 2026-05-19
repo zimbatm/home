@@ -14,6 +14,7 @@ import argparse
 import base64
 import hashlib
 import os
+import re
 import shlex
 import signal
 import socket
@@ -24,6 +25,10 @@ import textwrap
 import threading
 from dataclasses import dataclass
 from typing import Optional
+
+# /nix/store/<32-char hash>-<pkg-name>-<version>/(bin/)? — strip when displaying
+# argv so notifications show "sudo -i" instead of an 80-char store path.
+NIX_STORE_RE = re.compile(r"/nix/store/[a-z0-9]{32}-[^/]+/(?:[^/]+/)*")
 
 SSH_AGENT_FAILURE = 5
 SSH2_AGENTC_REQUEST_IDENTITIES = 11
@@ -189,6 +194,20 @@ def proc_cmdline(pid: int) -> str:
     return f"[{comm or pid}]"
 
 
+def clean_cmdline(cmdline: str) -> str:
+    """Strip /nix/store/<hash>-pkg/... prefixes from each token so the notification
+    surfaces the command name and args, not the store path."""
+    return " ".join(NIX_STORE_RE.sub("", tok) for tok in cmdline.split(" "))
+
+
+def caller_basename(cmdline: str) -> str:
+    """Return just the executable basename of the first argv token."""
+    if not cmdline:
+        return ""
+    first = cmdline.split(" ", 1)[0]
+    return os.path.basename(NIX_STORE_RE.sub("", first))
+
+
 def proc_ppid(pid: int) -> Optional[int]:
     status = read_file(f"/proc/{pid}/status")
     for line in status.splitlines():
@@ -316,21 +335,32 @@ def announce_tty(text: str, tty: str) -> bool:
         return False
 
 
-def notification_body(req: SignRequest, comment: str, proc: ProcInfo) -> str:
+def summarize_request(req: SignRequest, proc: ProcInfo) -> str:
+    """Short one-liner describing what the signature is for.
+
+    Distinguishes the three cases we actually see in practice:
+      * SSH publickey userauth — we parsed user/algorithm out of the blob.
+      * pam_rssh (sudo / login) — a 32-byte challenge from a known PAM caller.
+      * Anything else — fall back to the byte length so it's still identifiable.
+    """
     parsed = parse_userauth(req.data)
     if parsed:
-        request = f"SSH auth as {parsed.user} ({parsed.algorithm})"
-    else:
-        request = f"Opaque SSH-agent signature ({len(req.data)} bytes)"
-    return textwrap.dedent(
-        f"""
-        {request}
-        Key: {comment or '<unknown>'}
-        Fingerprint: {fingerprint(req.key_blob)}
-        Caller: {proc.cmdline}
-        Cwd: {proc.cwd}
-        """
-    ).strip()
+        return f"ssh auth as {parsed.user} ({parsed.algorithm})"
+    caller = caller_basename(proc.cmdline)
+    if len(req.data) == 32 and caller in {"sudo", "su", "login", "polkit-agent-helper-1"}:
+        args = clean_cmdline(proc.cmdline).split(" ", 1)
+        return f"{caller} via pam_rssh" + (f": {args[1]}" if len(args) > 1 else "")
+    return f"opaque signature ({len(req.data)} bytes)"
+
+
+def notification_body(req: SignRequest, comment: str, proc: ProcInfo) -> str:
+    lines = [clean_cmdline(proc.cmdline) or "<unknown caller>"]
+    if comment:
+        lines.append(f"Key: {comment}")
+    if proc.tty.startswith("/dev/"):
+        lines.append(f"TTY: {proc.tty[len('/dev/'):]}")
+    lines.append(f"PID {proc.pid} ({fingerprint(req.key_blob)})")
+    return "\n".join(lines)
 
 
 def announce(req: SignRequest, comment: str, proc: ProcInfo) -> None:
@@ -344,13 +374,14 @@ def announce(req: SignRequest, comment: str, proc: ProcInfo) -> None:
         return
 
     try:
+        title = f"Touch YubiKey: {summarize_request(req, proc)}"
         p = subprocess.run(
             [
                 "notify-send",
                 "--app-name=rich-ssh-agent",
                 "--urgency=critical",
                 "--expire-time=30000",
-                "Touch YubiKey to approve SSH signature",
+                title,
                 notification_body(req, comment, proc),
             ],
             stdin=subprocess.DEVNULL,

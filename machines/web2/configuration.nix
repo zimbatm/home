@@ -1,4 +1,4 @@
-{ inputs, config, lib, ... }:
+{ inputs, config, lib, pkgs, ... }:
 {
   imports = [
     inputs.self.nixosModules.common
@@ -110,6 +110,22 @@
 
   age.secrets.stalwart-admin-secret.file = ../../secrets/stalwart-admin-secret.age;
 
+  # One-shot imapsync migration from Google Workspace → Stalwart.
+  # `agenix -e secrets/workspace-zimbatm-app-password.age` to paste the
+  # Workspace app password (https://myaccount.google.com/apppasswords).
+  # Then on web2:
+  #   sudo -E env \
+  #     SRC_PW=$(cat /run/agenix/workspace-zimbatm-app-password) \
+  #     DST_PW=$(cat /run/agenix/stalwart-zimbatm-password) \
+  #     imapsync \
+  #       --host1 imap.gmail.com --user1 zimbatm@zimbatm.com --password1 "$SRC_PW" --ssl1 \
+  #       --host2 localhost --user2 zimbatm@zimbatm.com --password2 "$DST_PW" --ssl2 \
+  #       --sslargs2 SSL_verify_mode=0 \
+  #       --automap --addheader
+  age.secrets.stalwart-zimbatm-password.file = ../../secrets/stalwart-zimbatm-password.age;
+  age.secrets.workspace-zimbatm-app-password.file = ../../secrets/workspace-zimbatm-app-password.age;
+  environment.systemPackages = [ pkgs.imapsync ];
+
   # nginx's enableACME puts the cert in group=nginx (chown acme:nginx). Add
   # stalwart to nginx group so it can read fullchain.pem / key.pem for its
   # own SMTP/IMAP TLS listeners.
@@ -179,6 +195,21 @@
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+      '';
+    };
+  };
+
+  # MTA-STS policy host. RFC 8461: receiving MTAs fetch
+  # https://mta-sts.zimbatm.com/.well-known/mta-sts.txt and enforce the
+  # policy. `mode: testing` initially — receivers log STS-failures without
+  # bouncing; upgrade to `enforce` once we've confirmed clean reports.
+  services.nginx.virtualHosts."mta-sts.zimbatm.com" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."= /.well-known/mta-sts.txt" = {
+      extraConfig = ''
+        default_type text/plain;
+        return 200 "version: STSv1\nmode: testing\nmx: mail.zimbatm.com\nmax_age: 86400\n";
       '';
     };
   };
