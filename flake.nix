@@ -44,6 +44,15 @@
       url = "github:zimbatm/subportal";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
   outputs =
@@ -93,6 +102,14 @@
             {
               nixpkgs.config.allowUnfree = true;
             }
+          ];
+        };
+        chat = lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./machines/chat/configuration.nix
+            inputs.agenix.nixosModules.default
           ];
         };
       };
