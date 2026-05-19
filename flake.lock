@@ -120,11 +120,11 @@
         "voxtype": "voxtype"
       },
       "locked": {
-        "lastModified": 1778582049,
-        "narHash": "sha256-1kMnEr+ib4e5+L2d/Uc6cKxxioHBQ30wv+wTpoBq4Hk=",
+        "lastModified": 1778834587,
+        "narHash": "sha256-6UFcULCGp6HWlso9Pb7Ws+NJM8PgVU1XfU0RBhNSFdA=",
         "owner": "generational-infrastructure",
         "repo": "distro",
-        "rev": "0043932917124f005e04606693a3b400abb9fc18",
+        "rev": "53b33f065d2ea7c9d312c5cd318dbeab0eeb5a61",
         "type": "github"
       },
       "original": {

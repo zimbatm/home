@@ -15,4 +15,4 @@ keys/**/*.key
 _grind-*.js
 .pi/grind-runs/
 .claude/commands/nix-*.md
-.kin-cache/
+__pycache__

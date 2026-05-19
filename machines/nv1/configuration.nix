@@ -8,14 +8,12 @@
 {
   imports = [
     ./hardware-configuration.nix
+    inputs.distro.nixosModules.distro
     # NovaCustom V5xTNC: Intel Meteor Lake-H + NVIDIA RTX 4060 Max-Q
     inputs.nixos-hardware.nixosModules.common-cpu-intel
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-ssd
     inputs.self.nixosModules.desktop
-    inputs.self.nixosModules.gnome
-    inputs.distro.nixosModules.niri
-    inputs.distro.nixosModules.noctalia-bar
     inputs.self.nixosModules.steam
     inputs.self.nixosModules.zero-tailnet
     inputs.srvos.nixosModules.mixins-systemd-boot
@@ -36,6 +34,8 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
 
+  services.greetd.settings.default_session.user = "zimbatm";
+
   # Meteor Lake NPU (Intel AI Boost) — exploration: OpenVINO Whisper offload off the iGPU.
   # nixos module wires intel-npu-driver.firmware (intel/vpu/vpu_37xx_v1.bin) + libze_intel_npu.so
   # into /run/opengl-driver, plus level-zero loader & npu validation tools in PATH.
@@ -43,57 +43,6 @@
   # Verify post-deploy: `ls /dev/accel/` and `vpu-umd-test` / openvino Core().available_devices.
   hardware.cpu.intel.npu.enable = true;
   boot.kernelModules = [ "ivpu" ];
-
-  # uinput access for ptt-dictate (ydotool type)
-  programs.ydotool.enable = true;
-
-  # opencrow-chat panel in noctalia bar (Mod+N toggles); llama-swap
-  # serves the local LLM the chat talks to. opencrow runs in a NixOS
-  # container so override perlless's enableContainers=false default.
-  services.opencrow-local = {
-    enable = true;
-    noctaliaPlugin = true;
-    # Keep opencrow's advertised/requested model in lockstep with the
-    # llama-swap IDs we actually serve below.
-    defaultModel = "gemma4:e2b";
-  };
-  boot.enableContainers = true;
-
-  # FIXME(distro): drop once upstream pins HF rev (resolve/<sha> not resolve/main) — upstream issue, not ours to vendor.
-  # distro@a80828ae pins both GGUFs via the mutable `resolve/main` HF ref using
-  # *eval-time* `builtins.fetchurl`. unsloth re-uploaded gemma so the hash
-  # drifted (rABp68... -> k3i8Rx...). A `lib.mkForce` on `.cmd` alone (the
-  # previous fix, 459f04b) does NOT prevent the eval failure: the module
-  # system's def-collection (`lib/modules.nix:1247` `isAttrs d.value`) forces
-  # *every* definition's value to WHNF to check for `_type`, and forcing a
-  # string with `${gemma4-e2b-gguf}` interpolation forces the builtins.fetchurl.
-  # Replacing the whole `settings.models` attr at mkForce priority means the
-  # module system never accesses distro's per-model entries, so the let
-  # bindings stay un-forced. Side-effect benefit: `pkgs.fetchurl` (build-time
-  # FOD) instead of `builtins.fetchurl` (eval-time / IFD-shaped) for both
-  # models — this is what distro should be doing anyway.
-  services.llama-swap.settings.models =
-    let
-      gemma4-e2b-gguf = pkgs.fetchurl {
-        url = "https://huggingface.co/unsloth/gemma-4-E2B-it-GGUF/resolve/main/gemma-4-E2B-it-Q4_K_M.gguf";
-        hash = "sha256-k3i8RxcQIp7xZXCbYuNL+2IjFCDdr21ynnJzBbW4Zy0=";
-      };
-      qwen25-05b-gguf = pkgs.fetchurl {
-        url = "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf";
-        hash = "sha256-dKTajJ/bzRW9H20B1iFBDTHG/ACYb162h4JOe5PXqds=";
-      };
-      llama-server = lib.getExe' config.services.llama-swap.llama-server-package "llama-server";
-      # mirror distro's modelArgs so modelExtraArgs still composes
-      modelArgs =
-        id:
-        lib.optionalString (config.services.llama-swap.modelExtraArgs ? ${id})
-          " ${config.services.llama-swap.modelExtraArgs.${id}}";
-    in
-    lib.mkForce {
-      "qwen2.5:0.5b".cmd =
-        "${llama-server} -m ${qwen25-05b-gguf} --port \${PORT}" + modelArgs "qwen2.5:0.5b";
-      "gemma4:e2b".cmd = "${llama-server} -m ${gemma4-e2b-gguf} --port \${PORT}" + modelArgs "gemma4:e2b";
-    };
 
   # Keep the declared workstation account aligned with the live desktop setup
   # so userborn doesn't try to rewrite the active user's primary group and
@@ -135,17 +84,13 @@
     # For debugging and troubleshooting Secure Boot.
     pkgs.sbctl
 
-    # NPU exploration — OpenVINO runtime (built with ENABLE_INTEL_NPU) + python bindings.
-    pkgs.openvino
-    (pkgs.python3.withPackages (p: [ p.openvino ]))
-
     pkgs.perf
     pkgs.pam_u2f # provides pamu2fcfg for enrolling the YubiKey
   ];
 
   networking.hostName = "nv1";
 
-  # Debugging tools
+  # Debugging tools (and perf above)
   programs.bcc.enable = true;
   programs.sysdig.enable = true;
 
@@ -196,12 +141,9 @@
   home-manager.users.zimbatm = {
     imports = [ inputs.self.homeModules.desktop ];
     config.home.stateVersion = "22.11";
-    config.home.live-caption.enable = false;
-    config.home.packages = [
-      inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.infer-queue
-    ];
-    config.services.pueue.enable = false;
   };
+
+  system.stateVersion = "26.05";
 
   # Auto-tune power management settings
   powerManagement.powertop.enable = true;
