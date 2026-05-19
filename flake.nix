@@ -53,6 +53,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+    # Provides the zimbatm-com static site package (ViewBuilder over data/).
+    # Pulled in for the web2 nginx vhost; we don't take any other kit outputs.
+    kit = {
+      url = "github:zimbatm/kit";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+      inputs.subportal.follows = "subportal";
+    };
   };
 
   outputs =
@@ -82,6 +90,8 @@
         common = ./modules/nixos/common.nix;
         desktop = ./modules/nixos/desktop.nix;
         gnome = ./modules/nixos/gnome.nix;
+        gotosocial = ./modules/nixos/gotosocial.nix;
+        hardening = ./modules/nixos/hardening.nix;
         perlless = ./modules/nixos/perlless.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;
@@ -112,6 +122,13 @@
             inputs.agenix.nixosModules.default
           ];
         };
+        web2 = lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./machines/web2/configuration.nix
+          ];
+        };
       };
       packages = forAllSystems (
         system:
@@ -120,29 +137,30 @@
           call = p: pkgs.callPackage p { inherit inputs system; };
         in
         {
-          shell-squeeze = call ./packages/shell-squeeze;
+          agent-eyes = call ./packages/agent-eyes;
+          ask-cuda = call ./packages/ask-cuda;
+          ask-local = call ./packages/ask-local;
           core = call ./packages/core;
+          gitbutler-cli = call ./packages/gitbutler-cli;
+          gsnap = call ./packages/gsnap;
+          infer-queue = call ./packages/infer-queue;
+          lith = call ./packages/lith;
+          live-caption-log = call ./packages/live-caption-log;
+          llm-router = call ./packages/llm-router;
+          man-here = call ./packages/man-here;
           myvim = call ./packages/myvim;
           nvim = call ./packages/nvim;
-          gitbutler-cli = call ./packages/gitbutler-cli;
           ptt-dictate = call ./packages/ptt-dictate;
-          transcribe-npu = call ./packages/transcribe-npu;
-          transcribe-cpu = call ./packages/transcribe-cpu;
-          wake-listen = call ./packages/wake-listen;
-          say-back = call ./packages/say-back;
-          agent-eyes = call ./packages/agent-eyes;
-          gsnap = call ./packages/gsnap;
-          ask-local = call ./packages/ask-local;
-          ask-cuda = call ./packages/ask-cuda;
-          infer-queue = call ./packages/infer-queue;
-          llm-router = call ./packages/llm-router;
           pty-puppet = call ./packages/pty-puppet;
           rich-ssh-agent = call ./packages/rich-ssh-agent;
-          man-here = call ./packages/man-here;
-          sem-grep = call ./packages/sem-grep;
-          tab-tap = call ./packages/tab-tap;
-          live-caption-log = call ./packages/live-caption-log;
+          say-back = call ./packages/say-back;
           sel-act = call ./packages/sel-act;
+          sem-grep = call ./packages/sem-grep;
+          shell-squeeze = call ./packages/shell-squeeze;
+          tab-tap = call ./packages/tab-tap;
+          transcribe-cpu = call ./packages/transcribe-cpu;
+          transcribe-npu = call ./packages/transcribe-npu;
+          wake-listen = call ./packages/wake-listen;
           web-eyes = call ./packages/web-eyes;
         }
       );

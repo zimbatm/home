@@ -1,5 +1,6 @@
 {
   inputs,
+  config,
   pkgs,
   lib,
   ...
@@ -40,6 +41,7 @@ in
 {
   imports = [
     inputs.self.nixosModules.common
+    inputs.self.nixosModules.hardening
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.disko.nixosModules.disko
@@ -66,6 +68,27 @@ in
   # reachable, which it isn't until *some* network is up. Let networkd just
   # DHCP on the primary interface — Hetzner Cloud's DHCP is fine for this.
   networking.useDHCP = lib.mkForce true;
+
+  # Bind a static IPv6 from Hetzner's assigned /64. Cloud-init's generated
+  # network file (10-cloud-init-enp1s0.network) only does DHCPv4, so we add
+  # our own file with a lower numeric prefix so networkd picks it first.
+  # Hetzner Cloud's IPv6 gateway is always fe80::1 (link-local on-link).
+  systemd.network.networks."05-enp1s0" = {
+    matchConfig.Name = "enp1s0";
+    networkConfig = {
+      DHCP = "ipv4";
+      IPv6AcceptRA = false;
+    };
+    address = [
+      "2a01:4f8:c014:94be::1/64"
+    ];
+    routes = [
+      {
+        Gateway = "fe80::1";
+        GatewayOnLink = true;
+      }
+    ];
+  };
 
   services.weechat = {
     enable = true;
@@ -105,14 +128,162 @@ in
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1"
   ];
 
-  # Relay port. Plain TCP for now; switch to TLS (port 9443) once chat has a
-  # DNS name + ACME cert.
-  networking.firewall.allowedTCPPorts = [ 9001 ];
+  # ACME on 80 (HTTP-01), TLS relay on 9443. Port 9001 (plain TCP relay)
+  # used to be open; closed once 9443 came up — no point shipping passwords
+  # in cleartext when we have a valid cert.
+  networking.firewall.allowedTCPPorts = [
+    80
+    9443
+  ];
+
+  # Let's Encrypt cert for the weechat relay. HTTP-01 standalone challenge —
+  # no nginx needed for this single-purpose box. The post-renewal hook builds
+  # the combined PEM weechat wants (`relay.network.ssl_cert_key` is a single
+  # file with cert+key concatenated).
+  security.acme.certs."chat.ztm.io" = {
+    listenHTTP = ":80";
+    group = "weechat";
+    postRun = ''
+      install -m 0640 -o weechat -g weechat /dev/null /var/lib/weechat/relay.pem
+      cat fullchain.pem key.pem > /var/lib/weechat/relay.pem
+    '';
+    reloadServices = [ "weechat.service" ];
+  };
 
   # Local Matrix homeserver + bridges (synapse + mautrix-signal + mautrix-
   # telegram) were here previously. Removed for now — using @jonas:numtide.com
   # as a remote HS via weechat-matrix. Agenix scaffolding is kept (cheap) so
   # the bridges can come back later without re-bootstrapping.
+
+  # Offsite backups for the weechat state. Same rsync.net pattern as web2.
+  # Run `agenix -e secrets/chat-restic-ssh-key.age` to paste the rsync.net
+  # ed25519 private key body — until then the daily timer will fail.
+  age.secrets.chat-restic-password.file = ../../secrets/chat-restic-password.age;
+  age.secrets.chat-restic-ssh-key = {
+    file = ../../secrets/chat-restic-ssh-key.age;
+    mode = "0400";
+  };
+  programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";
+
+  services.restic.backups.weechat = {
+    repository = "sftp:zh6422@zh6422.rsync.net:zimbatm-home-backup/weechat";
+    passwordFile = config.age.secrets.chat-restic-password.path;
+    paths = [ "/var/lib/weechat" ];
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = true;
+      RandomizedDelaySec = "30m";
+    };
+    pruneOpts = [
+      "--keep-daily 7"
+      "--keep-weekly 4"
+      "--keep-monthly 6"
+    ];
+    extraOptions = [
+      "sftp.command='ssh -i ${config.age.secrets.chat-restic-ssh-key.path} -o StrictHostKeyChecking=yes zh6422@zh6422.rsync.net -s sftp'"
+    ];
+    initialize = true;
+  };
+
+  # ---------------------------------------------------------------------------
+  # Per-service systemd sandbox overrides (nixpkgs modules ship minimal
+  # hardening for these). Common Protect* set, with carve-outs noted.
+  # ---------------------------------------------------------------------------
+
+  # weechat: parses untrusted IRC/Matrix/Slack input + loads Python plugins.
+  # Skip MemoryDenyWriteExecute — Python uses W+X mmaps for the JIT-ish dispatch.
+  systemd.services.weechat.serviceConfig = {
+    NoNewPrivileges = true;
+    LockPersonality = true;
+    PrivateDevices = true;
+    PrivateTmp = true;
+    ProtectClock = true;
+    ProtectControlGroups = true;
+    ProtectHome = true;
+    ProtectHostname = true;
+    ProtectKernelLogs = true;
+    ProtectKernelModules = true;
+    ProtectKernelTunables = true;
+    ProtectProc = "invisible";
+    ProtectSystem = "strict";
+    ReadWritePaths = [ "/var/lib/weechat" ];
+    RestrictAddressFamilies = [
+      "AF_INET"
+      "AF_INET6"
+      "AF_UNIX"
+    ];
+    RestrictNamespaces = true;
+    RestrictRealtime = true;
+    RestrictSUIDSGID = true;
+    SystemCallArchitectures = "native";
+    SystemCallFilter = [
+      "@system-service"
+      "~@privileged @resources"
+    ];
+    UMask = "0077";
+  };
+
+  # restic backup: handles untrusted network input from rsync.net's SFTP
+  # service. Keeps User=root because it needs to read /var/lib/weechat as
+  # root, but everything else gets clamped down.
+  systemd.services."restic-backups-weechat".serviceConfig = {
+    NoNewPrivileges = true;
+    LockPersonality = true;
+    PrivateDevices = true;
+    ProtectClock = true;
+    ProtectControlGroups = true;
+    ProtectHome = true;
+    ProtectHostname = true;
+    ProtectKernelLogs = true;
+    ProtectKernelModules = true;
+    ProtectKernelTunables = true;
+    ProtectProc = "invisible";
+    ProtectSystem = "strict";
+    ReadOnlyPaths = [ "/var/lib/weechat" ];
+    ReadWritePaths = [ "/var/cache/restic-backups-weechat" ];
+    RestrictAddressFamilies = [
+      "AF_INET"
+      "AF_INET6"
+      "AF_UNIX"
+    ];
+    RestrictNamespaces = true;
+    RestrictRealtime = true;
+    RestrictSUIDSGID = true;
+    SystemCallArchitectures = "native";
+    SystemCallFilter = [
+      "@system-service"
+      "~@privileged"
+    ];
+    CapabilityBoundingSet = "";
+    UMask = "0077";
+  };
+
+  # subportal-agent runs as the lingered root user manager. Iroh's netmon
+  # needs AF_NETLINK to track interface changes — without it the agent
+  # crashes on startup ("Address family not supported by protocol").
+  systemd.user.services.subportal-agent.serviceConfig = {
+    NoNewPrivileges = true;
+    LockPersonality = true;
+    PrivateDevices = true;
+    PrivateTmp = true;
+    ProtectClock = true;
+    ProtectControlGroups = true;
+    ProtectKernelLogs = true;
+    ProtectKernelModules = true;
+    ProtectKernelTunables = true;
+    ProtectSystem = "strict";
+    RestrictAddressFamilies = [
+      "AF_INET"
+      "AF_INET6"
+      "AF_UNIX"
+      "AF_NETLINK"
+    ];
+    RestrictNamespaces = true;
+    RestrictRealtime = true;
+    RestrictSUIDSGID = true;
+    SystemCallArchitectures = "native";
+  };
 
   security.sudo.wheelNeedsPassword = false;
 

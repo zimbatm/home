@@ -174,6 +174,7 @@ in
     brave
     element-desktop
     joplin-desktop
+    self'.lith
     signal-desktop
     slack
     telegram-desktop
