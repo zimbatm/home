@@ -174,10 +174,15 @@ in
     brave
     element-desktop
     joplin-desktop
-    self'.lith
     signal-desktop
     slack
     telegram-desktop
+
+    # Terminal chat — weechat (replaces Lith; if you want Lith back, add self'.lith)
+    weechat
+
+    # CardDAV/CalDAV sync — one-shot Workspace Takeout → Stalwart import.
+    vdirsyncer
 
     # KDE stuff
     kdePackages.filelight

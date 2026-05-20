@@ -90,15 +90,65 @@ in
     ];
   };
 
-  services.weechat = {
-    enable = true;
-    headless = true;
-    package = weechat;
+  # weechat under dtach (not services.weechat / weechat-headless). dtach -N
+  # keeps a master process alive 24/7 so the relay stays up for mobile
+  # clients (Lith, weechat-android). SSH-in attaches via `dtach -a` from the
+  # bash login hook below. Detach with Ctrl-\.
+  environment.systemPackages = [
+    weechat
+    pkgs.dtach
+  ];
+
+  systemd.services.weechat = {
+    description = "weechat in a dtach session (shared, attach via bash login hook)";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+    # weechat is curses-based even via dtach — without TERM it can't init the
+    # ncurses backend and exits status=1 immediately.
+    environment.TERM = "xterm-256color";
+    serviceConfig = {
+      Type = "simple";
+      User = "weechat";
+      Group = "weechat";
+      # 0007 → group-rw on the dtach socket so zimbatm (in weechat group) can attach.
+      UMask = "0007";
+      WorkingDirectory = "/var/lib/weechat";
+      ExecStart = "${pkgs.dtach}/bin/dtach -N /var/lib/weechat/dtach.sock -r winch ${weechat}/bin/weechat --dir /var/lib/weechat";
+      # dtach hardcodes 0600 on the socket regardless of umask. Loop a tiny
+      # wait + chmod 0660 so zimbatm (in weechat group) can attach.
+      ExecStartPost = "${pkgs.bash}/bin/bash -c 'for i in 1 2 3 4 5; do [ -S /var/lib/weechat/dtach.sock ] && exec ${pkgs.coreutils}/bin/chmod 0660 /var/lib/weechat/dtach.sock; sleep 0.2; done; exit 1'";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
   };
 
-  # Same wrapped weechat in PATH so `sudo -u weechat weechat …` works for
-  # interactive setup (stopping the service + running the TUI).
-  environment.systemPackages = [ weechat ];
+  users.groups.weechat = { };
+  users.users.weechat = {
+    isSystemUser = true;
+    group = "weechat";
+    home = "/var/lib/weechat";
+    createHome = true;
+  };
+
+  programs.bash.loginShellInit = ''
+    # Auto-attach to the shared weechat dtach session. Strict gates so a
+    # plain `ssh chat <cmd>` or `ssh -t chat <cmd>` still runs the command
+    # instead of being trapped in weechat:
+    #   - interactive shell only ($- contains 'i')
+    #   - SSH-launched ($SSH_TTY set)
+    #   - user is zimbatm
+    #   - re-entry guard via $WEECHAT_INSIDE
+    #   - socket exists (service up). If down, drop to bash, don't kill SSH.
+    if [[ $- == *i* ]] \
+       && [ -n "''${SSH_TTY:-}" ] \
+       && [ "$LOGNAME" = "zimbatm" ] \
+       && [ -z "''${WEECHAT_INSIDE:-}" ] \
+       && [ -S /var/lib/weechat/dtach.sock ]; then
+      export WEECHAT_INSIDE=1
+      exec ${pkgs.dtach}/bin/dtach -a /var/lib/weechat/dtach.sock
+    fi
+  '';
 
   # subportal server-side: provides xdg-open / notify-send drop-ins that
   # forward to enrolled desktops (nv1) over iroh p2p. Enroll once with:
@@ -109,7 +159,11 @@ in
   # manager only runs at login unless we enable lingering — pin it for root
   # so the agent stays up across SSH disconnects and reboots.
   systemd.tmpfiles.rules = [
+    # subportal-agent linger (see programs.subportal block above).
     "f /var/lib/systemd/linger/root 0644 root root - -"
+    # weechat state dir — needs to exist with the right ownership before the
+    # dtach service starts. UMask in the unit picks up from here.
+    "d /var/lib/weechat 0750 weechat weechat -"
   ];
 
   # zimbatm can read/edit the weechat state dir for first-time relay setup
@@ -205,7 +259,8 @@ in
   systemd.services.weechat.serviceConfig = {
     NoNewPrivileges = true;
     LockPersonality = true;
-    PrivateDevices = true;
+    # PrivateDevices intentionally NOT set: dtach uses /dev/ptmx to allocate
+    # a pty for weechat; PrivateDevices=true blocks ptmx and dtach exits 1.
     PrivateTmp = true;
     ProtectClock = true;
     ProtectControlGroups = true;
@@ -231,7 +286,8 @@ in
       "@setuid"
       "~@resources"
     ];
-    UMask = "0077";
+    # UMask comes from the main service block (0007) — needs group-rw on the
+    # dtach socket so zimbatm (member of the weechat group) can attach.
   };
 
   # restic backup: handles untrusted network input from rsync.net's SFTP
