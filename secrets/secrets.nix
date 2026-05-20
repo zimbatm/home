@@ -29,4 +29,5 @@ in
   "workspace-zimbatm-app-password.age".publicKeys = web2Hosts;
   "chat-restic-password.age".publicKeys = chatHosts;
   "chat-restic-ssh-key.age".publicKeys = chatHosts;
+  "matrix-numtide-password.age".publicKeys = chatHosts;
 }

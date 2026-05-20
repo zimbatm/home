@@ -163,6 +163,11 @@ in
     file = ../../secrets/chat-restic-ssh-key.age;
     mode = "0400";
   };
+  age.secrets.matrix-numtide-password = {
+    file = ../../secrets/matrix-numtide-password.age;
+    owner = "weechat";
+    mode = "0400";
+  };
   programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";
 
@@ -193,6 +198,10 @@ in
 
   # weechat: parses untrusted IRC/Matrix/Slack input + loads Python plugins.
   # Skip MemoryDenyWriteExecute — Python uses W+X mmaps for the JIT-ish dispatch.
+  # SystemCallFilter must allow @setuid: weechat's hook_process forks helper
+  # processes and calls setuid(getuid()) — a no-op call that's still in the
+  # @privileged group and would crash python plugins (weechat-matrix etc.)
+  # if we filtered it out.
   systemd.services.weechat.serviceConfig = {
     NoNewPrivileges = true;
     LockPersonality = true;
@@ -219,7 +228,8 @@ in
     SystemCallArchitectures = "native";
     SystemCallFilter = [
       "@system-service"
-      "~@privileged @resources"
+      "@setuid"
+      "~@resources"
     ];
     UMask = "0077";
   };
