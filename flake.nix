@@ -61,6 +61,13 @@
       inputs.treefmt-nix.follows = "treefmt-nix";
       inputs.subportal.follows = "subportal";
     };
+    # Numtide arcade1 (numcraft) — NeoForge 1.21.8 server + mod set.
+    # mc1 imports its `minecraft.nix` directly to reuse the neoforgeServer
+    # derivation, mod list, and whitelist.toml (we're already in it).
+    numcraft = {
+      url = "github:numtide/numcraft";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -129,11 +136,25 @@
             ./machines/web2/configuration.nix
           ];
         };
+        mail = lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./machines/mail/configuration.nix
+          ];
+        };
         agents = lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
           modules = [
             ./machines/agents/configuration.nix
+          ];
+        };
+        mc1 = lib.nixosSystem {
+          system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
+          modules = [
+            ./machines/mc1/configuration.nix
           ];
         };
       };
@@ -173,15 +194,18 @@
       );
     in
     {
-      inherit nixosModules homeModules nixosConfigurations packages;
+      inherit
+        nixosModules
+        homeModules
+        nixosConfigurations
+        packages
+        ;
 
       formatter = forAllSystems (
         system: (treefmtFor inputs.nixpkgs.legacyPackages.${system}).config.build.wrapper
       );
-      checks = forAllSystems (
-        system: {
-          fmt = (treefmtFor inputs.nixpkgs.legacyPackages.${system}).config.build.check inputs.self;
-        }
-      );
+      checks = forAllSystems (system: {
+        fmt = (treefmtFor inputs.nixpkgs.legacyPackages.${system}).config.build.check inputs.self;
+      });
     };
 }

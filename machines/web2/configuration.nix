@@ -12,9 +12,8 @@
     ./disko.nix
   ];
 
-  # Hetzner Cloud cx23, hel1, BIOS GRUB. Re-provisioned via nixos-anywhere
-  # from this config. Public-IP host serving gts.zimbatm.com today; Stalwart
-  # for zimbatm.com mail coming next.
+  # Hetzner Cloud cx23, hel1, BIOS GRUB. Hosts the gts.zimbatm.com (GoToSocial)
+  # service and the zimbatm.com static site.
   nixpkgs.hostPlatform = "x86_64-linux";
   networking.hostName = "web2";
 
@@ -40,21 +39,10 @@
     ];
   };
 
-  # Hetzner Cloud Volumes attached to web2:
-  #   web2-gts   = scsi-0HC_Volume_105754691 → gotosocial state (5.6GB sqlite)
-  #   web2-mail  = scsi-0HC_Volume_105754681 → Stalwart (mail)
-  # nofail so a missing volume doesn't block boot. Disko intentionally only
-  # touches /dev/sda — leaves the volumes alone.
+  # Hetzner Cloud Volume web2-gts (scsi-0HC_Volume_105754691) holds the
+  # gotosocial sqlite + media. nofail so a missing volume can't block boot.
   fileSystems."/var/lib/gotosocial" = {
     device = "/dev/disk/by-id/scsi-0HC_Volume_105754691";
-    fsType = "ext4";
-    options = [
-      "x-systemd.device-timeout=30s"
-      "nofail"
-    ];
-  };
-  fileSystems."/var/lib/stalwart" = {
-    device = "/dev/disk/by-id/scsi-0HC_Volume_105754681";
     fsType = "ext4";
     options = [
       "x-systemd.device-timeout=30s"
@@ -96,124 +84,6 @@
     globalRedirect = "zimbatm.com";
   };
 
-  # --- Stalwart mail server -----------------------------------------------
-  #
-  # Listens directly on 25/465/587 (SMTP) and 143/993 (IMAP) with TLS from
-  # the ACME-issued mail.zimbatm.com cert (group=stalwart so the service can
-  # read /var/lib/acme/mail.zimbatm.com/{key,fullchain}.pem). Web admin runs
-  # on localhost:8080; nginx vhost at mail.zimbatm.com proxies to it.
-  #
-  # Bootstrap: after first deploy + DNS, visit https://mail.zimbatm.com/admin
-  # and log in as user `admin` with the password in
-  # /run/credentials/stalwart.service/admin_secret (i.e. the decrypted agenix
-  # secret). Create the zimbatm.com domain + your mailbox via the web UI.
-
-  age.secrets.stalwart-admin-secret.file = ../../secrets/stalwart-admin-secret.age;
-
-  # One-shot imapsync migration from Google Workspace → Stalwart.
-  # `agenix -e secrets/workspace-zimbatm-app-password.age` to paste the
-  # Workspace app password (https://myaccount.google.com/apppasswords).
-  # Then on web2:
-  #   sudo -E env \
-  #     SRC_PW=$(cat /run/agenix/workspace-zimbatm-app-password) \
-  #     DST_PW=$(cat /run/agenix/stalwart-zimbatm-password) \
-  #     imapsync \
-  #       --host1 imap.gmail.com --user1 zimbatm@zimbatm.com --password1 "$SRC_PW" --ssl1 \
-  #       --host2 localhost --user2 zimbatm@zimbatm.com --password2 "$DST_PW" --ssl2 \
-  #       --sslargs2 SSL_verify_mode=0 \
-  #       --automap --addheader
-  age.secrets.stalwart-zimbatm-password.file = ../../secrets/stalwart-zimbatm-password.age;
-  age.secrets.workspace-zimbatm-app-password.file = ../../secrets/workspace-zimbatm-app-password.age;
-  environment.systemPackages = [ pkgs.imapsync ];
-
-  # nginx's enableACME puts the cert in group=nginx (chown acme:nginx). Add
-  # stalwart to nginx group so it can read fullchain.pem / key.pem for its
-  # own SMTP/IMAP TLS listeners.
-  security.acme.certs."mail.zimbatm.com".reloadServices = [ "stalwart.service" ];
-  users.users.stalwart.extraGroups = [ "nginx" ];
-
-  services.stalwart = {
-    enable = true;
-    openFirewall = true;
-    stateVersion = "26.05";
-    credentials.admin_secret = config.age.secrets.stalwart-admin-secret.path;
-    settings = {
-      lookup.default.hostname = "mail.zimbatm.com";
-
-      server.listener.smtp = {
-        bind = [ "[::]:25" ];
-        protocol = "smtp";
-      };
-      server.listener.submissions = {
-        bind = [ "[::]:465" ];
-        protocol = "smtp";
-        tls.implicit = true;
-      };
-      server.listener.submission = {
-        bind = [ "[::]:587" ];
-        protocol = "smtp";
-      };
-      server.listener.imap = {
-        bind = [ "[::]:143" ];
-        protocol = "imap";
-      };
-      server.listener.imaps = {
-        bind = [ "[::]:993" ];
-        protocol = "imap";
-        tls.implicit = true;
-      };
-      # gotosocial owns 8080; pick a different localhost port for the admin/JMAP/DAV listener.
-      server.listener.management = {
-        bind = [ "127.0.0.1:8485" ];
-        protocol = "http";
-      };
-
-      # TLS from Let's Encrypt
-      certificate.default = {
-        cert = "%{file:/var/lib/acme/mail.zimbatm.com/fullchain.pem}%";
-        private-key = "%{file:/var/lib/acme/mail.zimbatm.com/key.pem}%";
-        default = true;
-      };
-
-      # First-login admin. Use the webadmin to create real users + the
-      # zimbatm.com domain, then disable this entry (set authentication
-      # fallback-admin.enable=false in a future deploy).
-      authentication.fallback-admin = {
-        user = "admin";
-        secret = "%{file:/run/credentials/stalwart.service/admin_secret}%";
-      };
-    };
-  };
-
-  services.nginx.virtualHosts."mail.zimbatm.com" = {
-    enableACME = true;
-    forceSSL = true;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:8485";
-      proxyWebsockets = true;
-      extraConfig = ''
-        proxy_set_header Host $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-      '';
-    };
-  };
-
-  # MTA-STS policy host. RFC 8461: receiving MTAs fetch
-  # https://mta-sts.zimbatm.com/.well-known/mta-sts.txt and enforce the
-  # policy. `mode: testing` initially — receivers log STS-failures without
-  # bouncing; upgrade to `enforce` once we've confirmed clean reports.
-  services.nginx.virtualHosts."mta-sts.zimbatm.com" = {
-    enableACME = true;
-    forceSSL = true;
-    locations."= /.well-known/mta-sts.txt" = {
-      extraConfig = ''
-        default_type text/plain;
-        return 200 "version: STSv1\nmode: testing\nmx: mail.zimbatm.com\nmax_age: 86400\n";
-      '';
-    };
-  };
-
   # Offsite backups → rsync.net via restic SFTP. Same pattern kin-infra used
   # before. SSH key + restic password live in agenix; the SSH key is a
   # placeholder until you run `agenix -e secrets/web2-restic-ssh-key.age`
@@ -251,9 +121,6 @@
     {
       gotosocial = common "gotosocial" // {
         paths = [ "/var/lib/gotosocial" ];
-      };
-      stalwart = common "stalwart" // {
-        paths = [ "/var/lib/stalwart" ];
       };
     };
 
@@ -317,38 +184,6 @@
     CapabilityBoundingSet = "";
     UMask = "0077";
   };
-  systemd.services."restic-backups-stalwart".serviceConfig = {
-    NoNewPrivileges = true;
-    LockPersonality = true;
-    PrivateDevices = true;
-    ProtectClock = true;
-    ProtectControlGroups = true;
-    ProtectHome = true;
-    ProtectHostname = true;
-    ProtectKernelLogs = true;
-    ProtectKernelModules = true;
-    ProtectKernelTunables = true;
-    ProtectProc = "invisible";
-    ProtectSystem = "strict";
-    ReadOnlyPaths = [ "/var/lib/stalwart" ];
-    ReadWritePaths = [ "/var/cache/restic-backups-stalwart" ];
-    RestrictAddressFamilies = [
-      "AF_INET"
-      "AF_INET6"
-      "AF_UNIX"
-    ];
-    RestrictNamespaces = true;
-    RestrictRealtime = true;
-    RestrictSUIDSGID = true;
-    SystemCallArchitectures = "native";
-    SystemCallFilter = [
-      "@system-service"
-      "~@privileged"
-    ];
-    CapabilityBoundingSet = "";
-    UMask = "0077";
-  };
-
   security.sudo.wheelNeedsPassword = false;
 
   system.stateVersion = "26.05";

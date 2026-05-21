@@ -177,12 +177,16 @@ in
     signal-desktop
     slack
     telegram-desktop
+    thunderbird
 
     # Terminal chat — weechat (replaces Lith; if you want Lith back, add self'.lith)
     weechat
 
     # CardDAV/CalDAV sync — one-shot Workspace Takeout → Stalwart import.
+    # `age` is needed by the `pass-stalwart` fetch hook (~/.local/bin/pass-stalwart)
+    # that vdirsyncer calls to decrypt the agenix-stored Stalwart password.
     vdirsyncer
+    age
 
     # KDE stuff
     kdePackages.filelight
