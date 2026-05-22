@@ -181,7 +181,10 @@
       "@system-service"
       "~@privileged"
     ];
-    CapabilityBoundingSet = "";
+    # restic runs as root but service data dirs are mode 0700 owned by the
+    # service user; root needs CAP_DAC_READ_SEARCH to traverse them.
+    CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
+    AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
     UMask = "0077";
   };
   security.sudo.wheelNeedsPassword = false;

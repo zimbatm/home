@@ -290,7 +290,12 @@
       "@system-service"
       "~@privileged"
     ];
-    CapabilityBoundingSet = "";
+    # restic runs as root but Stalwart's /var/lib/stalwart/db is mode 0700
+    # owned by the stalwart user. Without CAP_DAC_READ_SEARCH the root
+    # process can't traverse it (DAC mode check still applies); restic
+    # then logs "permission denied" and saves an empty snapshot.
+    CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
+    AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
     UMask = "0077";
   };
 
