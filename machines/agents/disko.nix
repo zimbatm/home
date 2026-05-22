@@ -1,17 +1,21 @@
 {
-  # Hetzner Cloud cpx51 — 360 GB root disk, BIOS-boot. Single ext4 root,
-  # 1 MiB BIOS-boot partition for GRUB on GPT. No volumes (yet); if we ever
-  # need them for a build cache or scratch space, attach + mount alongside.
+  # UEFI GPT: 512 MiB ESP at /boot, rest ext4 root. systemd-boot to the ESP.
+  # Hetzner Cloud Volumes are external and intentionally NOT in disko.
   disko.devices.disk.main = {
     type = "disk";
     device = "/dev/sda";
     content = {
       type = "gpt";
       partitions = {
-        boot = {
-          size = "1M";
-          type = "EF02";
-          priority = 1;
+        esp = {
+          size = "512M";
+          type = "EF00";
+          content = {
+            type = "filesystem";
+            format = "vfat";
+            mountpoint = "/boot";
+            mountOptions = [ "umask=0077" ];
+          };
         };
         root = {
           size = "100%";

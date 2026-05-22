@@ -174,6 +174,7 @@ in
     brave
     element-desktop
     joplin-desktop
+    prismlauncher
     signal-desktop
     slack
     telegram-desktop

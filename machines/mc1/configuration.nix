@@ -14,8 +14,40 @@ let
     inherit pkgs lib;
   };
 
-  neoforgeServer = numcraft.neoforgeServer;
+  # The neoforge-21.8.49 installer's --fat-offline output bytes drifted since
+  # numcraft pinned its hash (NeoForged re-published or a transitive lib
+  # rolled). Override the src hash to the value Nix actually produces today.
+  # Drop this block once numcraft.nix lands a refreshed hash upstream.
+  neoforgeServer = numcraft.neoforgeServer.overrideAttrs (old: {
+    src = pkgs.fetchurl {
+      url = "https://maven.neoforged.net/releases/net/neoforged/neoforge/21.8.49/neoforge-21.8.49-installer.jar";
+      hash = "sha256-NmQaxGabKZ+/RiYTdlUJnqi+3Rp2RJNrXtAnrFoUVic=";
+      downloadToTemp = true;
+      nativeBuildInputs = [
+        pkgs.jdk
+        pkgs.perl5Packages.strip-nondeterminism
+      ];
+      postFetch = ''
+        java -jar $downloadedFile --fat-offline --fat $out
+        strip-nondeterminism -t zip $out
+      '';
+    };
+  });
+
   serverMods = numcraft.server.modList;
+
+  # lazymc 0.2.11 (latest as of 2024-03) predates Minecraft 1.21's "Transfer"
+  # handshake intent (next_state=3). When a client gets /transfer'd to a
+  # lazymc-fronted backend, lazymc rejects with "unknown protcol state (3)".
+  # Single-line patch: treat state 3 the same as state 2 (Login). The
+  # original handshake bytes are forwarded verbatim to the upstream JVM,
+  # so NeoForge still sees the Transfer intent and handles re-auth.
+  lazymc = pkgs.lazymc.overrideAttrs (old: {
+    postPatch = (old.postPatch or "") + ''
+      substituteInPlace src/proto/client.rs \
+        --replace-fail '2 => Some(Self::Login),' '2 | 3 => Some(Self::Login),'
+    '';
+  });
 
   # ---------------------------------------------------------------------------
   # Worlds. Source-of-truth list — the zip has 16 save dirs, two pairs of
@@ -37,69 +69,94 @@ let
       port = 25566;
     }
     {
+      dir = "manor(1)";
+      short = "manor-1";
+      port = 25567;
+    }
+    {
       dir = "restaurant";
       short = "restaurant";
-      port = 25567;
+      port = 25568;
     }
     {
       dir = "tvgirl";
       short = "tvgirl";
-      port = 25568;
-    }
-    {
-      dir = "galaxi";
-      short = "galaxi";
       port = 25569;
     }
     {
       dir = "GALAXI";
-      short = "galaxi2";
+      short = "galaxi";
       port = 25570;
+    }
+    {
+      dir = "galaxi (1)";
+      short = "galaxi-1";
+      port = 25571;
     }
     {
       dir = "GAMBLING";
       short = "gambling";
-      port = 25571;
+      port = 25572;
     }
     {
       dir = "hero";
       short = "hero";
-      port = 25572;
-    }
-    {
-      dir = "LOVE";
-      short = "love";
       port = 25573;
     }
     {
-      dir = "mind";
-      short = "mind";
+      dir = "LOVE IN BOTTLE";
+      short = "love-in-bottle";
       port = 25574;
+    }
+    {
+      dir = "mind electric";
+      short = "mind-electric";
+      port = 25575;
     }
     {
       dir = "death";
       short = "death";
-      port = 25575;
+      port = 25576;
     }
     {
-      dir = "for";
-      short = "for";
-      port = 25576;
+      dir = "for mother";
+      short = "for-mother";
+      port = 25577;
     }
     {
       dir = "idk";
       short = "idk";
-      port = 25577;
-    }
-    {
-      dir = "New";
-      short = "new";
       port = 25578;
     }
     {
-      dir = "manor(1)";
-      short = "manor2";
+      dir = "New World";
+      short = "new-world";
       port = 25579;
+    }
+    {
+      dir = "New World (1)";
+      short = "new-world-1";
+      port = 25580;
+    }
+    {
+      dir = "New World (2)";
+      short = "new-world-2";
+      port = 25581;
+    }
+    {
+      dir = "New World (3)";
+      short = "new-world-3";
+      port = 25582;
+    }
+    {
+      dir = "New World (4)";
+      short = "new-world-4";
+      port = 25583;
+    }
+    {
+      dir = "New World (5)";
+      short = "new-world-5";
+      port = 25584;
     }
   ];
 
@@ -128,38 +185,68 @@ let
 
   # server.properties shared template. Per-world overrides slot in port,
   # level-name, motd. Online-mode stays true: no proxy, each backend
-  # authenticates against Mojang directly.
+  # authenticates against Mojang directly. Bridge gets superflat + RCON
+  # (localhost-only, password generated at activation) so the portal room
+  # can be laid out remotely via mcrcon.
+  bridgeRconPort = 25599;
   mkServerProperties =
     w:
     let
-      backendPort = if (w.bridge or false) then w.port else w.port + internalOffset;
-      bind = if (w.bridge or false) then "0.0.0.0" else "127.0.0.1";
+      isBridge = w.bridge or false;
+      backendPort = if isBridge then w.port else w.port + internalOffset;
+      bind = if isBridge then "0.0.0.0" else "127.0.0.1";
+      levelType = if isBridge then "minecraft:flat" else "minecraft:normal";
+      # Superflat: bedrock + dirt + grass. features=false suppresses villages,
+      # trees, etc. so the lobby stays clean. The actual placement is wherever
+      # the layers happen to stack — surface ends up at y=-61 by default.
+      generatorSettings =
+        if isBridge then
+          ''{"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains","features":false}''
+        else
+          "{}";
+      rconLines =
+        if isBridge then
+          ''
+            enable-rcon=true
+            rcon.port=${toString bridgeRconPort}
+            rcon.password=PLACEHOLDER_RCON_PASSWORD
+          ''
+        else
+          "enable-rcon=false\n";
+      # Bridge: peaceful kills all hostile mobs + prevents respawn (lobby
+      # world; no need for slimes wandering the portal room). Other worlds
+      # keep normal difficulty so survival gameplay still works.
+      difficulty = if isBridge then "peaceful" else "normal";
+      spawnMonsters = if isBridge then "false" else "true";
+      # Bridge: function-permission-level=4 so command blocks driving the
+      # portal /transfer commands have op-equivalent permission. /transfer
+      # is gated at level 3, default function level (2) silently rejects it.
+      functionPermLevel = if isBridge then 4 else 2;
     in
     pkgs.writeText "server-${w.short}.properties" ''
-      accepts-transfers=false
+      accepts-transfers=true
       allow-flight=true
       allow-nether=true
       broadcast-console-to-ops=true
       broadcast-rcon-to-ops=true
-      difficulty=normal
-      enable-command-block=false
+      difficulty=${difficulty}
+      enable-command-block=true
       enable-jmx-monitoring=false
       enable-query=false
-      enable-rcon=false
-      enable-status=true
+      ${rconLines}      enable-status=true
       enforce-secure-profile=true
       enforce-whitelist=true
       entity-broadcast-range-percentage=100
       force-gamemode=false
-      function-permission-level=2
+      function-permission-level=${toString functionPermLevel}
       gamemode=survival
       generate-structures=true
-      generator-settings={}
+      generator-settings=${generatorSettings}
       hardcore=false
       hide-online-players=false
       level-name=${w.dir}
       level-seed=
-      level-type=minecraft:normal
+      level-type=${levelType}
       log-ips=true
       max-chained-neighbor-updates=1000000
       max-players=20
@@ -180,7 +267,7 @@ let
       server-ip=${bind}
       server-port=${toString backendPort}
       simulation-distance=8
-      spawn-monsters=true
+      spawn-monsters=${spawnMonsters}
       spawn-protection=0
       sync-chunk-writes=true
       use-native-transport=true
@@ -188,28 +275,74 @@ let
       white-list=true
     '';
 
-  # Per-world directory bootstrap. Runs every activation: lays down config
-  # files, ensures world/ exists (or warns), wires the shared mods symlink.
-  # Does NOT touch world data after first creation — only management files.
+  # Per-world directory bootstrap. Runs every activation: ensures the dir
+  # exists and is owned by minecraft, plus the immutable bits (mods/libs
+  # symlinks, eula). Service-managed files (server.properties, whitelist,
+  # ops) are rewritten by ExecStartPre on every restart so the JVM can't
+  # drift them away from what Nix declares.
   mkWorldDirSetup =
     w:
     let
       worldRoot = "/var/lib/minecraft/worlds/${w.short}";
-      props = mkServerProperties w;
     in
     ''
       mkdir -p "${worldRoot}"
-      install -m 0644 -o minecraft -g minecraft ${props} "${worldRoot}/server.properties"
+      chown minecraft:minecraft "${worldRoot}"
+      chmod 0750 "${worldRoot}"
       printf '%s\n' "eula=true" > "${worldRoot}/eula.txt"
-      printf '%s' '${whitelistJson}' > "${worldRoot}/whitelist.json"
-      printf '%s' '${opsJson}' > "${worldRoot}/ops.json"
-      chown minecraft:minecraft "${worldRoot}/eula.txt" "${worldRoot}/whitelist.json" "${worldRoot}/ops.json"
+      chown minecraft:minecraft "${worldRoot}/eula.txt"
       ln -sfn /var/lib/minecraft/mods "${worldRoot}/mods"
-      ln -sfn /var/lib/minecraft/libraries "${worldRoot}/libraries" 2>/dev/null || true
-      # Save dir lives at worldRoot/${w.dir} (matches level-name). If it's
-      # missing on first deploy that's expected — upload from the zip per README.
-      if [ ! -d "${worldRoot}/${w.dir}" ]; then
-        echo "warn: ${worldRoot}/${w.dir} not present (upload via rsync, see README)" >&2
+      ln -sfn /var/lib/minecraft/libraries "${worldRoot}/libraries"
+    '';
+
+  # Each world gets its own UDP voicechat port (default 24454 collides
+  # across worlds — bridge holds it, every lazymc backend's JVM crashes
+  # on startup trying to bind the same port). Offset 1111 below TCP keeps
+  # the numbers neighborly: bridge=24454, manor=24455, ..., last=24473.
+  voicechatPortFor = w: w.port - 1111;
+
+  # Idempotent server-state refresh, run as ExecStartPre. Overwrites
+  # server.properties (NeoForge likes to normalize this on shutdown),
+  # whitelist.json, ops.json. Runs as the minecraft user; only writes
+  # files inside the world dir which the user owns. For bridge, also
+  # substitutes the RCON password placeholder with the per-host generated
+  # value from /var/lib/minecraft/bridge-rcon-password.
+  mkPreStart =
+    w:
+    let
+      props = mkServerProperties w;
+      isBridge = w.bridge or false;
+      rconSubst =
+        if isBridge then
+          ''
+            if [ -r /var/lib/minecraft/bridge-rcon-password ]; then
+              pw=$(cat /var/lib/minecraft/bridge-rcon-password)
+              sed -i "s|^rcon.password=.*|rcon.password=$pw|" server.properties
+            fi
+          ''
+        else
+          "";
+      vcPort = toString (voicechatPortFor w);
+    in
+    pkgs.writeShellScript "minecraft-${w.short}-prestart" ''
+      cd /var/lib/minecraft/worlds/${w.short}
+      cp -f ${props} server.properties
+      chmod 0644 server.properties
+      ${rconSubst}
+      cat > whitelist.json <<'EOF'
+${whitelistJson}
+EOF
+      cat > ops.json <<'EOF'
+${opsJson}
+EOF
+      chmod 0644 whitelist.json ops.json
+      # Per-world voicechat port — bridge holds the default 24454, every
+      # other backend would crash on bind without a unique port here.
+      mkdir -p config/voicechat
+      if [ -f config/voicechat/voicechat-server.properties ]; then
+        sed -i "s/^port=.*/port=${vcPort}/" config/voicechat/voicechat-server.properties
+      else
+        printf 'port=%s\nbind_address=\n' "${vcPort}" > config/voicechat/voicechat-server.properties
       fi
     '';
 
@@ -225,6 +358,7 @@ let
       User = "minecraft";
       Group = "minecraft";
       WorkingDirectory = "/var/lib/minecraft/worlds/${bridge.short}";
+      ExecStartPre = mkPreStart bridge;
       ExecStart = "${neoforgeServer}/bin/minecraft-server nogui";
       Restart = "on-failure";
       RestartSec = "10s";
@@ -304,7 +438,8 @@ let
         User = "minecraft";
         Group = "minecraft";
         WorkingDirectory = "/var/lib/minecraft/worlds/${w.short}";
-        ExecStart = "${pkgs.lazymc}/bin/lazymc -c ${toml} start";
+        ExecStartPre = mkPreStart w;
+        ExecStart = "${lazymc}/bin/lazymc -c ${toml} start";
         Restart = "on-failure";
         RestartSec = "10s";
         NoNewPrivileges = true;
@@ -357,7 +492,7 @@ in
     ./disko.nix
   ];
 
-  # Hetzner Cloud cx42, fsn1, UEFI. Personal modded Minecraft hosting,
+  # Hetzner Cloud cpx42, fsn1, UEFI. Personal modded Minecraft hosting,
   # NeoForge 1.21.8 — same mod set as Numtide's arcade1 (numcraft pinned as
   # a flake input). One always-on "bridge" world + 14 on-demand worlds
   # behind lazymc, all sharing the same JVM/mods/whitelist. Public surface:
@@ -376,10 +511,13 @@ in
       DHCP = "ipv4";
       IPv6AcceptRA = false;
     };
-    # IPv6 /64 from Hetzner: filled in post-provisioning. Until then,
-    # comment-only — DHCPv4 is enough to reach the box.
-    # address = [ "2a01:4f8:xxxx:xxxx::1/64" ];
-    # routes = [ { Gateway = "fe80::1"; GatewayOnLink = true; } ];
+    address = [ "2a01:4f8:c013:cb17::1/64" ];
+    routes = [
+      {
+        Gateway = "fe80::1";
+        GatewayOnLink = true;
+      }
+    ];
   };
 
   users.users.zimbatm = {
@@ -392,6 +530,13 @@ in
     "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1"
   ];
 
+  # rsync: world uploads. mcrcon: local control of the bridge JVM (place
+  # command blocks, set spawn, etc.) without needing in-game ops chat.
+  environment.systemPackages = [
+    pkgs.rsync
+    pkgs.mcrcon
+  ];
+
   # Minecraft user + state dir.
   users.groups.minecraft = { };
   users.users.minecraft = {
@@ -401,10 +546,10 @@ in
     createHome = true;
   };
 
-  # Firewall: each world its own TCP port. UDP 24454 for the voicechat mod
-  # (shared across all worlds — only one is ever active per player).
+  # Firewall: each world its own TCP port + matching UDP port for voicechat
+  # (each world's JVM binds its own UDP port; see voicechatPortFor).
   networking.firewall.allowedTCPPorts = publicTcpPorts;
-  networking.firewall.allowedUDPPorts = [ 24454 ];
+  networking.firewall.allowedUDPPorts = map voicechatPortFor worldDefs;
 
   # Populate /var/lib/minecraft/{mods,libraries} from the neoforgeServer
   # derivation, plus per-world bootstrap. Idempotent — safe to re-run on
@@ -416,6 +561,14 @@ in
 
   system.activationScripts.minecraft-setup = {
     text = ''
+      # RCON password for the bridge — generated once per host, persisted
+      # across rebuilds. ExecStartPre substitutes it into server.properties.
+      if [ ! -s /var/lib/minecraft/bridge-rcon-password ]; then
+        head -c 24 /dev/urandom | base64 > /var/lib/minecraft/bridge-rcon-password
+        chmod 0640 /var/lib/minecraft/bridge-rcon-password
+        chown minecraft:minecraft /var/lib/minecraft/bridge-rcon-password
+      fi
+
       # Shared mods + libraries dirs. Wipe + relink each activation so we
       # pick up nixpkgs/numcraft bumps without orphaned mod versions.
       rm -rf /var/lib/minecraft/mods /var/lib/minecraft/libraries
@@ -429,7 +582,10 @@ in
       # Per-world scaffolding.
       ${lib.concatMapStrings mkWorldDirSetup worldDefs}
     '';
-    deps = [ ];
+    # The per-world chown reference the minecraft user — must run after
+    # `users` populates /etc/passwd. Without this, the initrd activation
+    # runs before user creation and chown fails for every world.
+    deps = [ "users" "groups" ];
   };
 
   systemd.services = lib.mkMerge [

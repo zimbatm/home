@@ -201,6 +201,40 @@
         packages
         ;
 
+      # `nix run .#dns-preview` shows the diff between dns/dnsconfig.js and
+      # Namecheap's current state. `nix run .#dns-push` applies it. Both
+      # expect NAMECHEAP_API_USER and NAMECHEAP_API_KEY in env (.envrc.local).
+      apps = forAllSystems (system: let
+        pkgs = pkgsFor system;
+        dnsWrap = action: pkgs.writeShellApplication {
+          name = "dns-${action}";
+          runtimeInputs = [ pkgs.dnscontrol ];
+          text = ''
+            set -eu
+            : "''${NAMECHEAP_API_USER:?source .envrc.local first}"
+            : "''${NAMECHEAP_API_KEY:?source .envrc.local first}"
+            ROOT=$(git rev-parse --show-toplevel)
+            cd "$ROOT/dns"
+            TMP=$(mktemp -d)
+            trap 'rm -rf "$TMP"' EXIT
+            cat > "$TMP/creds.json" <<EOF
+            {
+              "namecheap": {
+                "TYPE":     "NAMECHEAP",
+                "apikey":   "$NAMECHEAP_API_KEY",
+                "apiuser":  "$NAMECHEAP_API_USER",
+                "username": "$NAMECHEAP_API_USER"
+              }
+            }
+            EOF
+            exec dnscontrol ${action} --config dnsconfig.js --creds "$TMP/creds.json" "$@"
+          '';
+        };
+      in {
+        dns-preview = { type = "app"; program = "${dnsWrap "preview"}/bin/dns-preview"; };
+        dns-push    = { type = "app"; program = "${dnsWrap "push"}/bin/dns-push"; };
+      });
+
       formatter = forAllSystems (
         system: (treefmtFor inputs.nixpkgs.legacyPackages.${system}).config.build.wrapper
       );

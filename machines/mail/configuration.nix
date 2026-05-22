@@ -120,6 +120,7 @@
         user = "admin";
         secret = "%{file:/run/credentials/stalwart.service/admin_secret}%";
       };
+
     };
   };
 
@@ -137,9 +138,8 @@
     };
   };
 
-  # MTA-STS policy host. Moved with the mail stack — all mail-things on one
-  # box. The policy declares mail.zimbatm.com as the MX; that target hostname
-  # is unchanged, only its A/AAAA records will repoint to this VM.
+  # MTA-STS policy host (RFC 8461). The policy declares mail.zimbatm.com as
+  # the MX; receivers fetch this and remember it for max_age.
   services.nginx.virtualHosts."mta-sts.zimbatm.com" = {
     enableACME = true;
     forceSSL = true;
@@ -149,6 +149,84 @@
         return 200 "version: STSv1\nmode: testing\nmx: mail.zimbatm.com\nmax_age: 86400\n";
       '';
     };
+  };
+
+  # Snappymail webmail at mail.ztm.io (internal-facing — ztm.io domain).
+  # Talks to Stalwart over localhost IMAP/SMTP. Nixpkgs has the package but
+  # no module, so wire php-fpm + nginx manually. The package hard-codes
+  # APP_DATA_FOLDER_PATH=/var/lib/snappymail/ in include.php — keep it there.
+  users.users.snappymail = {
+    isSystemUser = true;
+    group = "snappymail";
+  };
+  users.groups.snappymail = { };
+  systemd.tmpfiles.rules = [
+    "d /var/lib/snappymail 0750 snappymail snappymail -"
+  ];
+
+  services.phpfpm.pools.snappymail = {
+    user = "snappymail";
+    group = "snappymail";
+    settings = {
+      "listen.owner" = "nginx";
+      "listen.group" = "nginx";
+      "pm" = "dynamic";
+      "pm.max_children" = 10;
+      "pm.start_servers" = 2;
+      "pm.min_spare_servers" = 1;
+      "pm.max_spare_servers" = 3;
+      "php_admin_value[error_log]" = "stderr";
+      "php_admin_flag[log_errors]" = true;
+      "catch_workers_output" = true;
+      # Capture a stack trace any time a request blocks > 200ms — surfaces
+      # where the time actually goes (bcrypt, IMAP, etc.).
+      "request_slowlog_timeout" = "200ms";
+      "slowlog" = "/var/log/phpfpm-snappymail-slow.log";
+    };
+    phpEnv.PATH = lib.makeBinPath [ pkgs.coreutils ];
+    # Big perf win: opcache caches compiled PHP across requests. Without it
+    # every page recompiles ~50 MB of source. Realpath cache helps Snappymail's
+    # filesystem-heavy include patterns.
+    phpOptions = ''
+      opcache.enable=1
+      opcache.enable_cli=1
+      opcache.memory_consumption=128
+      opcache.interned_strings_buffer=16
+      opcache.max_accelerated_files=10000
+      opcache.revalidate_freq=2
+      opcache.fast_shutdown=1
+      realpath_cache_size=4096K
+      realpath_cache_ttl=600
+    '';
+  };
+
+  services.nginx.commonHttpConfig = ''
+    log_format snappymail_timing '$remote_addr "$request" '
+                                 'status=$status size=$body_bytes_sent '
+                                 'request_time=$request_time upstream_time=$upstream_response_time '
+                                 'ua="$http_user_agent"';
+  '';
+
+  services.nginx.virtualHosts."mail.ztm.io" = {
+    enableACME = true;
+    forceSSL = true;
+    root = "${pkgs.snappymail}";
+    extraConfig = ''
+      access_log syslog:server=unix:/dev/log snappymail_timing;
+    '';
+    locations."/" = {
+      index = "index.php";
+      tryFiles = "$uri $uri/ /index.php$is_args$args";
+    };
+    locations."~ \\.php$".extraConfig = ''
+      include ${pkgs.nginx}/conf/fastcgi_params;
+      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+      fastcgi_param PATH_INFO $fastcgi_path_info;
+      fastcgi_pass unix:${config.services.phpfpm.pools.snappymail.socket};
+    '';
+    locations."~ ^/(data|.git)".extraConfig = ''
+      deny all;
+    '';
   };
 
   # Offsite backups → rsync.net via restic SFTP. Separate repo from web2's

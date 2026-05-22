@@ -12,9 +12,8 @@ let
   chat = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILBblE/Tba4Zpfic7CV67CM7vJOsOnDQC+HPCl25zs7Y";
   web2 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGj0tVR0yzuGR+HBoXh6HqUQOH3JHNUlKQM4/t74r3Gz";
   mail = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXTqRXCrgBb03kQOsilzkCwaVgdUHpggIZwhNX6XZcM";
-  # mc1 host pubkey — fill in after provisioning (see machines/mc1/README.md
-  # for the bootstrap dance), then re-run `agenix -r` on the mc1 secrets.
-  # mc1 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... root@mc1";
+  mc1 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFhNSteHsLGklQ6WfEuTl+jcWY10YxB9MTktVyjrvQ1O";
+  agents = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAION9fEQJzwaGn7LzRiRWf9sGAU0hgRd2DtaMOm/DXr+F";
 
   chatHosts = [
     zimbatm
@@ -30,7 +29,7 @@ let
   ];
   mc1Hosts = [
     zimbatm
-    # mc1
+    mc1
   ];
 in
 {

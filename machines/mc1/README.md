@@ -29,23 +29,28 @@ name from the zip — that's what `level-name=` points at. Don't rename it.
 
 ## World <-> port mapping
 
-| World         | Port  | Wake mode |
-|---------------|-------|-----------|
-| `bridge`      | 25565 | always-on |
-| `manor`       | 25566 | lazymc    |
-| `restaurant`  | 25567 | lazymc    |
-| `tvgirl`      | 25568 | lazymc    |
-| `galaxi`      | 25569 | lazymc    |
-| `GALAXI`      | 25570 | lazymc    |
-| `GAMBLING`    | 25571 | lazymc    |
-| `hero`        | 25572 | lazymc    |
-| `LOVE`        | 25573 | lazymc    |
-| `mind`        | 25574 | lazymc    |
-| `death`       | 25575 | lazymc    |
-| `for`         | 25576 | lazymc    |
-| `idk`         | 25577 | lazymc    |
-| `New`         | 25578 | lazymc    |
-| `manor(1)`    | 25579 | lazymc    |
+| Save dir from zip     | Short / service name | Port  | Wake mode |
+|-----------------------|----------------------|-------|-----------|
+| `bridge`              | `bridge`             | 25565 | always-on |
+| `manor`               | `manor`              | 25566 | lazymc    |
+| `manor(1)`            | `manor-1`            | 25567 | lazymc    |
+| `restaurant`          | `restaurant`         | 25568 | lazymc    |
+| `tvgirl`              | `tvgirl`             | 25569 | lazymc    |
+| `GALAXI`              | `galaxi`             | 25570 | lazymc    |
+| `galaxi (1)`          | `galaxi-1`           | 25571 | lazymc    |
+| `GAMBLING`            | `gambling`           | 25572 | lazymc    |
+| `hero`                | `hero`               | 25573 | lazymc    |
+| `LOVE IN BOTTLE`      | `love-in-bottle`     | 25574 | lazymc    |
+| `mind electric`       | `mind-electric`      | 25575 | lazymc    |
+| `death`               | `death`              | 25576 | lazymc    |
+| `for mother`          | `for-mother`         | 25577 | lazymc    |
+| `idk`                 | `idk`                | 25578 | lazymc    |
+| `New World`           | `new-world`          | 25579 | lazymc    |
+| `New World (1)`       | `new-world-1`        | 25580 | lazymc    |
+| `New World (2)`       | `new-world-2`        | 25581 | lazymc    |
+| `New World (3)`       | `new-world-3`        | 25582 | lazymc    |
+| `New World (4)`       | `new-world-4`        | 25583 | lazymc    |
+| `New World (5)`       | `new-world-5`        | 25584 | lazymc    |
 
 Voicechat: UDP 24454 (shared across all worlds).
 
@@ -85,29 +90,43 @@ Reuse the same rsync.net account key as chat/mail.
 # Extract once locally
 unzip -q ~/Downloads/minecraft.zip -d /tmp/mc-extract
 
-# Push each save into the matching world dir. Note: dir name inside the
-# world dir must match the original (it's what level-name= points at).
-for w in bridge manor restaurant tvgirl galaxi GALAXI GAMBLING hero LOVE \
-         mind death for idk New 'manor(1)'; do
-  short=$(echo "$w" | tr '[:upper:]()' '[:lower:]__' | sed 's/_$//')
-  case "$w" in
-    bridge|manor|restaurant|tvgirl|galaxi|hero|mind|death|for|idk) short="$w" ;;
-    GALAXI) short=galaxi2 ;;
-    GAMBLING) short=gambling ;;
-    LOVE) short=love ;;
-    New) short=new ;;
-    'manor(1)') short=manor2 ;;
-  esac
-  rsync -a "/tmp/mc-extract/minecraft/saves/$w/" \
-    "root@mc1:/var/lib/minecraft/worlds/$short/$w/"
+# (dir from zip) → (short name in configuration.nix). Mapped by hand
+# because the zip has spaces, parens, and case-only collisions that
+# don't sanitize cleanly with a one-liner.
+declare -A worlds=(
+  ["bridge"]="bridge"
+  ["manor"]="manor"
+  ["manor(1)"]="manor-1"
+  ["restaurant"]="restaurant"
+  ["tvgirl"]="tvgirl"
+  ["GALAXI"]="galaxi"
+  ["galaxi (1)"]="galaxi-1"
+  ["GAMBLING"]="gambling"
+  ["hero"]="hero"
+  ["LOVE IN BOTTLE"]="love-in-bottle"
+  ["mind electric"]="mind-electric"
+  ["death"]="death"
+  ["for mother"]="for-mother"
+  ["idk"]="idk"
+  ["New World"]="new-world"
+  ["New World (1)"]="new-world-1"
+  ["New World (2)"]="new-world-2"
+  ["New World (3)"]="new-world-3"
+  ["New World (4)"]="new-world-4"
+  ["New World (5)"]="new-world-5"
+)
+
+for dir in "${!worlds[@]}"; do
+  short="${worlds[$dir]}"
+  rsync -a "/tmp/mc-extract/minecraft/saves/$dir/" \
+    "root@mc1:/var/lib/minecraft/worlds/$short/$dir/"
 done
 
 ssh root@mc1 'chown -R minecraft:minecraft /var/lib/minecraft/worlds'
 ```
 
-(Save names with `(` / case-only collisions go to a sanitized short name
-for the service unit; the inner dir keeps the original name so
-`level-name` resolves.)
+The inner dir keeps the original name (including spaces/parens) because
+that's what `level-name=` in server.properties points at.
 
 ### 5. DNS
 
