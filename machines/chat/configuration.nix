@@ -321,7 +321,11 @@ in
       "@system-service"
       "~@privileged"
     ];
-    CapabilityBoundingSet = "";
+    # restic runs as root but /var/lib/weechat is mode 0750 owned by
+    # weechat:weechat — without CAP_DAC_READ_SEARCH the DAC mode check
+    # still applies and restic silently saves Files: 0 new.
+    CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
+    AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
     UMask = "0077";
   };
 

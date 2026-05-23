@@ -620,7 +620,9 @@ in
           "@system-service"
           "~@privileged"
         ];
-        CapabilityBoundingSet = "";
+        # restic-as-root needs CAP_DAC_READ_SEARCH to traverse the world dirs.
+        CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
+        AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
         UMask = "0077";
       };
     }
