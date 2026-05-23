@@ -24,6 +24,8 @@ var CHAT_A    = "178.105.105.181";
 var CHAT_AAAA = "2a01:4f8:c014:94be::1";
 var AGENTS_A    = "178.105.193.91";
 var AGENTS_AAAA = "2a01:4f8:c014:7e84::1";
+var MC1_A       = "178.105.205.187";
+var MC1_AAAA    = "2a01:4f8:c013:cb17::1";
 
 D("zimbatm.com", REG_NC, DnsProvider(DNS_NC),
   DefaultTTL(1800),
@@ -82,6 +84,8 @@ D("ztm.io", REG_NC, DnsProvider(DNS_NC),
   AAAA("mail",   MAIL_AAAA),
   A("agents",    AGENTS_A),
   AAAA("agents", AGENTS_AAAA),
+  A("mc",        MC1_A),
+  AAAA("mc",     MC1_AAAA),
 );
 
 // ----------------------------------------------------------------------------
