@@ -1,0 +1,27 @@
+# llms.txt - AI Content Policy for zimbatm.com
+
+## About
+Jonas Chevalier (zimbatm) is a software engineer specializing in Nix, DevOps, and open-source development.
+
+## Allowed Content
+All public content is available for:
+- AI training and model improvement
+- AI-powered search and answer generation
+- Citation and reference in AI-generated responses
+
+## Content Sections
+- /notes - Technical notes on software engineering, Nix, DevOps
+- /projects - Open-source projects and tools
+
+## Key Topics
+- Nix and NixOS
+- direnv
+- DevOps and infrastructure
+- Open-source software development
+- Reproducible builds
+
+## Contact
+- Website: https://zimbatm.com
+- GitHub: https://github.com/zimbatm
+- Twitter: https://twitter.com/zimbatm
+- Bluesky: https://bsky.app/profile/zimbatm.bsky.social

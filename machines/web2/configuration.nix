@@ -69,7 +69,7 @@
   # Was hosted on kit's "core" host; moved here so kit becomes purely a content
   # repo and web2 is the public face.
   services.nginx.virtualHosts."zimbatm.com" = {
-    root = inputs.kit.packages.x86_64-linux.zimbatm-com;
+    root = inputs.self.packages.x86_64-linux.zimbatm-com;
     enableACME = true;
     forceSSL = true;
     locations."/".tryFiles = "$uri $uri/ =404";

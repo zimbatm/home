@@ -53,14 +53,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    # Provides the zimbatm-com static site package (ViewBuilder over data/).
-    # Pulled in for the web2 nginx vhost; we don't take any other kit outputs.
-    kit = {
-      url = "github:zimbatm/kit";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.treefmt-nix.follows = "treefmt-nix";
-      inputs.subportal.follows = "subportal";
-    };
     # Numtide arcade1 (numcraft) — NeoForge 1.21.8 server + mod set.
     # mc1 imports its `minecraft.nix` directly to reuse the neoforgeServer
     # derivation, mod list, and whitelist.toml (we're already in it).
@@ -190,6 +182,7 @@
           transcribe-npu = call ./packages/transcribe-npu;
           wake-listen = call ./packages/wake-listen;
           web-eyes = call ./packages/web-eyes;
+          zimbatm-com = call ./packages/zimbatm-com;
         }
       );
     in

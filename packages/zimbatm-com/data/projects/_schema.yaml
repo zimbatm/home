@@ -1,0 +1,39 @@
+slug:
+  field: title
+  format: kebab
+required:
+  - title
+list:
+  fields: [slug, title, status, type]
+  sort:
+    field: status
+fields:
+  title:
+    type: string
+  description:
+    type: string
+  type:
+    type: enum
+    values:
+      - software
+      - event
+      - organization
+      - media
+      - role
+  status:
+    type: enum
+    values:
+      - Alpha
+      - Beta
+      - Stable
+      - Done
+  homepage:
+    type: string
+  created:
+    type: date
+  ended:
+    type: date
+  updated:
+    type: date
+  notion_id:
+    type: string

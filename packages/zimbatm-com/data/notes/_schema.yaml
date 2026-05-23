@@ -1,0 +1,26 @@
+slug:
+  field: title
+  format: kebab
+filename: index.md
+required:
+  - title
+list:
+  fields: [slug, title, date]
+  sort:
+    field: date
+    desc: true
+fields:
+  title:
+    type: string
+  date:
+    type: date
+  created:
+    type: date
+  updated:
+    type: date
+  tags:
+    type: list
+  notion_id:
+    type: string
+  aliases:
+    type: list

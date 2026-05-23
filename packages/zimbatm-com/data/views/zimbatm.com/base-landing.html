@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <link rel="icon" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="alternate" type="application/rss+xml" title="zimbatm's notes" href="/notes/feed.xml">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+  
+  <!-- Analytics -->
+  <script defer data-domain="zimbatm.com" src="https://plausible.io/js/plausible.js"></script>
+  
+  <!-- Person Schema for AI -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Jonas Chevalier",
+    "alternateName": "zimbatm",
+    "jobTitle": "Software Engineer",
+    "description": "Software engineer specializing in Nix, DevOps, and open-source development. Creator of direnv.",
+    "url": "https://zimbatm.com",
+    "sameAs": [
+      "https://github.com/zimbatm",
+      "https://twitter.com/zimbatm",
+      "https://bsky.app/profile/zimbatm.bsky.social"
+    ],
+    "knowsAbout": [
+      "Nix",
+      "NixOS",
+      "direnv",
+      "DevOps",
+      "Open Source",
+      "Software Engineering",
+      "Reproducible Builds"
+    ]
+  }
+  </script>
+  
+  <!-- Meta description -->
+  <meta name="description" content="{description}">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="{title}">
+  <meta property="og:description" content="{description}">
+  <meta property="og:url" content="{url}">
+  <meta property="og:site_name" content="zimbatm">
+  <meta property="og:locale" content="en-US">
+  <meta property="og:type" content="website">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{title}">
+  <meta name="twitter:description" content="{description}">
+  <meta name="twitter:site" content="@zimbatm">
+  
+  <!-- AI Discovery -->
+  <meta name="ai-content" content="educational">
+  <meta name="ai-topic" content="Nix, NixOS, DevOps, open source, software engineering">
+  <meta name="ai-use" content="training,search,answer-generation,citation">
+  <link rel="canonical" href="{url}">
+</head>
+<body class="landing-page">
+  {content}
+  <footer>
+    <p>© zimbatm · <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-by-SA 2.0</a> · <a href="/notes/feed.xml">RSS</a></p>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-nix.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-toml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-hcl.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-rust.min.js"></script>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</body>
+</html>
