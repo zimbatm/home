@@ -485,6 +485,7 @@ in
   imports = [
     inputs.self.nixosModules.common
     inputs.self.nixosModules.hardening
+    inputs.self.nixosModules.hc-ping
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.disko.nixosModules.disko
@@ -639,6 +640,8 @@ in
     file = ../../secrets/mc1-restic-ssh-key.age;
     mode = "0400";
   };
+  age.secrets.hc-ping-minecraft.file = ../../secrets/hc-ping-minecraft.age;
+  services.hcPing.units."restic-backups-minecraft".secret = config.age.secrets.hc-ping-minecraft.path;
 
   programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";

@@ -46,4 +46,8 @@ in
   "matrix-numtide-password.age".publicKeys = chatHosts;
   "mc1-restic-password.age".publicKeys = mc1Hosts;
   "mc1-restic-ssh-key.age".publicKeys = mc1Hosts;
+  "hc-ping-weechat.age".publicKeys = chatHosts;
+  "hc-ping-gotosocial.age".publicKeys = web2Hosts;
+  "hc-ping-stalwart.age".publicKeys = mailHosts;
+  "hc-ping-minecraft.age".publicKeys = mc1Hosts;
 }

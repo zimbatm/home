@@ -91,6 +91,7 @@
         gnome = ./modules/nixos/gnome.nix;
         gotosocial = ./modules/nixos/gotosocial.nix;
         hardening = ./modules/nixos/hardening.nix;
+        hc-ping = ./modules/nixos/hc-ping.nix;
         perlless = ./modules/nixos/perlless.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;

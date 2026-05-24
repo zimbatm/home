@@ -4,6 +4,7 @@
     inputs.self.nixosModules.common
     inputs.self.nixosModules.gotosocial
     inputs.self.nixosModules.hardening
+    inputs.self.nixosModules.hc-ping
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.srvos.nixosModules.mixins-nginx
@@ -93,6 +94,8 @@
     file = ../../secrets/web2-restic-ssh-key.age;
     mode = "0400";
   };
+  age.secrets.hc-ping-gotosocial.file = ../../secrets/hc-ping-gotosocial.age;
+  services.hcPing.units."restic-backups-gotosocial".secret = config.age.secrets.hc-ping-gotosocial.path;
 
   programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";

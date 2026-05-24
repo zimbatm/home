@@ -42,12 +42,16 @@ in
   imports = [
     inputs.self.nixosModules.common
     inputs.self.nixosModules.hardening
+    inputs.self.nixosModules.hc-ping
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.disko.nixosModules.disko
     inputs.subportal.nixosModules.subportal
     ./disko.nix
   ];
+
+  age.secrets.hc-ping-weechat.file = ../../secrets/hc-ping-weechat.age;
+  services.hcPing.units."restic-backups-weechat".secret = config.age.secrets.hc-ping-weechat.path;
 
   # Hetzner Cloud cx23 (Intel x86, 2c/4GB/40GB, BIOS), fsn1.
   # Long-running weechat-headless under systemd; clients (Lith, Glowing Bear,
