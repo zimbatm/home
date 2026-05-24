@@ -85,12 +85,12 @@
                       # E2E-encrypted, sessions still run locally on agents.
     ];
 
-  # SSH login auto-attaches to a herdr session. herdr is a tmux-shaped
-  # multiplexer purpose-built for AI coding agents — knows per-pane
-  # working/blocked/done state, persists across detach. Detach: Ctrl-b q.
-  # Opt out: `NO_HERDR=1 ssh agents.ztm.io`.
+  # SSH login (or ttyd-spawned bash) auto-attaches to a herdr session.
+  # herdr is a tmux-shaped multiplexer purpose-built for AI coding agents
+  # — knows per-pane working/blocked/done state, persists across detach.
+  # Detach: Ctrl-b q. Opt out: `NO_HERDR=1 ssh agents.ztm.io`.
   programs.bash.interactiveShellInit = ''
-    if [[ -z "$IN_HERDR" && -n "$SSH_TTY" && $- == *i* && -z "$NO_HERDR" ]]; then
+    if [[ -z "$IN_HERDR" && ( -n "$SSH_TTY" || -n "$TTYD" ) && $- == *i* && -z "$NO_HERDR" ]]; then
       export IN_HERDR=1
       exec ${inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/herdr
     fi
@@ -112,15 +112,23 @@
   users.users.nginx.extraGroups = [ "keys" ];
 
   # ttyd: PTY-over-WebSocket on loopback; nginx terminates TLS and enforces
-  # client-cert (mTLS) before proxying. Spawns bash → the existing
-  # interactiveShellInit auto-attaches herdr. Image-paste end-to-end relies on
-  # xterm.js's ImageAddon parsing iTerm2 OSC 1337 in the browser.
+  # client-cert (mTLS) before proxying. Runs as zimbatm so the shell isn't
+  # root; entrypoint sets TTYD=1 so interactiveShellInit's herdr auto-attach
+  # fires (the usual trigger is SSH_TTY, which ttyd doesn't set).
+  # Image-paste end-to-end relies on xterm.js's ImageAddon parsing iTerm2
+  # OSC 1337 in the browser.
   services.ttyd = {
     enable = true;
+    user = "zimbatm";
     interface = "127.0.0.1";
     port = 7681;
     writeable = true;  # (sic — option name has a typo upstream)
-    entrypoint = [ "${pkgs.bash}/bin/bash" "-l" ];
+    entrypoint = [
+      (toString (pkgs.writeShellScript "ttyd-shell" ''
+        export TTYD=1
+        exec ${pkgs.bash}/bin/bash -l
+      ''))
+    ];
     clientOptions = {
       fontSize = "16";
       fontFamily = "monospace";
