@@ -46,7 +46,10 @@ cmd_client() {
     -CAcreateserial -days "$DAYS_CLIENT" -sha256 -out "$tmp/c.crt"
   # Generate p12 with a random password — printed once, not stored.
   pw=$(openssl rand -base64 18)
-  openssl pkcs12 -export -inkey "$tmp/c.key" -in "$tmp/c.crt" \
+  # `-legacy` selects PBE-SHA1-3DES + SHA1 MAC instead of openssl 3's default
+  # AES-256-CBC + PBKDF2 — NSS (Firefox) refuses the modern combo with
+  # "PKCS #12 operation failed for unknown reasons".
+  openssl pkcs12 -export -legacy -inkey "$tmp/c.key" -in "$tmp/c.crt" \
     -certfile "$CA_CRT" -name "$name" -out "$out" -passout "pass:$pw"
   echo "wrote $out"
   echo "p12 password: $pw"
