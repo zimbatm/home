@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Tiny mTLS PKI for the term web terminal stack.
+# Tiny mTLS PKI for the term web terminal stack, backed by smallstep `step`.
+# step's defaults (ECDSA P-256, PBE-SHA1-3DES p12 packaging) are NSS- and
+# Keychain-compatible out of the box — avoiding the openssl-3 / NSS traps.
 #
 #   ./pki/issue.sh ca                       # one-time: create term-ca.{crt,key.age}
 #   ./pki/issue.sh client <name>            # issue ./pki/clients/<name>.p12
@@ -14,20 +16,24 @@ cd "$(dirname "$0")"
 ZIMBATM_AGE_RECIPIENT="age1tk655t40a4zx7ry0mzj57vmw4xpr7sa0c8qnckmclj5gzjls4yzsk7weg0"
 CA_CRT="term-ca.crt"
 CA_KEY_ENC="term-ca.key.age"
-DAYS_CA=3650
-DAYS_CLIENT=825   # 27 months; under the Apple+Chrome 825-day ceiling
-DAYS_SERVER=3650  # server CA is ours; no browser 825-day ceiling applies
+DAYS_CA="87600h"        # 10y
+DAYS_CLIENT="19800h"    # ~27 months; under Apple+Chrome 825-day ceiling
+DAYS_SERVER="87600h"    # 10y; ours, no public ceiling
 
 decrypt_ca_key() {
   age -d -i "$HOME/.config/sops/age/keys.txt" "$CA_KEY_ENC"
 }
 
+# step requires both --no-password and --insecure to skip key encryption;
+# we re-encrypt the key ourselves with age (CA) or agenix (server).
+STEP_LEAF_FLAGS=(--kty EC --crv P-256 --insecure --no-password --force)
+
 cmd_ca() {
   [ ! -f "$CA_CRT" ] || { echo "$CA_CRT already exists; refusing to overwrite" >&2; exit 1; }
   tmp=$(mktemp -d); trap "rm -rf '$tmp'" EXIT
-  openssl genpkey -algorithm ed25519 -out "$tmp/ca.key"
-  openssl req -x509 -new -key "$tmp/ca.key" -days "$DAYS_CA" \
-    -subj "/CN=zimbatm term mTLS CA" -out "$CA_CRT"
+  step certificate create "zimbatm term mTLS CA" "$CA_CRT" "$tmp/ca.key" \
+    --profile root-ca --kty EC --crv P-256 --not-after "$DAYS_CA" \
+    --insecure --no-password --force >/dev/null
   age -e -r "$ZIMBATM_AGE_RECIPIENT" -o "$CA_KEY_ENC" "$tmp/ca.key"
   echo "wrote $CA_CRT + $CA_KEY_ENC"
 }
@@ -40,17 +46,12 @@ cmd_client() {
   [ ! -f "$out" ] || { echo "$out exists; pick a different name" >&2; exit 1; }
   tmp=$(mktemp -d); trap "rm -rf '$tmp'" EXIT
   decrypt_ca_key > "$tmp/ca.key"
-  openssl genpkey -algorithm ed25519 -out "$tmp/c.key"
-  openssl req -new -key "$tmp/c.key" -subj "/CN=$name" -out "$tmp/c.csr"
-  openssl x509 -req -in "$tmp/c.csr" -CA "$CA_CRT" -CAkey "$tmp/ca.key" \
-    -CAcreateserial -days "$DAYS_CLIENT" -sha256 -out "$tmp/c.crt"
-  # Generate p12 with a random password — printed once, not stored.
+  step certificate create "$name" "$tmp/c.crt" "$tmp/c.key" \
+    --profile leaf --ca "$CA_CRT" --ca-key "$tmp/ca.key" \
+    --not-after "$DAYS_CLIENT" "${STEP_LEAF_FLAGS[@]}" >/dev/null
   pw=$(openssl rand -base64 18)
-  # `-legacy` selects PBE-SHA1-3DES + SHA1 MAC instead of openssl 3's default
-  # AES-256-CBC + PBKDF2 — NSS (Firefox) refuses the modern combo with
-  # "PKCS #12 operation failed for unknown reasons".
-  openssl pkcs12 -export -legacy -inkey "$tmp/c.key" -in "$tmp/c.crt" \
-    -certfile "$CA_CRT" -name "$name" -out "$out" -passout "pass:$pw"
+  echo -n "$pw" > "$tmp/pw"
+  step certificate p12 "$out" "$tmp/c.crt" "$tmp/c.key" --password-file "$tmp/pw" --force >/dev/null
   echo "wrote $out"
   echo "p12 password: $pw"
   echo "(save it now — not stored anywhere else)"
@@ -64,20 +65,11 @@ cmd_server() {
   key_out_enc="../secrets/${fqdn}-server-key.age"
   tmp=$(mktemp -d); trap "rm -rf '$tmp'" EXIT
   decrypt_ca_key > "$tmp/ca.key"
-  openssl genpkey -algorithm ed25519 -out "$tmp/s.key"
-  cat > "$tmp/ext.cnf" <<EOF
-subjectAltName = DNS:${fqdn}
-keyUsage = critical, digitalSignature, keyEncipherment
-extendedKeyUsage = serverAuth
-EOF
-  openssl req -new -key "$tmp/s.key" -subj "/CN=${fqdn}" -out "$tmp/s.csr"
-  openssl x509 -req -in "$tmp/s.csr" -CA "$CA_CRT" -CAkey "$tmp/ca.key" \
-    -CAcreateserial -days "$DAYS_SERVER" -sha256 \
-    -extfile "$tmp/ext.cnf" -out "$crt_out"
+  step certificate create "$fqdn" "$crt_out" "$tmp/s.key" \
+    --profile leaf --ca "$CA_CRT" --ca-key "$tmp/ca.key" \
+    --not-after "$DAYS_SERVER" --san "$fqdn" "${STEP_LEAF_FLAGS[@]}" >/dev/null
   age -e -r "$ZIMBATM_AGE_RECIPIENT" -r "$host_pubkey" -o "$key_out_enc" "$tmp/s.key"
   echo "wrote $crt_out + $key_out_enc"
-  echo "remember to add to secrets/secrets.nix:"
-  echo "  \"${fqdn}-server-key.age\".publicKeys = [ zimbatm <host> ];"
 }
 
 case "${1:-}" in

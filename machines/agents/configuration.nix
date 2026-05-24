@@ -108,6 +108,8 @@
     group = "nginx";
     mode = "0400";
   };
+  # nginx needs to traverse /run/agenix/ (root:keys, 0750) to reach the key.
+  users.users.nginx.extraGroups = [ "keys" ];
 
   # ttyd: PTY-over-WebSocket on loopback; nginx terminates TLS and enforces
   # client-cert (mTLS) before proxying. Spawns bash → the existing
