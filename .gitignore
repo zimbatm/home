@@ -16,3 +16,6 @@ _grind-*.js
 .pi/grind-runs/
 .claude/commands/nix-*.md
 __pycache__
+# mTLS client-cert outputs + CA serial state (never committed)
+/pki/clients/
+/pki/*.srl

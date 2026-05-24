@@ -10,10 +10,14 @@
     inputs.self.nixosModules.hardening
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
+    inputs.srvos.nixosModules.mixins-nginx
     inputs.subportal.nixosModules.subportal
+    inputs.nix-index-database.nixosModules.nix-index
     inputs.disko.nixosModules.disko
     ./disko.nix
   ];
+
+  programs.nix-index-database.comma.enable = true;
 
   # Hetzner Cloud cpx62 (16 vCPU AMD shared, 32 GB, 640 GB), fsn1.
   # Workstation for long-running Claude Code agent sessions. SSH in, attach
@@ -79,32 +83,55 @@
                       # E2E-encrypted, sessions still run locally on agents.
     ];
 
-  # SSH login auto-attaches to a tmux session named "main" so disconnects
-  # don't kill running agents. Interactive + TTY-only; safe for scp / git.
-  # Image-paste over SSH+tmux doesn't work today (tmux intercepts OSC 52,
-  # and SSH doesn't forward clipboard) — see backlog for a browser-terminal
-  # alternative built on libghostty/ghostty-web.
+  # SSH login auto-attaches to a herdr session. herdr is a tmux-shaped
+  # multiplexer purpose-built for AI coding agents — knows per-pane
+  # working/blocked/done state, persists across detach. Detach: Ctrl-b q.
+  # Opt out: `NO_HERDR=1 ssh agents.ztm.io`.
   programs.bash.interactiveShellInit = ''
-    if [[ -z "$TMUX" && -n "$SSH_TTY" && $- == *i* ]]; then
-      exec ${pkgs.tmux}/bin/tmux new-session -A -s main
+    if [[ -z "$IN_HERDR" && -n "$SSH_TTY" && $- == *i* && -z "$NO_HERDR" ]]; then
+      export IN_HERDR=1
+      exec ${inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/herdr
     fi
   '';
 
-  programs.tmux = {
+  # SSH + nginx (term.* mTLS web terminal on 443, HTTP-01 challenge on 80).
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
+
+  # ttyd: PTY-over-WebSocket on loopback; nginx terminates TLS and enforces
+  # client-cert (mTLS) before proxying. Spawns bash → the existing
+  # interactiveShellInit auto-attaches herdr. Image-paste end-to-end relies on
+  # xterm.js's ImageAddon parsing iTerm2 OSC 1337 in the browser.
+  services.ttyd = {
     enable = true;
-    terminal = "tmux-256color";
-    extraConfig = ''
-      set -g allow-passthrough on
-      set -g set-clipboard on
-      set -ga terminal-features ",*:RGB"
-      set -ga terminal-features ",*:hyperlinks"
-      set -ga terminal-features ",*:clipboard"
-      set -g mouse on
-    '';
+    interface = "127.0.0.1";
+    port = 7681;
+    writeable = true;  # (sic — option name has a typo upstream)
+    entrypoint = [ "${pkgs.bash}/bin/bash" "-l" ];
+    clientOptions = {
+      fontSize = "16";
+      fontFamily = "monospace";
+    };
   };
 
-  # SSH only. Nothing else is public-facing on this box.
-  networking.firewall.allowedTCPPorts = [ ];
+  services.nginx.virtualHosts."agents.ztm.io" = {
+    enableACME = true;
+    forceSSL = true;
+    extraConfig = ''
+      ssl_client_certificate ${../../pki/term-ca.crt};
+      ssl_verify_client on;
+      ssl_verify_depth 1;
+    '';
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:7681";
+      proxyWebsockets = true;
+      extraConfig = ''
+        proxy_read_timeout 1d;
+        proxy_send_timeout 1d;
+        proxy_set_header X-Forwarded-Client-Verify $ssl_client_verify;
+        proxy_set_header X-Forwarded-Client-DN     $ssl_client_s_dn;
+      '';
+    };
+  };
 
   # subportal: agent-side forwarder for xdg-open / notify-send / file
   # transfer to nv1 over iroh p2p. Enroll once with:

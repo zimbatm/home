@@ -11,6 +11,7 @@ truth for "how this was last done."
 | [dns.md](dns.md) | `nix run .#dns-preview` / `.#dns-push` via dnscontrol |
 | [restic-restore.md](restic-restore.md) | Restore from rsync.net backups |
 | [stalwart-admin.md](stalwart-admin.md) | Create domains/principals via Stalwart admin API |
+| [term-web.md](term-web.md) | Web terminal at agents.ztm.io (mTLS, ttyd, client-cert provisioning) |
 
 Common dependencies these procedures assume:
 
