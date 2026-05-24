@@ -1,5 +1,6 @@
 {
   inputs,
+  config,
   lib,
   pkgs,
   ...
@@ -14,6 +15,7 @@
     inputs.subportal.nixosModules.subportal
     inputs.nix-index-database.nixosModules.nix-index
     inputs.disko.nixosModules.disko
+    inputs.agenix.nixosModules.default
     ./disko.nix
   ];
 
@@ -94,8 +96,18 @@
     fi
   '';
 
-  # SSH + nginx (term.* mTLS web terminal on 443, HTTP-01 challenge on 80).
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  # SSH + nginx (mTLS web terminal on 443). No public CA: the term CA at
+  # pki/term-ca.crt signs both the server cert and client certs, so the
+  # browser that already trusts that CA (one-time import alongside the .p12)
+  # also trusts the server. No ACME, no port 80.
+  networking.firewall.allowedTCPPorts = [ 443 ];
+
+  age.secrets."agents.ztm.io-server-key" = {
+    file = ../../secrets/agents.ztm.io-server-key.age;
+    owner = "nginx";
+    group = "nginx";
+    mode = "0400";
+  };
 
   # ttyd: PTY-over-WebSocket on loopback; nginx terminates TLS and enforces
   # client-cert (mTLS) before proxying. Spawns bash → the existing
@@ -114,8 +126,9 @@
   };
 
   services.nginx.virtualHosts."agents.ztm.io" = {
-    enableACME = true;
-    forceSSL = true;
+    onlySSL = true;
+    sslCertificate = ../../pki/agents.ztm.io.crt;
+    sslCertificateKey = config.age.secrets."agents.ztm.io-server-key".path;
     extraConfig = ''
       ssl_client_certificate ${../../pki/term-ca.crt};
       ssl_verify_client on;

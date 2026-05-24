@@ -20,20 +20,31 @@ sign — never persists.
 (`pki/term-ca.crt`) is baked into the agents nginx config at build time
 and trusts any cert signed by it.
 
-## Install the cert in a browser
+## Install the certs in a browser
+
+Two imports are needed per device — the **CA cert** (so the browser
+trusts the server) and the **client cert** (so the server trusts the
+browser). Both certs are signed by the same CA at `pki/term-ca.crt`;
+we don't use Let's Encrypt or any public CA on this surface.
 
 **Firefox**: Preferences → Privacy & Security → Certificates → View
-Certificates → *Your Certificates* tab → Import → pick the `.p12` →
-enter the printed password.
+Certificates.
+- *Authorities* tab → Import → pick `pki/term-ca.crt` → tick "Trust
+  this CA to identify websites".
+- *Your Certificates* tab → Import → pick `pki/clients/<name>.p12` →
+  enter the printed password.
 
-**Chromium**: `chrome://settings/security` → Manage certificates → Your
-Certificates → Import. Same flow.
+**Chromium**: `chrome://settings/security` → Manage certificates →
+import `pki/term-ca.crt` under *Authorities* and `pki/clients/<name>.p12`
+under *Your Certificates*.
 
-**Keychain (macOS / Safari)**: double-click the `.p12`, enter password,
-file ends up in *login* keychain. Safari uses it automatically.
+**Keychain (macOS / Safari)**: double-click `pki/term-ca.crt` → set it
+to "Always Trust" for SSL in Keychain Access. Then double-click the
+`.p12` and enter the password. Safari uses both automatically.
 
 **Android**: Settings → Security → Encryption & credentials → Install a
-certificate → VPN & app user certificate.
+certificate → CA certificate (`term-ca.crt`) and separately a VPN & app
+user certificate (`.p12`).
 
 Then visit https://agents.ztm.io/ — the browser prompts which client
 cert to present.
@@ -77,11 +88,29 @@ To bypass herdr for a session: `NO_HERDR=1` is honored, but you'd need
 to invoke a wrapper that sets it — the ttyd entrypoint doesn't read it
 from the URL. Easiest: just `exec bash` from inside herdr.
 
+## Re-issue the server cert
+
+If you need to change the FQDN or rotate the server key:
+
+```bash
+nix shell nixpkgs#openssl nixpkgs#age -c \
+  ./pki/issue.sh server agents.ztm.io \
+  'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAION9fEQJzwaGn7LzRiRWf9sGAU0hgRd2DtaMOm/DXr+F'
+# then redeploy agents
+```
+
+The pubkey arg is the agents host's `ssh-ed25519` key (see
+`secrets/secrets.nix` `agents = …`). The new cert is committed and the
+key lands in `secrets/agents.ztm.io-server-key.age` — both git-tracked,
+the latter age-encrypted.
+
 ## Cert renewal
 
-- **LE server cert**: NixOS ACME timer renews; nginx reloads
-  automatically on issue. Nothing to do.
 - **CA cert**: 10-year validity from bootstrap (2026-05 → 2036-05).
   Calendar reminder for 2035.
-- **Client certs**: 27 months from issue (under the 825-day browser
-  ceiling). Re-issue with `./pki/issue.sh client <name>` and re-import.
+- **Server cert**: also 10 years; no public-CA ceiling because we own
+  the CA. Re-issue ahead of expiry.
+- **Client certs**: 27 months from issue (under the 825-day Apple+Chrome
+  ceiling that still applies because clients may present these to other
+  contexts in theory). Re-issue with `./pki/issue.sh client <name>` and
+  re-import.

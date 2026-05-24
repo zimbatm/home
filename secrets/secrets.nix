@@ -15,6 +15,11 @@ let
   mc1 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFhNSteHsLGklQ6WfEuTl+jcWY10YxB9MTktVyjrvQ1O";
   agents = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAION9fEQJzwaGn7LzRiRWf9sGAU0hgRd2DtaMOm/DXr+F";
 
+  agentsHosts = [
+    zimbatm
+    agents
+  ];
+
   chatHosts = [
     zimbatm
     chat
@@ -50,4 +55,5 @@ in
   "hc-ping-gotosocial.age".publicKeys = web2Hosts;
   "hc-ping-stalwart.age".publicKeys = mailHosts;
   "hc-ping-minecraft.age".publicKeys = mc1Hosts;
+  "agents.ztm.io-server-key.age".publicKeys = agentsHosts;
 }

@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Tiny mTLS PKI for term.* (web terminal at agents.ztm.io).
+# Tiny mTLS PKI for the term web terminal stack.
 #
-#   ./pki/issue.sh ca                  # one-time: create term-ca.{crt,key.age}
-#   ./pki/issue.sh client <name>       # issue ./pki/clients/<name>.p12
+#   ./pki/issue.sh ca                       # one-time: create term-ca.{crt,key.age}
+#   ./pki/issue.sh client <name>            # issue ./pki/clients/<name>.p12
+#   ./pki/issue.sh server <fqdn> <host-pubkey>
+#                                           # issue ./pki/<fqdn>.crt + secrets/<fqdn>-server-key.age
 #
 # CA cert is committed (public); CA key is age-encrypted to zimbatm only.
+# Server keys are encrypted to zimbatm + the target host's ssh-ed25519 pubkey.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -13,6 +16,7 @@ CA_CRT="term-ca.crt"
 CA_KEY_ENC="term-ca.key.age"
 DAYS_CA=3650
 DAYS_CLIENT=825   # 27 months; under the Apple+Chrome 825-day ceiling
+DAYS_SERVER=3650  # server CA is ours; no browser 825-day ceiling applies
 
 decrypt_ca_key() {
   age -d -i "$HOME/.config/sops/age/keys.txt" "$CA_KEY_ENC"
@@ -49,8 +53,33 @@ cmd_client() {
   echo "(save it now — not stored anywhere else)"
 }
 
+cmd_server() {
+  fqdn="${1:?usage: $0 server <fqdn> <host-pubkey>}"
+  host_pubkey="${2:?usage: $0 server <fqdn> <host-pubkey>}"
+  [ -f "$CA_CRT" ] && [ -f "$CA_KEY_ENC" ] || { echo "run '$0 ca' first" >&2; exit 1; }
+  crt_out="${fqdn}.crt"
+  key_out_enc="../secrets/${fqdn}-server-key.age"
+  tmp=$(mktemp -d); trap "rm -rf '$tmp'" EXIT
+  decrypt_ca_key > "$tmp/ca.key"
+  openssl genpkey -algorithm ed25519 -out "$tmp/s.key"
+  cat > "$tmp/ext.cnf" <<EOF
+subjectAltName = DNS:${fqdn}
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+EOF
+  openssl req -new -key "$tmp/s.key" -subj "/CN=${fqdn}" -out "$tmp/s.csr"
+  openssl x509 -req -in "$tmp/s.csr" -CA "$CA_CRT" -CAkey "$tmp/ca.key" \
+    -CAcreateserial -days "$DAYS_SERVER" -sha256 \
+    -extfile "$tmp/ext.cnf" -out "$crt_out"
+  age -e -r "$ZIMBATM_AGE_RECIPIENT" -r "$host_pubkey" -o "$key_out_enc" "$tmp/s.key"
+  echo "wrote $crt_out + $key_out_enc"
+  echo "remember to add to secrets/secrets.nix:"
+  echo "  \"${fqdn}-server-key.age\".publicKeys = [ zimbatm <host> ];"
+}
+
 case "${1:-}" in
   ca)     shift; cmd_ca "$@" ;;
   client) shift; cmd_client "$@" ;;
-  *) echo "usage: $0 {ca | client <name>}" >&2; exit 1 ;;
+  server) shift; cmd_server "$@" ;;
+  *) echo "usage: $0 {ca | client <name> | server <fqdn> <host-pubkey>}" >&2; exit 1 ;;
 esac
