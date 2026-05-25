@@ -65,6 +65,7 @@
   age.secrets.stalwart-admin-secret.file = ../../secrets/stalwart-admin-secret.age;
   age.secrets.stalwart-zimbatm-password.file = ../../secrets/stalwart-zimbatm-password.age;
   age.secrets.stalwart-jonas-password.file = ../../secrets/stalwart-jonas-password.age;
+  age.secrets.pocket-id-encryption-key.file = ../../secrets/pocket-id-encryption-key.age;
 
   security.acme.certs."mail.zimbatm.com".reloadServices = [ "stalwart.service" ];
   security.acme.certs."mail.chevalier.sh".reloadServices = [ "stalwart.service" ];
@@ -129,15 +130,6 @@
   services.nginx.virtualHosts."mail.zimbatm.com" = {
     enableACME = true;
     forceSSL = true;
-    # mTLS gate: nobody reaches the Stalwart admin login page without a
-    # client cert signed by pki/term-ca.crt. Stalwart's own password auth
-    # is still the user credential after the gate; this is a device check,
-    # not SSO. Snappymail (mail.ztm.io) stays password-only.
-    extraConfig = ''
-      ssl_client_certificate ${../../pki/term-ca.crt};
-      ssl_verify_client on;
-      ssl_verify_depth 1;
-    '';
     locations."/" = {
       proxyPass = "http://127.0.0.1:8485";
       proxyWebsockets = true;
@@ -321,6 +313,10 @@
                                  'status=$status size=$body_bytes_sent '
                                  'request_time=$request_time upstream_time=$upstream_response_time '
                                  'ua="$http_user_agent"';
+    # Upstreams (notably Pocket ID) emit enough proxy headers to trip
+    # the default hash; raise the bucket sizes.
+    proxy_headers_hash_max_size 1024;
+    proxy_headers_hash_bucket_size 128;
   '';
 
   services.nginx.virtualHosts."mail.ztm.io" = {
@@ -343,6 +339,43 @@
     locations."~ ^/(data|.git)".extraConfig = ''
       deny all;
     '';
+  };
+
+  # ─── Pocket ID — passkey OIDC IdP at id.zimbatm.com ─────────────────────
+  # SSO root for everything internal. Stalwart stays as the mail/identity
+  # *store*; Pocket ID issues the tokens that OAuth2-proxy-fronted services
+  # accept. First-run flow: hit id.zimbatm.com, create the first admin
+  # account (passkey-only), then register OAuth clients per protected app.
+  services.pocket-id = {
+    enable = true;
+    credentials.ENCRYPTION_KEY = config.age.secrets.pocket-id-encryption-key.path;
+    settings = {
+      APP_URL = "https://id.zimbatm.com";
+      TRUST_PROXY = true;
+      HOST = "127.0.0.1";
+      PORT = 1411;
+      ANALYTICS_DISABLED = true;
+    };
+  };
+
+  services.nginx.virtualHosts."id.zimbatm.com" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."/" = {
+      # Use `localhost` (hostname) not `127.0.0.1` (IP literal). nginx
+      # treats them differently for connection pooling / HTTP version
+      # negotiation; the IP literal path triggered a 400 from
+      # pocket-id-via-nginx that working configs (linyinfeng, kurnevsky)
+      # don't hit when proxying to localhost.
+      proxyPass = "http://localhost:1411";
+      extraConfig = ''
+        # Buffer bumps per pocket-id upstream docs — its response
+        # headers (long CSP) overflow nginx's default 4k buffer.
+        proxy_buffer_size 256k;
+        proxy_buffers 4 512k;
+        proxy_busy_buffers_size 512k;
+      '';
+    };
   };
 
   # Offsite backups → rsync.net via restic SFTP. Separate repo from web2's

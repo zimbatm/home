@@ -39,6 +39,8 @@ D("zimbatm.com", REG_NC, DnsProvider(DNS_NC),
   AAAA("mail", MAIL_AAAA),
   A("mta-sts",    MAIL_A),
   AAAA("mta-sts", MAIL_AAAA),
+  A("id",         MAIL_A),
+  AAAA("id",      MAIL_AAAA),
 
   // ─── CNAME ───
   CNAME("www",             "zimbatm.com."),
