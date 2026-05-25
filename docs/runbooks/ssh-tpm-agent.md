@@ -41,12 +41,23 @@ This writes:
 - `~/.ssh/id_ecdsa_tpm.tpm` — the TPM-sealed key blob (private; stays on nv1)
 - `~/.ssh/id_ecdsa_tpm.pub` — the public key
 
-## Load into the agent
+## Load into the agent — with per-use confirmation
 
 ```bash
-ssh-tpm-add ~/.ssh/id_ecdsa_tpm.tpm
+ssh-tpm-add -c ~/.ssh/id_ecdsa_tpm.tpm
 ssh-add -L                       # should now list the TPM key
 ```
+
+The `-c` flag (ssh-tpm-agent ≥0.9.0) requires an `ssh-askpass` click
+before every signing. The askpass dialog displays the requesting
+process chain (e.g. `nixos-rebuild → nix-copy-closure → ssh`), so you
+see exactly what's asking before approving — same security property
+`rich-ssh-agent` provides, just via TPM instead of YubiKey.
+
+If you instead want silent signing (no per-use confirm), omit `-c`.
+Keep in mind that with silent signing, any malicious process on nv1
+with access to `$XDG_RUNTIME_DIR` can ask the agent to sign deploys
+without your awareness.
 
 ## Distribute the public key
 
