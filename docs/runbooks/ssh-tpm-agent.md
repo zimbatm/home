@@ -11,10 +11,10 @@ remains usable from other devices.
 ## Prereqs (one-time)
 
 After the `keys/`-refactor + `ssh-tpm-agent` home-manager service land
-(commit `<TODO>`), rebuild nv1 once:
+(commit `fa284b0`), rebuild nv1 once:
 
 ```bash
-nixos-rebuild switch --flake .#nv1
+, nixos-rebuild switch --flake .#nv1 --sudo
 ```
 
 This installs `ssh-tpm-agent` and the user systemd unit. It does NOT

@@ -2,6 +2,7 @@
 { inputs, lib, ... }:
 {
   imports = [
+    ./nixpkgs-overlays.nix
     ./perlless.nix
     ./zimbatm.nix
     inputs.home-manager.nixosModules.default
