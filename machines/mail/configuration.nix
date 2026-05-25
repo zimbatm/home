@@ -4,6 +4,7 @@
     inputs.self.nixosModules.common
     inputs.self.nixosModules.hardening
     inputs.self.nixosModules.hc-ping
+    inputs.self.nixosModules.pocket-id-clients
     inputs.self.nixosModules.tinc-ztm
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
@@ -66,6 +67,7 @@
   age.secrets.stalwart-zimbatm-password.file = ../../secrets/stalwart-zimbatm-password.age;
   age.secrets.stalwart-jonas-password.file = ../../secrets/stalwart-jonas-password.age;
   age.secrets.pocket-id-encryption-key.file = ../../secrets/pocket-id-encryption-key.age;
+  age.secrets.pocket-id-static-api-key.file = ../../secrets/pocket-id-static-api-key.age;
 
   security.acme.certs."mail.zimbatm.com".reloadServices = [ "stalwart.service" ];
   security.acme.certs."mail.chevalier.sh".reloadServices = [ "stalwart.service" ];
@@ -348,7 +350,13 @@
   # account (passkey-only), then register OAuth clients per protected app.
   services.pocket-id = {
     enable = true;
-    credentials.ENCRYPTION_KEY = config.age.secrets.pocket-id-encryption-key.path;
+    credentials = {
+      ENCRYPTION_KEY = config.age.secrets.pocket-id-encryption-key.path;
+      # STATIC_API_KEY creates a "Static API User" admin Pocket ID can
+      # authenticate as without a passkey — used by the declarative
+      # client reconciler. Header: `X-API-Key: <value>`.
+      STATIC_API_KEY = config.age.secrets.pocket-id-static-api-key.path;
+    };
     settings = {
       APP_URL = "https://id.zimbatm.com";
       TRUST_PROXY = true;
@@ -356,6 +364,15 @@
       PORT = 1411;
       ANALYTICS_DISABLED = true;
     };
+  };
+
+  # Reconcile OIDC clients (declared below) into Pocket ID via its API.
+  # `clients = { }` would be a no-op; we leave it empty for now and add
+  # one entry per service as oauth2-proxy lands.
+  services.pocketIdClients = {
+    apiBaseUrl = "https://id.zimbatm.com/api";
+    apiKeyFile = config.age.secrets.pocket-id-static-api-key.path;
+    clients = { };
   };
 
   services.nginx.virtualHosts."id.zimbatm.com" = {

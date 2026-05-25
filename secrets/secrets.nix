@@ -69,4 +69,5 @@ in
   "tinc-ztm-mc1-key.age".publicKeys = mc1Hosts;
   "tinc-ztm-agents-key.age".publicKeys = agentsHosts;
   "pocket-id-encryption-key.age".publicKeys = mailHosts;
+  "pocket-id-static-api-key.age".publicKeys = mailHosts;
 }

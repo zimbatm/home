@@ -7,22 +7,6 @@
 let
   llm = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
   self' = inputs.self.packages.${pkgs.stdenv.hostPlatform.system};
-  # nixpkgs buildGoModule puts GOPROXY in the go-modules FOD's impureEnvVars
-  # (so corp proxies work). On the ant build host GOPROXY points at an authed
-  # artifactory the FOD has no creds for → 401. Pin the public proxy and drop
-  # GOPROXY from impureEnvVars (impure wins over explicit drv env in Nix).
-  # Verified pkgs.crush@0.55.0 still hits this; upstream fix would be nixpkgs
-  # buildGoModule defaulting env.GOPROXY in the FOD.
-  crush =
-    let
-      goModules = pkgs.crush.goModules.overrideAttrs (old: {
-        GOPROXY = "https://proxy.golang.org,direct";
-        impureEnvVars = pkgs.lib.remove "GOPROXY" old.impureEnvVars;
-      });
-    in
-    pkgs.crush.overrideAttrs (_: {
-      inherit goModules;
-    });
 
   # Electron's safeStorage backend autodetect keys off XDG_CURRENT_DESKTOP,
   # which is "niri" on this host — not in Electron's known-DE list, so it
@@ -209,11 +193,10 @@ in
     self'.pty-puppet
     self'.tab-tap
     self'.sel-act
-    codex
-    crush
-    opencode
-    llm.pi
     llm.claude-code
+    llm.codex
+    llm.opencode
+    llm.pi
     inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.voxtype.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.munix.packages.${pkgs.stdenv.hostPlatform.system}.munix
