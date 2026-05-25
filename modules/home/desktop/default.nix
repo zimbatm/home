@@ -59,6 +59,10 @@ in
   # ${tab-tap}/share/tab-tap/extension reach its host. Load the extension via
   # about:debugging → Load Temporary Add-on for now; if it survives the
   # falsification (two verbs suffice) it graduates to a policies.json install.
+  #
+  # Same load-via-about:debugging pattern is used for the agents.ztm.io
+  # clipboard-bridge extension at machines/agents/firefox-ext/ (giving
+  # Firefox the same persistent-permission UX Chromium has natively).
   home.file.".mozilla/native-messaging-hosts/tab_tap.json".text = builtins.toJSON {
     name = "tab_tap";
     description = "tab-tap socket relay";
@@ -212,7 +216,10 @@ in
     crush
     opencode
     llm.pi
+    llm.claude-code
+    inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.voxtype.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.munix.packages.${pkgs.stdenv.hostPlatform.system}.munix
   ];
 
   # Always-on VAD gate on the NPU. ConditionPathExists keeps it inert until
