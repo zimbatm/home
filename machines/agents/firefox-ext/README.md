@@ -9,9 +9,9 @@ Chromium already works without this.
 
 Without the extension, Firefox shows a contextual "Paste" button on
 every `navigator.clipboard.read()` call (per-paste permission, no
-remember). With the extension, the first paste pops Firefox's standard
-"Allow agents.ztm.io to read clipboard?" prompt with a remember toggle;
-after Allow, pastes are silent. Same model as Chromium.
+remember). With the extension, you grant `clipboardRead` **once at
+install time**, after which the content script reads the clipboard
+silently — equivalent UX to Chromium's "Allow always".
 
 The page-served shim (`clip-shim.js`) still runs; this extension just
 intercepts the keydown a beat earlier with extension-level privilege.

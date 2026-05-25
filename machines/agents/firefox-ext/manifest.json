@@ -3,8 +3,7 @@
   "name": "agents.ztm.io clipboard bridge",
   "version": "0.1.0",
   "description": "Lets Firefox match Chromium's persistent-permission UX for image paste at https://agents.ztm.io/. First paste triggers Firefox's native 'Allow clipboard read' prompt (with remember); subsequent pastes are silent.",
-  "permissions": [],
-  "optional_permissions": ["clipboardRead"],
+  "permissions": ["clipboardRead"],
   "host_permissions": ["https://agents.ztm.io/*"],
   "content_scripts": [
     {
