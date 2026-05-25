@@ -129,6 +129,15 @@
   services.nginx.virtualHosts."mail.zimbatm.com" = {
     enableACME = true;
     forceSSL = true;
+    # mTLS gate: nobody reaches the Stalwart admin login page without a
+    # client cert signed by pki/term-ca.crt. Stalwart's own password auth
+    # is still the user credential after the gate; this is a device check,
+    # not SSO. Snappymail (mail.ztm.io) stays password-only.
+    extraConfig = ''
+      ssl_client_certificate ${../../pki/term-ca.crt};
+      ssl_verify_client on;
+      ssl_verify_depth 1;
+    '';
     locations."/" = {
       proxyPass = "http://127.0.0.1:8485";
       proxyWebsockets = true;
