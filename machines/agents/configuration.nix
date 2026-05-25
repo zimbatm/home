@@ -89,7 +89,10 @@
   # herdr is a tmux-shaped multiplexer purpose-built for AI coding agents
   # — knows per-pane working/blocked/done state, persists across detach.
   # Detach: Ctrl-b q. Opt out: `NO_HERDR=1 ssh agents.ztm.io`.
+  # DISPLAY points at the xvfb instance so claude-code's xclip-based image
+  # paste finds the headless clipboard the clip-bridge writes to.
   programs.bash.interactiveShellInit = ''
+    export DISPLAY=:99
     if [[ -z "$IN_HERDR" && ( -n "$SSH_TTY" || -n "$TTYD" ) && $- == *i* && -z "$NO_HERDR" ]]; then
       export IN_HERDR=1
       exec ${inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/herdr
@@ -152,7 +155,55 @@
         proxy_send_timeout 1d;
         proxy_set_header X-Forwarded-Client-Verify $ssl_client_verify;
         proxy_set_header X-Forwarded-Client-DN     $ssl_client_s_dn;
+        # Inject the clipboard shim into ttyd's served HTML; sub_filter
+        # operates on responses so we need to forbid compression and accept
+        # text/html in particular.
+        sub_filter_once on;
+        sub_filter_types text/html;
+        sub_filter '</head>' '<script src="/clip-shim.js" defer></script></head>';
+        proxy_set_header Accept-Encoding "";
       '';
+    };
+    locations."= /clip-shim.js" = {
+      alias = "${./clip-shim.js}";
+      extraConfig = ''
+        types { } default_type application/javascript;
+        add_header Cache-Control "no-cache";
+      '';
+    };
+    locations."= /clip" = {
+      proxyPass = "http://127.0.0.1:8090/clip";
+      extraConfig = ''
+        client_max_body_size 25m;
+        proxy_request_buffering off;
+      '';
+    };
+  };
+
+  # Headless X server providing a clipboard target for claude-code's xclip.
+  systemd.services.xvfb = {
+    description = "Headless X server (DISPLAY=:99) backing the clipboard bridge";
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.xorg-server}/bin/Xvfb :99 -screen 0 1280x800x24 -nolisten tcp";
+      Restart = "always";
+      User = "zimbatm";
+    };
+  };
+
+  # Sidecar that receives image blobs from the browser and pipes them into
+  # xclip on DISPLAY=:99. Bound to loopback; nginx mTLS is the front door.
+  systemd.services.clip-bridge = {
+    description = "Browser→xclip image paste bridge for the web terminal";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "xvfb.service" ];
+    requires = [ "xvfb.service" ];
+    path = [ pkgs.xclip ];
+    environment.DISPLAY = ":99";
+    serviceConfig = {
+      ExecStart = "${pkgs.python3}/bin/python3 ${./clip-bridge.py}";
+      Restart = "always";
+      User = "zimbatm";
     };
   };
 
