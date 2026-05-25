@@ -9,6 +9,7 @@
   imports = [
     inputs.self.nixosModules.common
     inputs.self.nixosModules.hardening
+    inputs.self.nixosModules.pocket-id-clients
     inputs.self.nixosModules.tinc-ztm
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
@@ -101,20 +102,59 @@
     mode = "0755";
   };
 
-  # SSH + nginx (mTLS web terminal on 443). No public CA: the term CA at
-  # pki/term-ca.crt signs both the server cert and client certs, so the
-  # browser that already trusts that CA (one-time import alongside the .p12)
-  # also trusts the server. No ACME, no port 80.
-  networking.firewall.allowedTCPPorts = [ 443 ];
+  # SSH + nginx (LE-terminated web terminal at 443, ACME HTTP-01 on 80).
+  # Previously mTLS-gated with our own term CA; now SSO via Pocket ID
+  # through oauth2-proxy. No per-device cert provisioning, single login.
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
 
-  age.secrets."agents.ztm.io-server-key" = {
-    file = ../../secrets/agents.ztm.io-server-key.age;
-    owner = "nginx";
-    group = "nginx";
-    mode = "0400";
-  };
-  # nginx needs to traverse /run/agenix/ (root:keys, 0750) to reach the key.
+  age.secrets.pocket-id-static-api-key.file = ../../secrets/pocket-id-static-api-key.age;
+  age.secrets.oauth2-proxy-agents-cookie.file = ../../secrets/oauth2-proxy-agents-cookie.age;
+  # nginx needs to traverse /run/agenix/ (root:keys, 0750) to reach secret files.
   users.users.nginx.extraGroups = [ "keys" ];
+
+  # Register the OIDC client in Pocket ID (mail.zimbatm.com). The reconciler
+  # runs locally here, talks to id.zimbatm.com via the API key, and writes
+  # /run/pocket-id-clients/agents-ttyd/{id,secret} for oauth2-proxy to read.
+  services.pocketIdClients = {
+    apiBaseUrl = "https://id.zimbatm.com/api";
+    apiKeyFile = config.age.secrets.pocket-id-static-api-key.path;
+    clients.agents-ttyd = {
+      name = "agents.ztm.io terminal";
+      callbackURLs = [ "https://agents.ztm.io/oauth2/callback" ];
+      pkceEnabled = true;
+    };
+  };
+
+  # oauth2-proxy: nginx auth_request → here → Pocket ID OIDC.
+  services.oauth2-proxy = {
+    enable = true;
+    provider = "oidc";
+    oidcIssuerUrl = "https://id.zimbatm.com";
+    # client_id is also the slug we used in pocketIdClients; client_secret
+    # is the one the reconciler generated and stored at /run/pocket-id-clients/.
+    clientID = "agents-ttyd";
+    clientSecretFile = "/run/pocket-id-clients/agents-ttyd/secret";
+    cookie.secretFile = config.age.secrets.oauth2-proxy-agents-cookie.path;
+    cookie.domain = ".ztm.io";  # share session across future *.ztm.io SSO targets
+    cookie.refresh = "1h";
+    redirectURL = "https://agents.ztm.io/oauth2/callback";
+    email.domains = [ "*" ];
+    reverseProxy = true;
+    setXauthrequest = true;
+    extraConfig = {
+      "skip-provider-button" = true;   # single-IdP setup, skip the chooser
+      "whitelist-domain" = ".ztm.io";
+    };
+    nginx.domain = "agents.ztm.io";
+    nginx.virtualHosts."agents.ztm.io" = { };
+  };
+  # oauth2-proxy starts before pocket-id-clients has run; depend on it so
+  # the client_secret file exists when oauth2-proxy reads it.
+  systemd.services.oauth2-proxy = {
+    after = [ "pocket-id-clients.service" ];
+    requires = [ "pocket-id-clients.service" ];
+    serviceConfig.SupplementaryGroups = [ "pocket-id-clients" ];
+  };
 
   # ttyd: PTY-over-WebSocket on loopback; nginx terminates TLS and enforces
   # client-cert (mTLS) before proxying. Runs as zimbatm so the shell isn't
@@ -144,25 +184,21 @@
   };
 
   services.nginx.virtualHosts."agents.ztm.io" = {
-    onlySSL = true;
-    sslCertificate = ../../pki/agents.ztm.io.crt;
-    sslCertificateKey = config.age.secrets."agents.ztm.io-server-key".path;
-    extraConfig = ''
-      ssl_client_certificate ${../../pki/term-ca.crt};
-      ssl_verify_client on;
-      ssl_verify_depth 1;
-    '';
+    enableACME = true;
+    forceSSL = true;
+    # services.oauth2-proxy.nginx.virtualHosts attaches `auth_request
+    # /oauth2/auth` + the /oauth2/* locations to this vhost. The
+    # locations below sit BEHIND that gate; oauth2-proxy lets the
+    # request through only after the user has a valid Pocket ID
+    # session.
     locations."/" = {
       proxyPass = "http://127.0.0.1:7681";
       proxyWebsockets = true;
       extraConfig = ''
         proxy_read_timeout 1d;
         proxy_send_timeout 1d;
-        proxy_set_header X-Forwarded-Client-Verify $ssl_client_verify;
-        proxy_set_header X-Forwarded-Client-DN     $ssl_client_s_dn;
         # Inject the clipboard shim into ttyd's served HTML; sub_filter
-        # operates on responses so we need to forbid compression and accept
-        # text/html in particular.
+        # operates on responses so forbid compression for text/html.
         sub_filter_once on;
         sub_filter_types text/html;
         sub_filter '</head>' '<script src="/clip-shim.js" defer></script></head>';

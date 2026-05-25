@@ -18,8 +18,10 @@ let
 
       # Wait for pocket-id (STATIC_API_KEY admin user is created lazily
       # on first API hit, so we just retry until /healthz says ok).
-      for i in $(seq 1 60); do
-        if curl -sS -f -o /dev/null "$API/../healthz"; then break; fi
+      tries=0
+      until curl -sS -f -o /dev/null "$API/../healthz"; do
+        tries=$((tries + 1))
+        [ "$tries" -ge 60 ] && { echo "pocket-id not ready after 60s" >&2; exit 1; }
         sleep 1
       done
 
@@ -126,8 +128,11 @@ in
 
     systemd.services.pocket-id-clients = {
       description = "Reconcile Pocket ID OIDC clients against Nix-declared spec";
-      after = [ "pocket-id.service" "network-online.target" ];
+      # agenix-install-secrets populates /run/agenix/* — the LoadCredential
+      # below would fail at activation time if we don't wait for it.
+      after = [ "pocket-id.service" "network-online.target" "agenix-install-secrets.service" ];
       wants = [ "pocket-id.service" "network-online.target" ];
+      requires = [ "agenix-install-secrets.service" ];
       wantedBy = [ "multi-user.target" ];
       restartTriggers = [ specFile ];
       serviceConfig = {
