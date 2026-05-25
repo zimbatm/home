@@ -148,6 +148,10 @@
       # exchange fails with "Invalid code verifier" unless oauth2-proxy
       # actually sends the PKCE challenge. S256 is the modern method.
       "code-challenge-method" = "S256";
+      # Pocket ID doesn't set email_verified on the id_token, and oauth2-proxy
+      # rejects unverified emails by default. Pocket ID owns identity here
+      # (passkey-tied), so the verified flag is redundant.
+      "insecure-oidc-allow-unverified-email" = true;
     };
     nginx.domain = "agents.ztm.io";
     nginx.virtualHosts."agents.ztm.io" = { };
