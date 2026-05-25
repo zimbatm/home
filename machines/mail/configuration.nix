@@ -4,6 +4,7 @@
     inputs.self.nixosModules.common
     inputs.self.nixosModules.hardening
     inputs.self.nixosModules.hc-ping
+    inputs.self.nixosModules.tinc-ztm
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.srvos.nixosModules.mixins-nginx

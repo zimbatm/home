@@ -1,0 +1,5 @@
+Address = agents.ztm.io
+Subnet = 10.42.0.15/32
+-----BEGIN ED25519 PUBLIC KEY-----
+PrscMiPRCD/B8HmYJPArIFPswrGDDsQsT5t5klWafqA
+-----END ED25519 PUBLIC KEY-----

@@ -14,6 +14,12 @@ let
   mail = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXTqRXCrgBb03kQOsilzkCwaVgdUHpggIZwhNX6XZcM";
   mc1 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFhNSteHsLGklQ6WfEuTl+jcWY10YxB9MTktVyjrvQ1O";
   agents = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAION9fEQJzwaGn7LzRiRWf9sGAU0hgRd2DtaMOm/DXr+F";
+  nv1 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINRCwb2rpKwjTY2PrhkkI4mke15nziZb2z8NGD/IsrcE";
+
+  nv1Hosts = [
+    zimbatm
+    nv1
+  ];
 
   agentsHosts = [
     zimbatm
@@ -56,4 +62,10 @@ in
   "hc-ping-stalwart.age".publicKeys = mailHosts;
   "hc-ping-minecraft.age".publicKeys = mc1Hosts;
   "agents.ztm.io-server-key.age".publicKeys = agentsHosts;
+  "tinc-ztm-nv1-key.age".publicKeys = nv1Hosts;
+  "tinc-ztm-chat-key.age".publicKeys = chatHosts;
+  "tinc-ztm-web2-key.age".publicKeys = web2Hosts;
+  "tinc-ztm-mail-key.age".publicKeys = mailHosts;
+  "tinc-ztm-mc1-key.age".publicKeys = mc1Hosts;
+  "tinc-ztm-agents-key.age".publicKeys = agentsHosts;
 }

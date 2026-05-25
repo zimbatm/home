@@ -1,0 +1,5 @@
+Address = mail.zimbatm.com
+Subnet = 10.42.0.13/32
+-----BEGIN ED25519 PUBLIC KEY-----
+oW1jy0MxkDM+AUJGogEL472uQQUXpX/+TGEYOzEfEnA
+-----END ED25519 PUBLIC KEY-----

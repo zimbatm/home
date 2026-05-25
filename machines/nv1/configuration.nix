@@ -8,6 +8,7 @@
 {
   imports = [
     ./hardware-configuration.nix
+    inputs.agenix.nixosModules.default
     inputs.distro.nixosModules.distro
     # NovaCustom V5xTNC: Intel Meteor Lake-H + NVIDIA RTX 4060 Max-Q
     inputs.nixos-hardware.nixosModules.common-cpu-intel
@@ -15,11 +16,17 @@
     inputs.nixos-hardware.nixosModules.common-pc-ssd
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.steam
+    inputs.self.nixosModules.tinc-ztm
     inputs.self.nixosModules.zero-tailnet
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
+
+  # agenix uses ssh host keys as identities at activation; nv1 doesn't run
+  # sshd so the default discovery path doesn't pick anything up. Point at
+  # the host's existing ed25519 key (the one in secrets/secrets.nix as `nv1`).
+  age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
   # Hybrid graphics: Intel Arc (Meteor Lake iGPU) drives the display; NVIDIA
   # RTX 4060 Max-Q is the compute dGPU (CUDA / llama.cpp). Apps stay on Intel

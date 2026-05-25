@@ -1,0 +1,5 @@
+Address = gts.zimbatm.com
+Subnet = 10.42.0.12/32
+-----BEGIN ED25519 PUBLIC KEY-----
+Ddcf9fo623ekzVmq5bRfAwBoE+dDnKw8HT08GdMc5rE
+-----END ED25519 PUBLIC KEY-----
