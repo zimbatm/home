@@ -100,6 +100,18 @@ D("chevalier.sh", REG_NC, DnsProvider(DNS_NC),
   A("cal",    WEB2_A),
   AAAA("cal", WEB2_AAAA),
 
+  // Stalwart-side infrastructure on the `mail` VM (task #72). MX stays on
+  // Fastmail; these subdomains exist so we have certs + webmail + client
+  // autoconfig ready when we cut over.
+  A("mail",            MAIL_A),
+  AAAA("mail",         MAIL_AAAA),
+  A("mta-sts",         MAIL_A),
+  AAAA("mta-sts",      MAIL_AAAA),
+  A("autoconfig",      MAIL_A),
+  AAAA("autoconfig",   MAIL_AAAA),
+  A("autodiscover",    MAIL_A),
+  AAAA("autodiscover", MAIL_AAAA),
+
   // Fastmail MX for the apex and any sub (mailbox-per-name pattern).
   MX("@", 10, "in1-smtp.messagingengine.com."),
   MX("@", 20, "in2-smtp.messagingengine.com."),

@@ -67,6 +67,7 @@
   age.secrets.stalwart-jonas-password.file = ../../secrets/stalwart-jonas-password.age;
 
   security.acme.certs."mail.zimbatm.com".reloadServices = [ "stalwart.service" ];
+  security.acme.certs."mail.chevalier.sh".reloadServices = [ "stalwart.service" ];
   users.users.stalwart.extraGroups = [ "nginx" ];
 
   services.stalwart = {
@@ -109,6 +110,13 @@
         private-key = "%{file:/var/lib/acme/mail.zimbatm.com/key.pem}%";
         default = true;
       };
+      # SNI-matched cert for clients connecting via mail.chevalier.sh
+      # (autoconfig steers Thunderbird / iOS here). Stalwart picks this
+      # based on the ServerName/SNI without restarting SMTP/IMAP sockets.
+      certificate."mail.chevalier.sh" = {
+        cert = "%{file:/var/lib/acme/mail.chevalier.sh/fullchain.pem}%";
+        private-key = "%{file:/var/lib/acme/mail.chevalier.sh/key.pem}%";
+      };
 
       authentication.fallback-admin = {
         user = "admin";
@@ -141,6 +149,111 @@
       extraConfig = ''
         default_type text/plain;
         return 200 "version: STSv1\nmode: testing\nmx: mail.zimbatm.com\nmax_age: 86400\n";
+      '';
+    };
+  };
+
+  # chevalier.sh infrastructure (task #72). MX is still on Fastmail; these
+  # vhosts give us Stalwart-side webmail, autoconfig, and a primed MTA-STS
+  # endpoint that we can switch from "testing" to "enforce" at MX cutover.
+
+  services.nginx.virtualHosts."mail.chevalier.sh" = {
+    enableACME = true;
+    forceSSL = true;
+    root = "${pkgs.snappymail}";
+    extraConfig = ''
+      access_log syslog:server=unix:/dev/log snappymail_timing;
+    '';
+    locations."/" = {
+      index = "index.php";
+      tryFiles = "$uri $uri/ /index.php$is_args$args";
+    };
+    locations."~ \\.php$".extraConfig = ''
+      include ${pkgs.nginx}/conf/fastcgi_params;
+      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+      fastcgi_param PATH_INFO $fastcgi_path_info;
+      fastcgi_pass unix:${config.services.phpfpm.pools.snappymail.socket};
+    '';
+    locations."~ ^/(data|.git)".extraConfig = ''
+      deny all;
+    '';
+  };
+
+  services.nginx.virtualHosts."mta-sts.chevalier.sh" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."= /.well-known/mta-sts.txt" = {
+      extraConfig = ''
+        default_type text/plain;
+        # `testing` so receivers don't enforce yet — flip to `enforce`
+        # along with the MX cutover.
+        return 200 "version: STSv1\nmode: testing\nmx: mail.chevalier.sh\nmax_age: 86400\n";
+      '';
+    };
+  };
+
+  # Thunderbird / Apple Mail / SeaMonkey autoconfig (RFC ISPDB-ish).
+  services.nginx.virtualHosts."autoconfig.chevalier.sh" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."= /mail/config-v1.1.xml" = {
+      extraConfig = ''
+        default_type application/xml;
+        return 200 '<?xml version="1.0" encoding="UTF-8"?>
+<clientConfig version="1.1">
+  <emailProvider id="chevalier.sh">
+    <domain>chevalier.sh</domain>
+    <displayName>chevalier.sh</displayName>
+    <displayShortName>chevalier.sh</displayShortName>
+    <incomingServer type="imap">
+      <hostname>mail.chevalier.sh</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+    <outgoingServer type="smtp">
+      <hostname>mail.chevalier.sh</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+  </emailProvider>
+</clientConfig>';
+      '';
+    };
+  };
+
+  # Outlook / iOS autodiscover. POST-only in real Exchange; we return the
+  # same XML for GET too so clients that probe both methods work.
+  services.nginx.virtualHosts."autodiscover.chevalier.sh" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."= /autodiscover/autodiscover.xml" = {
+      extraConfig = ''
+        default_type application/xml;
+        return 200 '<?xml version="1.0" encoding="utf-8"?>
+<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+  <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
+    <Account>
+      <AccountType>email</AccountType>
+      <Action>settings</Action>
+      <Protocol>
+        <Type>IMAP</Type>
+        <Server>mail.chevalier.sh</Server>
+        <Port>993</Port>
+        <SSL>on</SSL>
+      </Protocol>
+      <Protocol>
+        <Type>SMTP</Type>
+        <Server>mail.chevalier.sh</Server>
+        <Port>465</Port>
+        <SSL>on</SSL>
+      </Protocol>
+    </Account>
+  </Response>
+</Autodiscover>';
       '';
     };
   };
