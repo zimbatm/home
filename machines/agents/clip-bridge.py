@@ -1,13 +1,23 @@
 #!/usr/bin/env python3
-"""Tiny sidecar: POST /clip with an image body, sidecar writes it onto the
-xvfb clipboard via xclip. Bound to 127.0.0.1; auth happens at the nginx
-mTLS layer in front. 20 MB body cap; nothing fancy."""
-import os, subprocess, sys
+"""Tiny sidecar: POST /clip with an image body. The sidecar:
+  - writes the image to /tmp/clip-latest.<ext> (claude reads this via the
+    fake-xclip wrapper next to it on PATH);
+  - also keeps a timestamped copy at /tmp/clip-<ms>.<ext> for inspection;
+  - returns 200 with both paths in the body so the browser shim can print
+    them in the user's console.
+Bound to 127.0.0.1; auth happens at the nginx mTLS layer in front."""
+import os, sys, time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 MAX_BYTES = 20 * 1024 * 1024
-DISPLAY = os.environ.get("DISPLAY", ":99")
-XCLIP = os.environ.get("XCLIP", "xclip")
+SAVE_DIR = "/tmp"
+
+EXT_FOR = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+    "image/gif": "gif",
+    "image/webp": "webp",
+}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -15,28 +25,34 @@ class Handler(BaseHTTPRequestHandler):
         if self.path != "/clip":
             self.send_error(404)
             return
-        ctype = self.headers.get("Content-Type", "image/png")
+        ctype = self.headers.get("Content-Type", "image/png").split(";")[0].strip()
         length = int(self.headers.get("Content-Length", "0"))
         if length <= 0 or length > MAX_BYTES:
             self.send_error(413)
             return
         body = self.rfile.read(length)
-        proc = subprocess.Popen(
-            [XCLIP, "-selection", "clipboard", "-t", ctype],
-            stdin=subprocess.PIPE,
-            env={**os.environ, "DISPLAY": DISPLAY},
-        )
-        try:
-            proc.communicate(body, timeout=5)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            self.send_error(504, "xclip timeout")
-            return
-        if proc.returncode != 0:
-            self.send_error(500, f"xclip exit {proc.returncode}")
-            return
-        self.send_response(204)
+
+        ext = EXT_FOR.get(ctype, "bin")
+        archive = f"{SAVE_DIR}/clip-{int(time.time() * 1000)}.{ext}"
+        latest = f"{SAVE_DIR}/clip-latest.{ext}"
+        with open(archive, "wb") as f:
+            f.write(body)
+        # Atomic-ish swap: write then rename.
+        tmp = latest + ".tmp"
+        with open(tmp, "wb") as f:
+            f.write(body)
+        os.replace(tmp, latest)
+        # Also write a metadata pointer so the fake-xclip wrapper knows the
+        # current type without globbing.
+        with open(f"{SAVE_DIR}/clip-latest.type", "w") as f:
+            f.write(ctype)
+
+        out = (f"latest={latest}\narchive={archive}\n").encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(out)))
         self.end_headers()
+        self.wfile.write(out)
 
     def log_message(self, fmt, *args):
         sys.stderr.write("%s\n" % (fmt % args))

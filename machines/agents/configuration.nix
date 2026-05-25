@@ -89,15 +89,24 @@
   # herdr is a tmux-shaped multiplexer purpose-built for AI coding agents
   # — knows per-pane working/blocked/done state, persists across detach.
   # Detach: Ctrl-b q. Opt out: `NO_HERDR=1 ssh agents.ztm.io`.
-  # DISPLAY points at the xvfb instance so claude-code's xclip-based image
-  # paste finds the headless clipboard the clip-bridge writes to.
+  # DISPLAY=:1 is a fake to make claude-code believe a clipboard is present;
+  # /etc/term-paste/xclip is the shim that returns the latest image written
+  # by clip-bridge.py instead of talking to a real X server.
   programs.bash.interactiveShellInit = ''
-    export DISPLAY=:99
+    export DISPLAY=:1
+    export PATH=/etc/term-paste:$PATH
     if [[ -z "$IN_HERDR" && ( -n "$SSH_TTY" || -n "$TTYD" ) && $- == *i* && -z "$NO_HERDR" ]]; then
       export IN_HERDR=1
       exec ${inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/herdr
     fi
   '';
+
+  # Install fake-xclip as /etc/term-paste/xclip so it shadows the real one
+  # only inside the agents shells that prepend /etc/term-paste to PATH.
+  environment.etc."term-paste/xclip" = {
+    source = ./fake-xclip;
+    mode = "0755";
+  };
 
   # SSH + nginx (mTLS web terminal on 443). No public CA: the term CA at
   # pki/term-ca.crt signs both the server cert and client certs, so the
@@ -128,7 +137,10 @@
     writeable = true;  # (sic — option name has a typo upstream)
     entrypoint = [
       (toString (pkgs.writeShellScript "ttyd-shell" ''
-        export TTYD=1
+        # Diagnostic: NO_HERDR=1 bypasses the bash init herdr auto-attach so
+        # we can isolate herdr from the rest of the image-paste chain.
+        # Revert to `export TTYD=1` once verified.
+        export NO_HERDR=1
         exec ${pkgs.bash}/bin/bash -l
       ''))
     ];
@@ -180,26 +192,13 @@
     };
   };
 
-  # Headless X server providing a clipboard target for claude-code's xclip.
-  systemd.services.xvfb = {
-    description = "Headless X server (DISPLAY=:99) backing the clipboard bridge";
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.xorg-server}/bin/Xvfb :99 -screen 0 1280x800x24 -nolisten tcp";
-      Restart = "always";
-      User = "zimbatm";
-    };
-  };
-
-  # Sidecar that receives image blobs from the browser and pipes them into
-  # xclip on DISPLAY=:99. Bound to loopback; nginx mTLS is the front door.
+  # Sidecar that receives image blobs from the browser and writes them to
+  # /tmp/clip-latest.<ext>. The fake-xclip shim on PATH reads from there.
+  # No real X server involved — xclip's daemonization is too fragile under
+  # systemd to rely on for one-shot clipboard writes.
   systemd.services.clip-bridge = {
-    description = "Browser→xclip image paste bridge for the web terminal";
+    description = "Browser→/tmp image paste bridge for the web terminal";
     wantedBy = [ "multi-user.target" ];
-    after = [ "xvfb.service" ];
-    requires = [ "xvfb.service" ];
-    path = [ pkgs.xclip ];
-    environment.DISPLAY = ":99";
     serviceConfig = {
       ExecStart = "${pkgs.python3}/bin/python3 ${./clip-bridge.py}";
       Restart = "always";

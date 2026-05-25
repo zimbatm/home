@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Stand-in for xclip on the agents box. We don't run a real X server with a
+# clipboard manager — instead the browser-side shim POSTs pasted images to
+# clip-bridge.py, which writes /tmp/clip-latest.<ext>. This shim returns
+# that file when claude-code (or anything else) asks xclip for the clipboard.
+#
+# Supports the minimum xclip surface claude exercises:
+#   xclip -selection clipboard -t TARGETS -o
+#   xclip -selection clipboard -t image/<x> -o
+#   xclip -selection clipboard -t text/plain -o
+# Anything else falls through to the real xclip if one is on PATH.
+set -euo pipefail
+
+# Parse just enough of xclip's arg shape to identify reads.
+mode="in"
+target=""
+while (( $# )); do
+  case "$1" in
+    -o|-out)        mode="out"; shift ;;
+    -i|-in)         mode="in";  shift ;;
+    -t|-target)     target="$2"; shift 2 ;;
+    -selection)     shift 2 ;;   # always clipboard for our purposes
+    -display)       shift 2 ;;
+    -loops)         shift 2 ;;
+    -verbose|-quiet|-silent|-rmlastnl|-noutf8|-help|-version)
+                    shift ;;
+    *)              shift ;;
+  esac
+done
+
+if [[ "$mode" != "out" ]]; then
+  # Writes (-i) — silently succeed; the browser shim is the only legitimate
+  # writer in this environment.
+  cat >/dev/null
+  exit 0
+fi
+
+LATEST_TYPE="/tmp/clip-latest.type"
+ctype=""
+[[ -f "$LATEST_TYPE" ]] && ctype="$(cat "$LATEST_TYPE")"
+
+case "$target" in
+  TARGETS)
+    if [[ -n "$ctype" ]]; then
+      printf '%s\n' "$ctype"
+    fi
+    # Always advertise text targets so xterm-side text paste doesn't break
+    # if something probes for them.
+    printf 'TARGETS\nUTF8_STRING\nSTRING\n'
+    exit 0
+    ;;
+  image/*)
+    ext="${target##*/}"
+    [[ "$ext" == "jpeg" ]] && ext="jpg"
+    file="/tmp/clip-latest.${ext}"
+    if [[ -f "$file" && "$ctype" == "$target" ]]; then
+      cat "$file"
+      exit 0
+    fi
+    exit 1
+    ;;
+  text/plain|UTF8_STRING|STRING|"")
+    # No textual clipboard in this setup; return empty.
+    exit 0
+    ;;
+  *)
+    exit 1
+    ;;
+esac
