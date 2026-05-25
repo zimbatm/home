@@ -51,15 +51,7 @@
     ];
   };
 
-  users.users.zimbatm = {
-    extraGroups = [ "wheel" ];
-    openssh.authorizedKeys.keys = [
-      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1"
-    ];
-  };
-  users.users.root.openssh.authorizedKeys.keys = [
-    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1"
-  ];
+  users.users.zimbatm.extraGroups = [ "wheel" ];
 
   networking.firewall.allowedTCPPorts = [
     80

@@ -33,14 +33,6 @@
     return realSend.call(this, data);
   };
 
-  // Expose a helper for the Firefox extension to inject keystrokes into
-  // the PTY without re-implementing WebSocket capture in extension land.
-  window.__termClipInject = function (bytes) {
-    if (!ttydWS) return false;
-    ttydWS.send('0' + bytes);
-    return true;
-  };
-
   async function shipImage(blob) {
     console.log('[clip-shim] shipping', blob.type, blob.size, 'bytes');
     const r = await fetch('/clip', {

@@ -178,14 +178,6 @@ in
     "weechat"
   ];
 
-  users.users.zimbatm.openssh.authorizedKeys.keys = [
-    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1"
-  ];
-
-  users.users.root.openssh.authorizedKeys.keys = [
-    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1"
-  ];
-
   # ACME on 80 (HTTP-01), TLS relay on 9443. Port 9001 (plain TCP relay)
   # used to be open; closed once 9443 came up — no point shipping passwords
   # in cleartext when we have a valid cert.

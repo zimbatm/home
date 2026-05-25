@@ -12,6 +12,7 @@ truth for "how this was last done."
 | [restic-restore.md](restic-restore.md) | Restore from rsync.net backups |
 | [stalwart-admin.md](stalwart-admin.md) | Create domains/principals via Stalwart admin API |
 | [term-web.md](term-web.md) | Web terminal at agents.ztm.io (mTLS, ttyd, client-cert provisioning) |
+| [ssh-tpm-agent.md](ssh-tpm-agent.md) | Migrate SSH-from-nv1 to TPM-backed (silent, no SSH_ASKPASS dance) |
 
 Common dependencies these procedures assume:
 

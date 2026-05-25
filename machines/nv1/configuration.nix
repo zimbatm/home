@@ -123,9 +123,7 @@
   };
   environment.etc."security/pam_rssh_authorized_keys.d/zimbatm" = {
     mode = "0444";
-    text = ''
-      sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1
-    '';
+    source = ../../keys/zimbatm-p1.pub;
   };
   security.pam.services.sudo.rssh = true;
   # Do not fall back to blind pam_u2f for sudo. If the contextual SSH-agent

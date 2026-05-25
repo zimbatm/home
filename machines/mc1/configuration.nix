@@ -521,15 +521,7 @@ in
     ];
   };
 
-  users.users.zimbatm = {
-    extraGroups = [ "wheel" ];
-    openssh.authorizedKeys.keys = [
-      "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1"
-    ];
-  };
-  users.users.root.openssh.authorizedKeys.keys = [
-    "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIOH4yGDIDHCOFfNeXuvYwNoSVtAPOznAHfxSTSze8tMnAAAABHNzaDo= zimbatm@p1"
-  ];
+  users.users.zimbatm.extraGroups = [ "wheel" ];
 
   # rsync: world uploads. mcrcon: local control of the bridge JVM (place
   # command blocks, set spawn, etc.) without needing in-game ops chat.
