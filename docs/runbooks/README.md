@@ -13,6 +13,7 @@ truth for "how this was last done."
 | [stalwart-admin.md](stalwart-admin.md) | Create domains/principals via Stalwart admin API |
 | [term-web.md](term-web.md) | Web terminal at agents.ztm.io (mTLS, ttyd, client-cert provisioning) |
 | [ssh-tpm-agent.md](ssh-tpm-agent.md) | Migrate SSH-from-nv1 to TPM-backed (silent, no SSH_ASKPASS dance) |
+| [tinc-ztm.md](tinc-ztm.md) | Stand up the tincr `ztm` mesh between all 6 hosts (10.42.0.0/24) |
 
 Common dependencies these procedures assume:
 

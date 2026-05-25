@@ -73,6 +73,14 @@
       url = "git+https://git.clan.lol/clan/munix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Mic92's Rust rewrite of tinc 1.1. Drop-in wire-compatible; exposes
+    # nixosModules.tincr (services.tincr.networks.<name>). Used for the
+    # private `ztm` mesh between nv1+chat+web2+mail+mc1+agents — keeps
+    # internal admin surfaces off the public Internet.
+    tincr = {
+      url = "github:Mic92/tincr";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -105,6 +113,7 @@
         gotosocial = ./modules/nixos/gotosocial.nix;
         hardening = ./modules/nixos/hardening.nix;
         hc-ping = ./modules/nixos/hc-ping.nix;
+        tinc-ztm = ./modules/nixos/tinc-ztm.nix;
         perlless = ./modules/nixos/perlless.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;
