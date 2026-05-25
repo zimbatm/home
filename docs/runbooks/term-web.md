@@ -1,8 +1,24 @@
 # Web terminal at https://agents.ztm.io/
 
-ttyd behind nginx (mTLS) on the `agents` box. Image-paste preserved via
-xterm.js's iTerm2 OSC 1337 addon (no tmux/herdr-style escape mangling in
-the browser path).
+ttyd behind nginx (mTLS) on the `agents` box, plus a clipboard bridge
+so image-paste actually reaches Claude Code:
+
+- A JS shim (`machines/agents/clip-shim.js`) is injected into ttyd's
+  HTML via nginx `sub_filter`. On `Ctrl/Cmd+V` it calls
+  `navigator.clipboard.read()`, POSTs any image blob to `/clip`, then
+  writes `\x16` to ttyd's WebSocket so claude re-reads the clipboard.
+- `clip-bridge.py` (systemd unit `clip-bridge`) receives `/clip` POSTs
+  and writes the image to `/tmp/clip-latest.<ext>` (+ a timestamped
+  archive copy).
+- `/etc/term-paste/xclip` (sourced from `machines/agents/fake-xclip`)
+  is prepended to interactive `$PATH`. When claude calls
+  `xclip -selection clipboard -t image/png -o`, this shim returns the
+  saved file. No real X server in the loop — `xclip`'s daemonization
+  under systemd is too unreliable for one-shot writes.
+
+**Use Chromium / Brave**, not Firefox: Firefox prompts a "Paste"
+button on every `navigator.clipboard.read()` call with no remember
+option; Chromium grants persistent permission after the first Allow.
 
 ## Issue a client cert for a new device
 
