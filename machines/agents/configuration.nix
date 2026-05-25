@@ -144,6 +144,10 @@
     extraConfig = {
       "skip-provider-button" = true;   # single-IdP setup, skip the chooser
       "whitelist-domain" = ".ztm.io";
+      # Pocket ID's client config has pkceEnabled = true, so the token
+      # exchange fails with "Invalid code verifier" unless oauth2-proxy
+      # actually sends the PKCE challenge. S256 is the modern method.
+      "code-challenge-method" = "S256";
     };
     nginx.domain = "agents.ztm.io";
     nginx.virtualHosts."agents.ztm.io" = { };
