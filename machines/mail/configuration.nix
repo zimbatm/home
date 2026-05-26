@@ -104,6 +104,19 @@
 
       lookup.default.hostname = "mail.zimbatm.com";
 
+      # Attachments / message bodies as files under /var/lib/stalwart/blobs
+      # instead of inside RocksDB. Smaller restic snapshots, less RocksDB
+      # compaction churn. Greenfield from this point — the DB was wiped
+      # and re-imapsynced from Google Workspace so we never had blobs
+      # in RocksDB to migrate out of (Stalwart 0.15.5's --export/--import
+      # doesn't reroute by backend; see
+      # [[reference_stalwart_blob_fs_migration]]).
+      store.fs = {
+        type = "fs";
+        path = "/var/lib/stalwart/blobs";
+      };
+      storage.blob = "fs";
+
       server.listener.smtp = {
         bind = [ "[::]:25" ];
         protocol = "smtp";
