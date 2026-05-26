@@ -12,7 +12,7 @@ var REG_NC = NewRegistrar("namecheap");
 var DNS_NC = NewDnsProvider("namecheap");
 
 // ----------------------------------------------------------------------------
-// zimbatm.com — work-ish/public identity. MX cut over to Stalwart (#52).
+// zimbatm.com — work-ish/public identity. MX on Fastmail.
 // ----------------------------------------------------------------------------
 
 // Host targets.
@@ -35,16 +35,9 @@ D("zimbatm.com", REG_NC, DnsProvider(DNS_NC),
   AAAA("@",    WEB2_AAAA),
   A("gts",     WEB2_A),
   AAAA("gts",  WEB2_AAAA),
-  A("mail",    MAIL_A),
-  AAAA("mail", MAIL_AAAA),
-  A("mta-sts",    MAIL_A),
-  AAAA("mta-sts", MAIL_AAAA),
-  A("id",         MAIL_A),
-  AAAA("id",      MAIL_AAAA),
-  A("autoconfig",      MAIL_A),
-  AAAA("autoconfig",   MAIL_AAAA),
-  A("autodiscover",    MAIL_A),
-  AAAA("autodiscover", MAIL_AAAA),
+  // Pocket ID still lives on the mail VM (SSO root for agents.ztm.io etc).
+  A("id",    MAIL_A),
+  AAAA("id", MAIL_AAAA),
 
   // ─── CNAME ───
   CNAME("www",             "zimbatm.com."),
@@ -53,26 +46,30 @@ D("zimbatm.com", REG_NC, DnsProvider(DNS_NC),
   CNAME("sl._domainkey",   "sl._domainkey.m2.sendlayer.net.", TTL(300)),
   CNAME("_dmarc.sl",       "_dmarc.m2.sendlayer.net.",  TTL(300)),
 
-  // ─── MX (Stalwart on mail.zimbatm.com — cutover at #52) ───
-  MX("@", 10, "mail.zimbatm.com."),
+  // ─── MX (Fastmail) ───
+  MX("@", 10, "in1-smtp.messagingengine.com."),
+  MX("@", 20, "in2-smtp.messagingengine.com."),
+  MX("*", 10, "in1-smtp.messagingengine.com."),
+  MX("*", 20, "in2-smtp.messagingengine.com."),
+
+  // ─── Fastmail DKIM (CNAMEs, rotated by Fastmail) ───
+  CNAME("fm1._domainkey", "fm1.zimbatm.com.dkim.fmhosted.com."),
+  CNAME("fm2._domainkey", "fm2.zimbatm.com.dkim.fmhosted.com."),
+  CNAME("fm3._domainkey", "fm3.zimbatm.com.dkim.fmhosted.com."),
 
   // ─── TXT ───
-  // SPF: only mail.zimbatm.com is authorised to send for @zimbatm.com.
-  // Sendlayer keeps its own sub-domain (sl.zimbatm.com) for transactional.
-  TXT("@",       "v=spf1 mx -all"),
-  TXT("@",       "google-site-verification=mRPDMyxbG7TJi2SMfaT0uVqSEfo2DR3ukqJwR_t6L9w"),
+  TXT("@",        "v=spf1 include:spf.messagingengine.com ?all"),
+  TXT("@",        "google-site-verification=mRPDMyxbG7TJi2SMfaT0uVqSEfo2DR3ukqJwR_t6L9w"),
   TXT("_atproto", "did=did:plc:wxnofyouho6vcuevbvocutid"),
-  TXT("_dmarc",  "v=DMARC1; p=none; rua=mailto:dmarc@zimbatm.com; ruf=mailto:dmarc@zimbatm.com; fo=1; aspf=r; adkim=r"),
-  TXT("_mta-sts", "v=STSv1; id=2026052601"),
-  TXT("_smtp._tls", "v=TLSRPTv1; rua=mailto:tlsrpt@zimbatm.com"),
+  TXT("_dmarc",   "v=DMARC1; p=none; rua=mailto:dmarc@zimbatm.com; ruf=mailto:dmarc@zimbatm.com; fo=1; aspf=r; adkim=r"),
 
   // Sendlayer return-path TXT
   TXT("e3bhjstxcz.sl", "wzxjxsyzmdb3ek4fcxpphjb3mzhezdrp7h3w4wrkzsfaaehd7ytfcwdprmxk", TTL(300)),
 
-  // DKIM keys
+  // Legacy DKIM (RSA) kept around in case old archived mail needs to
+  // re-verify; harmless even if no longer used for new outbound.
   TXT("cf2024-1._domainkey",     "v=DKIM1; h=sha256; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiweykoi+o48IOGuP7GR3X0MOExCUDY/BCRHoWBnh3rChl7WhdyCxW3jgq1daEjPPqoi7sJvdg5hEQVsgVRQP4DcnQDVjGMbASQtrY4WmB1VebF+RPJB2ECPsEDTpeiI5ZyUAwJaVX7r6bznU67g7LvFq35yIo4sdlmtZGV+i0H4cpYH9+3JJ78km4KXwaf9xUJCWF6nxeD+qG6Fyruw1Qlbds2r85U9dkNDVAS3gioCvELryh1TxKGiVTkg4wqHTyHfWsp7KD3WQHYJn0RyfJJu6YEmL77zonn7p2SRMvTMP3ZEXibnC9gz3nnhR6wcYL8Q7zXypKTMD58bTixDSJwIDAQAB"),
   TXT("google._domainkey",       "v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCZr2QuB5lY0+W0kF9v6EJw0P8yW25PsOaZMkRBg52Z2e3u3nAZlqRM74y48ieohUv/PbXVyg9iaHNFMo39uBi1b6vgJVkHL19cdK/u84S01bgVSMCDQcmGbFE+dfDMPDie5y6cBVds1HFLFBsTLI7PmX+FweT7+UM767XQ3lvqOQIDAQAB"),
-  TXT("stalwart._domainkey",     "v=DKIM1; k=ed25519; h=sha256; p=HK2U+KGbIUALek0kV3PhwmubqFRvyT1kPvFMNYlEGyk="),
 );
 
 // ----------------------------------------------------------------------------
@@ -93,8 +90,7 @@ D("ztm.io", REG_NC, DnsProvider(DNS_NC),
 );
 
 // ----------------------------------------------------------------------------
-// chevalier.sh — personal identity. MX cut over to Stalwart (was Fastmail).
-// cal subdomain points at web2 today; will move to mail when #62 lands.
+// chevalier.sh — personal identity. MX on Fastmail.
 // ----------------------------------------------------------------------------
 
 D("chevalier.sh", REG_NC, DnsProvider(DNS_NC),
@@ -104,29 +100,18 @@ D("chevalier.sh", REG_NC, DnsProvider(DNS_NC),
   A("cal",    WEB2_A),
   AAAA("cal", WEB2_AAAA),
 
-  // Stalwart on the `mail` VM. Same host as zimbatm.com — SNI picks the
-  // right cert. mail.chevalier.sh is the published name for autoconfig /
-  // MTA-STS / MX.
-  A("mail",            MAIL_A),
-  AAAA("mail",         MAIL_AAAA),
-  A("mta-sts",         MAIL_A),
-  AAAA("mta-sts",      MAIL_AAAA),
-  A("autoconfig",      MAIL_A),
-  AAAA("autoconfig",   MAIL_AAAA),
-  A("autodiscover",    MAIL_A),
-  AAAA("autodiscover", MAIL_AAAA),
+  // ─── MX (Fastmail) ───
+  MX("@", 10, "in1-smtp.messagingengine.com."),
+  MX("@", 20, "in2-smtp.messagingengine.com."),
+  MX("*", 10, "in1-smtp.messagingengine.com."),
+  MX("*", 20, "in2-smtp.messagingengine.com."),
 
-  // ─── MX (Stalwart) ───
-  MX("@", 10, "mail.chevalier.sh."),
+  // ─── Fastmail DKIM (CNAMEs, rotated by Fastmail) ───
+  CNAME("fm1._domainkey", "fm1.chevalier.sh.dkim.fmhosted.com."),
+  CNAME("fm2._domainkey", "fm2.chevalier.sh.dkim.fmhosted.com."),
+  CNAME("fm3._domainkey", "fm3.chevalier.sh.dkim.fmhosted.com."),
 
-  // ─── DMARC / MTA-STS / TLSRPT ───
-  TXT("_dmarc",     "v=DMARC1; p=none; rua=mailto:dmarc@chevalier.sh; ruf=mailto:dmarc@chevalier.sh; fo=1; aspf=r; adkim=r"),
-  TXT("_mta-sts",   "v=STSv1; id=2026052601"),
-  TXT("_smtp._tls", "v=TLSRPTv1; rua=mailto:tlsrpt@chevalier.sh"),
-
-  // ─── DKIM (Stalwart, ed25519) ───
-  TXT("stalwart._domainkey", "v=DKIM1; k=ed25519; h=sha256; p=cd4Ch7YC1C1k5FTcdJXjIjmza2n0webx2t1KZMFuL+0="),
-
-  // SPF — only mail.chevalier.sh authorised.
-  TXT("@", "v=spf1 mx -all"),
+  // SPF — allow Fastmail outbound.
+  TXT("@",      "v=spf1 include:spf.messagingengine.com ?all"),
+  TXT("_dmarc", "v=DMARC1; p=none; rua=mailto:dmarc@chevalier.sh; ruf=mailto:dmarc@chevalier.sh; fo=1; aspf=r; adkim=r"),
 );

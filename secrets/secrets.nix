@@ -46,10 +46,6 @@ in
 {
   "web2-restic-password.age".publicKeys = web2Hosts;
   "web2-restic-ssh-key.age".publicKeys = web2Hosts;
-  "stalwart-admin-secret.age".publicKeys = mailHosts;
-  "stalwart-zimbatm-password.age".publicKeys = mailHosts;
-  "calendar-publish-token.age".publicKeys = mailHosts;
-  "stalwart-jonas-password.age".publicKeys = mailHosts;
   "mail-restic-password.age".publicKeys = mailHosts;
   "mail-restic-ssh-key.age".publicKeys = mailHosts;
   "chat-restic-password.age".publicKeys = chatHosts;
@@ -59,7 +55,6 @@ in
   "mc1-restic-ssh-key.age".publicKeys = mc1Hosts;
   "hc-ping-weechat.age".publicKeys = chatHosts;
   "hc-ping-gotosocial.age".publicKeys = web2Hosts;
-  "hc-ping-stalwart.age".publicKeys = mailHosts;
   "hc-ping-minecraft.age".publicKeys = mc1Hosts;
   "tinc-ztm-nv1-key.age".publicKeys = nv1Hosts;
   "tinc-ztm-chat-key.age".publicKeys = chatHosts;
@@ -70,5 +65,4 @@ in
   "pocket-id-encryption-key.age".publicKeys = mailHosts;
   "pocket-id-static-api-key.age".publicKeys = mailHosts ++ [ agents ];
   "oauth2-proxy-agents-cookie.age".publicKeys = agentsHosts;
-  "oauth2-proxy-stalwart-cookie.age".publicKeys = mailHosts;
 }
