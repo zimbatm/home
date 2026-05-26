@@ -71,6 +71,37 @@
     stateVersion = "26.05";
     credentials.admin_secret = config.age.secrets.stalwart-admin-secret.path;
     settings = {
+      # Tell Stalwart which TOML key patterns are authoritative from this
+      # local config file vs DB-managed. Without this, every boot logs a
+      # "Database key defined in local configuration" warning for things
+      # like webadmin.*, resolver.*, lookup.default.hostname,
+      # spam-filter.resource — all of which the nixpkgs stalwart module
+      # writes into the TOML.
+      # The first block is Stalwart's stock defaults (mirrored from
+      # oddlama/nix-config); the second block is our additions.
+      config.local-keys = [
+        "store.*"
+        "directory.*"
+        "tracer.*"
+        "server.*"
+        "!server.blocked-ip.*"
+        "!server.allowed-ip.*"
+        "authentication.fallback-admin.*"
+        "cluster.*"
+        "storage.data"
+        "storage.blob"
+        "storage.lookup"
+        "storage.fts"
+        "storage.directory"
+        # nixpkgs module-managed keys we'd otherwise get warned about:
+        "lookup.default.hostname"
+        "certificate.*"
+        "resolver.*"
+        "spam-filter.resource"
+        "webadmin.path"
+        "webadmin.resource"
+      ];
+
       lookup.default.hostname = "mail.zimbatm.com";
 
       server.listener.smtp = {
