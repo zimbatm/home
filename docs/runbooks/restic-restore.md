@@ -11,11 +11,11 @@ Each host writes its own repo; passwords + SSH key are agenix.
 
 ## List snapshots
 
-On the host that owns the repo (e.g. mail for `stalwart`):
+On the host that owns the repo (e.g. mail for `pocket-id`):
 
 ```bash
 sudo -i
-RESTIC_REPOSITORY=sftp:zh6422@zh6422.rsync.net:zimbatm-home-backup/stalwart
+RESTIC_REPOSITORY=sftp:zh6422@zh6422.rsync.net:zimbatm-home-backup/mail
 RESTIC_PASSWORD_FILE=/run/agenix/mail-restic-password
 SSH_KEY=/run/agenix/mail-restic-ssh-key
 restic -o "sftp.command=ssh -i $SSH_KEY zh6422@zh6422.rsync.net -s sftp" \
@@ -42,26 +42,30 @@ restic -o "sftp.command=ssh -i $SSH_KEY zh6422@zh6422.rsync.net -s sftp" \
 `--read-data-subset` samples 5% of the repo data to balance speed vs.
 coverage. Drop the flag for a full check on small repos.
 
-## Restore over a live service (mail server crashed, etc.)
+## Restore over a live service (data corruption, accidental wipe, …)
 
-1. Stop the service: `systemctl stop stalwart`.
-2. Move the broken data aside: `mv /var/lib/stalwart /var/lib/stalwart.broken`.
+Generic shape — substitute `<svc>`, `<user>`, and the data path:
+
+1. Stop the service: `systemctl stop <svc>`.
+2. Move broken data aside: `mv /var/lib/<svc> /var/lib/<svc>.broken`.
 3. Restore from snapshot:
    ```bash
    restic … restore <id> --target /
    ```
-   (restic preserves the original path, so this lands back at `/var/lib/stalwart`).
-4. Verify perms (esp. ownership): `chown -R stalwart:stalwart /var/lib/stalwart`.
-5. Start: `systemctl start stalwart`.
-6. Once confirmed healthy, `rm -rf /var/lib/stalwart.broken`.
+   (restic preserves the original path, so it lands back at `/var/lib/<svc>`).
+4. Verify perms / ownership: `chown -R <user>:<user> /var/lib/<svc>`.
+5. Start: `systemctl start <svc>`.
+6. Once confirmed healthy, `rm -rf /var/lib/<svc>.broken`.
 
 ## The empty-snapshot trap
 
-If you see `Files: 0 new, 0 changed, 0 unmodified` in the systemd journal
-for a backup unit despite the service generating data, the sandbox is
-blocking the read. The fix is `CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ]`
-plus `AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ]` on the
-`restic-backups-<service>` unit — see machines/mail/configuration.nix.
+If `Files: 0 new, 0 changed, 0 unmodified` shows up for a backup unit
+despite the service generating data, the systemd sandbox is blocking
+the read. Fix: add `CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ]`
++ `AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ]` to the
+`restic-backups-<service>` unit (we hit this on the old Stalwart unit
+before retiring it; same fix shape applies to any data dir owned by a
+non-root user with 0700 mode).
 
 ## Repos in play
 

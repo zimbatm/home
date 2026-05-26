@@ -54,13 +54,8 @@ ssh root@$DEST '
 
 ## 6. Smoke-test
 
-For Stalwart:
-
-```bash
-echo "QUIT" | openssl s_client -connect $DEST:993 -servername mail.zimbatm.com -brief
-```
-
-For other services, hit their protocol-level endpoint.
+Hit the service's protocol-level endpoint and confirm it reads/writes
+the migrated state correctly.
 
 ## 7. Clean up the tar after a week
 
@@ -72,5 +67,3 @@ ssh root@$SOURCE 'rm /root/$NAME-pre-cutover.tar'
 
 - Volume reattach: atomic at the storage layer, no copy time, only same-DC.
 - rsync: works cross-DC and cross-provider, but slow for large data.
-
-We used reattach for `web2 → mail` (12 GB Stalwart state moved in <1 min).
