@@ -152,13 +152,6 @@
             ./machines/web2/configuration.nix
           ];
         };
-        mail = lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./machines/mail/configuration.nix
-          ];
-        };
         agents = lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };

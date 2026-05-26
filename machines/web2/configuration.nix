@@ -5,6 +5,7 @@
     inputs.self.nixosModules.gotosocial
     inputs.self.nixosModules.hardening
     inputs.self.nixosModules.hc-ping
+    inputs.self.nixosModules.pocket-id-clients
     inputs.self.nixosModules.tinc-ztm
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
@@ -78,6 +79,58 @@
     globalRedirect = "zimbatm.com";
   };
 
+  # ─── Pocket ID — passkey OIDC IdP at id.zimbatm.com ─────────────────────
+  # SSO root for everything internal. Lives here (the zimbatm.com host)
+  # per [[feedback-identity-host-separation]] — id.zimbatm.com is a
+  # zimbatm-identity surface so it belongs on web2. Was on the now-retired
+  # mail VM before #82.
+  age.secrets.pocket-id-encryption-key.file = ../../secrets/pocket-id-encryption-key.age;
+  age.secrets.pocket-id-static-api-key.file = ../../secrets/pocket-id-static-api-key.age;
+
+  services.pocket-id = {
+    enable = true;
+    credentials = {
+      ENCRYPTION_KEY = config.age.secrets.pocket-id-encryption-key.path;
+      STATIC_API_KEY = config.age.secrets.pocket-id-static-api-key.path;
+    };
+    settings = {
+      APP_URL = "https://id.zimbatm.com";
+      TRUST_PROXY = true;
+      # `::` is Go's dual-stack listen — accepts both 127.0.0.1 and ::1.
+      # glibc's getaddrinfo returns IPv6 first for "localhost"; binding
+      # only 127.0.0.1 led to intermittent ECONNREFUSED from nginx
+      # (see [[reference_nginx_proxy_localhost_vs_ip]] companion gotcha).
+      HOST = "::";
+      PORT = 1411;
+      ANALYTICS_DISABLED = true;
+    };
+  };
+
+  # Reconcile OIDC clients into Pocket ID via its API. Individual clients
+  # are declared next to the services they front (e.g. agents-ttyd lives
+  # in machines/agents/configuration.nix).
+  services.pocketIdClients = {
+    apiBaseUrl = "https://id.zimbatm.com/api";
+    apiKeyFile = config.age.secrets.pocket-id-static-api-key.path;
+  };
+
+  services.nginx.virtualHosts."id.zimbatm.com" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."/" = {
+      # `localhost` not `127.0.0.1` — see
+      # [[reference_nginx_proxy_localhost_vs_ip]].
+      proxyPass = "http://localhost:1411";
+      extraConfig = ''
+        # Pocket ID's response headers (long CSP) overflow nginx's
+        # default 4k buffer.
+        proxy_buffer_size 256k;
+        proxy_buffers 4 512k;
+        proxy_busy_buffers_size 512k;
+      '';
+    };
+  };
+
   # Offsite backups → rsync.net via restic SFTP. Same pattern kin-infra used
   # before. SSH key + restic password live in agenix; the SSH key is a
   # placeholder until you run `agenix -e secrets/web2-restic-ssh-key.age`
@@ -117,6 +170,9 @@
     {
       gotosocial = common "gotosocial" // {
         paths = [ "/var/lib/gotosocial" ];
+      };
+      pocket-id = common "pocket-id" // {
+        paths = [ "/var/lib/pocket-id" ];
       };
     };
 

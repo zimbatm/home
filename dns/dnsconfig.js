@@ -35,9 +35,9 @@ D("zimbatm.com", REG_NC, DnsProvider(DNS_NC),
   AAAA("@",    WEB2_AAAA),
   A("gts",     WEB2_A),
   AAAA("gts",  WEB2_AAAA),
-  // Pocket ID still lives on the mail VM (SSO root for agents.ztm.io etc).
-  A("id",    MAIL_A),
-  AAAA("id", MAIL_AAAA),
+  // Pocket ID — SSO root for agents.ztm.io. Lives on web2 since #82.
+  A("id",    WEB2_A),
+  AAAA("id", WEB2_AAAA),
 
   // ─── CNAME ───
   CNAME("www",             "zimbatm.com."),
