@@ -63,7 +63,7 @@ D("zimbatm.com", REG_NC, DnsProvider(DNS_NC),
   TXT("@",       "google-site-verification=mRPDMyxbG7TJi2SMfaT0uVqSEfo2DR3ukqJwR_t6L9w"),
   TXT("_atproto", "did=did:plc:wxnofyouho6vcuevbvocutid"),
   TXT("_dmarc",  "v=DMARC1; p=none; rua=mailto:dmarc@zimbatm.com; ruf=mailto:dmarc@zimbatm.com; fo=1; aspf=r; adkim=r"),
-  TXT("_mta-sts", "v=STSv1; id=2026051901"),
+  TXT("_mta-sts", "v=STSv1; id=2026052601"),
   TXT("_smtp._tls", "v=TLSRPTv1; rua=mailto:tlsrpt@zimbatm.com"),
 
   // Sendlayer return-path TXT
@@ -93,8 +93,8 @@ D("ztm.io", REG_NC, DnsProvider(DNS_NC),
 );
 
 // ----------------------------------------------------------------------------
-// chevalier.sh — personal identity. MX on Fastmail. cal subdomain points at
-// web2 today; will move to mail when #62 lands.
+// chevalier.sh — personal identity. MX cut over to Stalwart (was Fastmail).
+// cal subdomain points at web2 today; will move to mail when #62 lands.
 // ----------------------------------------------------------------------------
 
 D("chevalier.sh", REG_NC, DnsProvider(DNS_NC),
@@ -104,9 +104,9 @@ D("chevalier.sh", REG_NC, DnsProvider(DNS_NC),
   A("cal",    WEB2_A),
   AAAA("cal", WEB2_AAAA),
 
-  // Stalwart-side infrastructure on the `mail` VM (task #72). MX stays on
-  // Fastmail; these subdomains exist so we have certs + webmail + client
-  // autoconfig ready when we cut over.
+  // Stalwart on the `mail` VM. Same host as zimbatm.com — SNI picks the
+  // right cert. mail.chevalier.sh is the published name for autoconfig /
+  // MTA-STS / MX.
   A("mail",            MAIL_A),
   AAAA("mail",         MAIL_AAAA),
   A("mta-sts",         MAIL_A),
@@ -116,17 +116,17 @@ D("chevalier.sh", REG_NC, DnsProvider(DNS_NC),
   A("autodiscover",    MAIL_A),
   AAAA("autodiscover", MAIL_AAAA),
 
-  // Fastmail MX for the apex and any sub (mailbox-per-name pattern).
-  MX("@", 10, "in1-smtp.messagingengine.com."),
-  MX("@", 20, "in2-smtp.messagingengine.com."),
-  MX("*", 10, "in1-smtp.messagingengine.com."),
-  MX("*", 20, "in2-smtp.messagingengine.com."),
+  // ─── MX (Stalwart) ───
+  MX("@", 10, "mail.chevalier.sh."),
 
-  // Fastmail DKIM (CNAMEs to Fastmail-hosted keys, rotated by Fastmail).
-  CNAME("fm1._domainkey", "fm1.chevalier.sh.dkim.fmhosted.com."),
-  CNAME("fm2._domainkey", "fm2.chevalier.sh.dkim.fmhosted.com."),
-  CNAME("fm3._domainkey", "fm3.chevalier.sh.dkim.fmhosted.com."),
+  // ─── DMARC / MTA-STS / TLSRPT ───
+  TXT("_dmarc",     "v=DMARC1; p=none; rua=mailto:dmarc@chevalier.sh; ruf=mailto:dmarc@chevalier.sh; fo=1; aspf=r; adkim=r"),
+  TXT("_mta-sts",   "v=STSv1; id=2026052601"),
+  TXT("_smtp._tls", "v=TLSRPTv1; rua=mailto:tlsrpt@chevalier.sh"),
 
-  // SPF — allow Fastmail outbound.
-  TXT("@", "v=spf1 include:spf.messagingengine.com ?all"),
+  // ─── DKIM (Stalwart, ed25519) ───
+  TXT("stalwart._domainkey", "v=DKIM1; k=ed25519; h=sha256; p=cd4Ch7YC1C1k5FTcdJXjIjmza2n0webx2t1KZMFuL+0="),
+
+  // SPF — only mail.chevalier.sh authorised.
+  TXT("@", "v=spf1 mx -all"),
 );

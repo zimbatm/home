@@ -265,7 +265,7 @@
     locations."= /.well-known/mta-sts.txt" = {
       extraConfig = ''
         default_type text/plain;
-        return 200 "version: STSv1\nmode: testing\nmx: mail.zimbatm.com\nmax_age: 86400\n";
+        return 200 "version: STSv1\nmode: enforce\nmx: mail.zimbatm.com\nmax_age: 86400\n";
       '';
     };
   };
@@ -367,9 +367,7 @@
     locations."= /.well-known/mta-sts.txt" = {
       extraConfig = ''
         default_type text/plain;
-        # `testing` so receivers don't enforce yet — flip to `enforce`
-        # along with the MX cutover.
-        return 200 "version: STSv1\nmode: testing\nmx: mail.chevalier.sh\nmax_age: 86400\n";
+        return 200 "version: STSv1\nmode: enforce\nmx: mail.chevalier.sh\nmax_age: 86400\n";
       '';
     };
   };

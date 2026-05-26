@@ -1,18 +1,19 @@
-# Nix
-result
-result-*
-/.direnv/
-/.flake-archive.json
-# Local secrets
-.envrc.local
-# mkdocs
-/site
 /.cache
-keys/**/*.key
-.grind-stop
+/.claude/
+.claude/commands/nix-*.md
 .claude/profile
 .claude/workflows/.grind-assembled.js
+/.direnv/
+.envrc.local
+/.flake-archive.json
 _grind-*.js
+.grind-stop
+keys/**/*.key
+# Local secrets
+# mkdocs
+# Nix
 .pi/grind-runs/
-.claude/commands/nix-*.md
 __pycache__
+result
+result-*
+/site
