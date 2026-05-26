@@ -70,4 +70,5 @@ in
   "pocket-id-encryption-key.age".publicKeys = mailHosts;
   "pocket-id-static-api-key.age".publicKeys = mailHosts ++ [ agents ];
   "oauth2-proxy-agents-cookie.age".publicKeys = agentsHosts;
+  "oauth2-proxy-stalwart-cookie.age".publicKeys = mailHosts;
 }

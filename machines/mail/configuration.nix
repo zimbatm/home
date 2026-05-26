@@ -68,6 +68,9 @@
   age.secrets.stalwart-jonas-password.file = ../../secrets/stalwart-jonas-password.age;
   age.secrets.pocket-id-encryption-key.file = ../../secrets/pocket-id-encryption-key.age;
   age.secrets.pocket-id-static-api-key.file = ../../secrets/pocket-id-static-api-key.age;
+  age.secrets.oauth2-proxy-stalwart-cookie.file = ../../secrets/oauth2-proxy-stalwart-cookie.age;
+  # nginx needs to traverse /run/agenix/ (root:keys, 0750) to reach secret files.
+  users.users.nginx.extraGroups = [ "keys" ];
 
   security.acme.certs."mail.zimbatm.com".reloadServices = [ "stalwart.service" ];
   security.acme.certs."mail.chevalier.sh".reloadServices = [ "stalwart.service" ];
@@ -129,6 +132,10 @@
     };
   };
 
+  # Pocket ID SSO gate on the Stalwart admin vhost. The oauth2-proxy
+  # nginx helper (configured further down) attaches `auth_request
+  # /oauth2/auth` to this vhost — the locations below sit behind that
+  # gate. Stalwart's own admin password remains the inner credential.
   services.nginx.virtualHosts."mail.zimbatm.com" = {
     enableACME = true;
     forceSSL = true;
@@ -141,6 +148,44 @@
         proxy_set_header X-Forwarded-Proto $scheme;
       '';
     };
+  };
+
+  # Declare the OIDC client in Pocket ID. The reconciler runs on this
+  # host, hits the local Pocket ID API, and writes
+  # /run/pocket-id-clients/stalwart-admin/{id,secret} for oauth2-proxy.
+  services.pocketIdClients.clients.stalwart-admin = {
+    name = "Stalwart admin (mail.zimbatm.com)";
+    callbackURLs = [ "https://mail.zimbatm.com/oauth2/callback" ];
+    pkceEnabled = true;
+  };
+
+  services.oauth2-proxy = {
+    enable = true;
+    provider = "oidc";
+    oidcIssuerUrl = "https://id.zimbatm.com";
+    clientID = "stalwart-admin";
+    clientSecretFile = "/run/pocket-id-clients/stalwart-admin/secret";
+    cookie.secretFile = config.age.secrets.oauth2-proxy-stalwart-cookie.path;
+    cookie.domain = ".zimbatm.com";
+    cookie.refresh = "1h";
+    redirectURL = "https://mail.zimbatm.com/oauth2/callback";
+    email.domains = [ "*" ];
+    reverseProxy = true;
+    setXauthrequest = true;
+    extraConfig = {
+      "skip-provider-button" = true;       # single IdP, skip chooser
+      "whitelist-domain" = ".zimbatm.com";
+      "code-challenge-method" = "S256";    # matches pkceEnabled=true above
+    };
+    nginx.domain = "mail.zimbatm.com";
+    nginx.virtualHosts."mail.zimbatm.com" = { };
+  };
+  # oauth2-proxy reads /run/pocket-id-clients/<id>/secret at startup; the
+  # reconciler must have run first.
+  systemd.services.oauth2-proxy = {
+    after = [ "pocket-id-clients.service" ];
+    requires = [ "pocket-id-clients.service" ];
+    serviceConfig.SupplementaryGroups = [ "pocket-id-clients" ];
   };
 
   # MTA-STS policy host (RFC 8461). The policy declares mail.zimbatm.com as
@@ -366,13 +411,12 @@
     };
   };
 
-  # Reconcile OIDC clients (declared below) into Pocket ID via its API.
-  # `clients = { }` would be a no-op; we leave it empty for now and add
-  # one entry per service as oauth2-proxy lands.
+  # Reconcile OIDC clients into Pocket ID via its API. Individual
+  # clients are declared next to the services they front (search for
+  # `services.pocketIdClients.clients.<id>` in this file).
   services.pocketIdClients = {
     apiBaseUrl = "https://id.zimbatm.com/api";
     apiKeyFile = config.age.secrets.pocket-id-static-api-key.path;
-    clients = { };
   };
 
   services.nginx.virtualHosts."id.zimbatm.com" = {
