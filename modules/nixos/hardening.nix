@@ -102,4 +102,17 @@
   # Per-service systemd hardening for weechat / restic / subportal-agent
   # lives in the machine configs (machines/{chat,web2}/configuration.nix) —
   # those services don't run on every host so the overrides are scoped there.
+
+  # ---------------------------------------------------------------------------
+  # SSH brute-force absorption
+  # ---------------------------------------------------------------------------
+  #
+  # sshd is key-only across all hosts (see srvos/common.nix), so the ~140
+  # bot attempts/hour observed on web2 don't get past preauth. They DO
+  # spam the journal and burn cycles. sshguard scrapes the journal for
+  # repeated failures and ipset-bans the source.
+  services.sshguard = {
+    enable = true;
+    services = [ "sshd" ];
+  };
 }
