@@ -167,8 +167,14 @@
 
   # Pocket ID SSO gate on the Stalwart admin vhost. The oauth2-proxy
   # nginx helper (configured further down) attaches `auth_request
-  # /oauth2/auth` to this vhost — the locations below sit behind that
-  # gate. Stalwart's own admin password remains the inner credential.
+  # /oauth2/auth` to this vhost — the `/` location below sits behind
+  # that gate. Stalwart's own admin password remains the inner
+  # credential.
+  #
+  # Protocol endpoints (DAV / JMAP / .well-known) bypass the SSO gate:
+  # those clients (Thunderbird, vdirsyncer, iOS Mail, etc.) speak HTTP
+  # Basic Auth with the user's mail password — they don't follow OAuth
+  # redirects. Stalwart enforces auth on these endpoints itself.
   services.nginx.virtualHosts."mail.zimbatm.com" = {
     enableACME = true;
     forceSSL = true;
@@ -176,6 +182,36 @@
       proxyPass = "http://127.0.0.1:8485";
       proxyWebsockets = true;
       extraConfig = ''
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 100m;
+      '';
+    };
+    locations."/dav/" = {
+      proxyPass = "http://127.0.0.1:8485";
+      extraConfig = ''
+        auth_request off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 100m;
+      '';
+    };
+    locations."/jmap" = {
+      proxyPass = "http://127.0.0.1:8485";
+      extraConfig = ''
+        auth_request off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 100m;
+      '';
+    };
+    locations."/.well-known/" = {
+      proxyPass = "http://127.0.0.1:8485";
+      extraConfig = ''
+        auth_request off;
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
