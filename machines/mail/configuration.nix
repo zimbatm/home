@@ -394,7 +394,12 @@
     settings = {
       APP_URL = "https://id.zimbatm.com";
       TRUST_PROXY = true;
-      HOST = "127.0.0.1";
+      # `::` is Go's dual-stack listen — accepts both 127.0.0.1 and ::1.
+      # glibc's getaddrinfo returns IPv6 first for "localhost", so nginx's
+      # upstream lookup intermittently picked ::1 and got ECONNREFUSED when
+      # we bound only 127.0.0.1. Port 1411 is firewalled, so this is still
+      # loopback-only in practice.
+      HOST = "::";
       PORT = 1411;
       ANALYTICS_DISABLED = true;
     };
