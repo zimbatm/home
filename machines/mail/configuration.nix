@@ -40,17 +40,6 @@
     ];
   };
 
-  # Hetzner Cloud Volume 105754681 (Stalwart state) attaches at cutover.
-  # nofail lets boot proceed before the volume is present.
-  fileSystems."/var/lib/stalwart" = {
-    device = "/dev/disk/by-id/scsi-0HC_Volume_105754681";
-    fsType = "ext4";
-    options = [
-      "x-systemd.device-timeout=30s"
-      "nofail"
-    ];
-  };
-
   users.users.zimbatm.extraGroups = [ "wheel" ];
 
   networking.firewall.allowedTCPPorts = [
