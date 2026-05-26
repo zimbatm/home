@@ -61,7 +61,6 @@ in
   "hc-ping-gotosocial.age".publicKeys = web2Hosts;
   "hc-ping-stalwart.age".publicKeys = mailHosts;
   "hc-ping-minecraft.age".publicKeys = mc1Hosts;
-  "agents.ztm.io-server-key.age".publicKeys = agentsHosts;
   "tinc-ztm-nv1-key.age".publicKeys = nv1Hosts;
   "tinc-ztm-chat-key.age".publicKeys = chatHosts;
   "tinc-ztm-web2-key.age".publicKeys = web2Hosts;
