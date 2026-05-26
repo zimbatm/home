@@ -270,6 +270,71 @@
     };
   };
 
+  # Thunderbird / Apple Mail / SeaMonkey autoconfig for zimbatm.com.
+  services.nginx.virtualHosts."autoconfig.zimbatm.com" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."= /mail/config-v1.1.xml" = {
+      extraConfig = ''
+        default_type application/xml;
+        return 200 '<?xml version="1.0" encoding="UTF-8"?>
+<clientConfig version="1.1">
+  <emailProvider id="zimbatm.com">
+    <domain>zimbatm.com</domain>
+    <displayName>zimbatm.com</displayName>
+    <displayShortName>zimbatm.com</displayShortName>
+    <incomingServer type="imap">
+      <hostname>mail.zimbatm.com</hostname>
+      <port>993</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </incomingServer>
+    <outgoingServer type="smtp">
+      <hostname>mail.zimbatm.com</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+      <username>%EMAILADDRESS%</username>
+    </outgoingServer>
+  </emailProvider>
+</clientConfig>';
+      '';
+    };
+  };
+
+  # Outlook / iOS autodiscover for zimbatm.com.
+  services.nginx.virtualHosts."autodiscover.zimbatm.com" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."= /autodiscover/autodiscover.xml" = {
+      extraConfig = ''
+        default_type application/xml;
+        return 200 '<?xml version="1.0" encoding="utf-8"?>
+<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+  <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
+    <Account>
+      <AccountType>email</AccountType>
+      <Action>settings</Action>
+      <Protocol>
+        <Type>IMAP</Type>
+        <Server>mail.zimbatm.com</Server>
+        <Port>993</Port>
+        <SSL>on</SSL>
+      </Protocol>
+      <Protocol>
+        <Type>SMTP</Type>
+        <Server>mail.zimbatm.com</Server>
+        <Port>465</Port>
+        <SSL>on</SSL>
+      </Protocol>
+    </Account>
+  </Response>
+</Autodiscover>';
+      '';
+    };
+  };
+
   # chevalier.sh infrastructure (task #72). MX is still on Fastmail; these
   # vhosts give us Stalwart-side webmail, autoconfig, and a primed MTA-STS
   # endpoint that we can switch from "testing" to "enforce" at MX cutover.
