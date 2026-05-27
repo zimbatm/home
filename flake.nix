@@ -53,12 +53,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    # Terminal multiplexer for AI coding agents. Replaces tmux on the agents
-    # host — pane-aware of claude's working/blocked/done state.
-    herdr = {
-      url = "github:ogulcancelik/herdr";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     # Numtide arcade1 (numcraft) — NeoForge 1.21.8 server + mod set.
     # mc1 imports its `minecraft.nix` directly to reuse the neoforgeServer
     # derivation, mod list, and whitelist.toml (we're already in it).

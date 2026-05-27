@@ -79,19 +79,19 @@
                       # E2E-encrypted, sessions still run locally on agents.
     ];
 
-  # SSH login (or ttyd-spawned bash) auto-attaches to a herdr session.
-  # herdr is a tmux-shaped multiplexer purpose-built for AI coding agents
-  # — knows per-pane working/blocked/done state, persists across detach.
-  # Detach: Ctrl-b q. Opt out: `NO_HERDR=1 ssh agents.ztm.io`.
+  # SSH login (or ttyd-spawned bash) auto-attaches to a tmux session
+  # named `main`. tmux persists across detach, so a ttyd reconnect (after
+  # an oauth2-proxy auth refresh, browser tab close, etc.) reattaches to
+  # the same panes instead of starting a fresh bash. Detach: Ctrl-b d.
+  # Opt out: `NO_TMUX=1 ssh agents.ztm.io`.
   # DISPLAY=:1 is a fake to make claude-code believe a clipboard is present;
   # /etc/term-paste/xclip is the shim that returns the latest image written
   # by clip-bridge.py instead of talking to a real X server.
   programs.bash.interactiveShellInit = ''
     export DISPLAY=:1
     export PATH=/etc/term-paste:$PATH
-    if [[ -z "$IN_HERDR" && ( -n "$SSH_TTY" || -n "$TTYD" ) && $- == *i* && -z "$NO_HERDR" ]]; then
-      export IN_HERDR=1
-      exec ${inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/herdr
+    if [[ -z "$TMUX" && ( -n "$SSH_TTY" || -n "$TTYD" ) && $- == *i* && -z "$NO_TMUX" ]]; then
+      exec ${pkgs.tmux}/bin/tmux new-session -A -s main
     fi
   '';
 
@@ -160,9 +160,9 @@
     serviceConfig.SupplementaryGroups = [ "pocket-id-clients" ];
   };
 
-  # ttyd: PTY-over-WebSocket on loopback; nginx terminates TLS and enforces
-  # client-cert (mTLS) before proxying. Runs as zimbatm so the shell isn't
-  # root; entrypoint sets TTYD=1 so interactiveShellInit's herdr auto-attach
+  # ttyd: PTY-over-WebSocket on loopback; nginx terminates TLS + Pocket ID
+  # SSO before proxying. Runs as zimbatm so the shell isn't root. The
+  # entrypoint sets TTYD=1 so interactiveShellInit's tmux auto-attach
   # fires (the usual trigger is SSH_TTY, which ttyd doesn't set).
   # Image-paste end-to-end relies on xterm.js's ImageAddon parsing iTerm2
   # OSC 1337 in the browser.
@@ -174,10 +174,7 @@
     writeable = true;  # (sic — option name has a typo upstream)
     entrypoint = [
       (toString (pkgs.writeShellScript "ttyd-shell" ''
-        # Diagnostic: NO_HERDR=1 bypasses the bash init herdr auto-attach so
-        # we can isolate herdr from the rest of the image-paste chain.
-        # Revert to `export TTYD=1` once verified.
-        export NO_HERDR=1
+        export TTYD=1
         exec ${pkgs.bash}/bin/bash -l
       ''))
     ];

@@ -45,11 +45,12 @@ secret — restarting alone won't rotate it; bump
 
 ## Inside the session
 
-The shell launched is `bash -l`, so the existing
-`programs.bash.interactiveShellInit` on agents auto-execs herdr.
-Detach: `Ctrl-b q` (default herdr binding). Closing the browser tab is
-the same as detaching — reattach by reloading the page.
+The shell launched is `bash -l`, and `programs.bash.interactiveShellInit`
+on agents auto-execs `tmux new-session -A -s main` — so every ttyd
+reconnect attaches to the same persistent tmux session. Detach: `Ctrl-b
+d`. Closing the browser tab leaves tmux running; reload to reattach.
 
-To bypass herdr for a session: `NO_HERDR=1` is honored, but you'd need
-to invoke a wrapper that sets it — the ttyd entrypoint doesn't read it
-from the URL. Easiest: just `exec bash` from inside herdr.
+To bypass tmux for one shell: `NO_TMUX=1 ssh agents.ztm.io` (works from
+SSH; ttyd entrypoint always sets TTYD=1 so the wrapper kicks in there).
+Inside tmux just `exec bash` if you want a non-multiplexed shell on the
+current pane.
