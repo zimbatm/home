@@ -15,28 +15,19 @@ let
   agents = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAION9fEQJzwaGn7LzRiRWf9sGAU0hgRd2DtaMOm/DXr+F";
   nv1 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINRCwb2rpKwjTY2PrhkkI4mke15nziZb2z8NGD/IsrcE";
 
-  nv1Hosts = [
-    zimbatm
-    nv1
-  ];
+  # `agents` is a universal recovery recipient: every secret is also
+  # encrypted to its SSH host key so that if the laptop's age key
+  # (~/.config/sops/age/keys.txt on nv1) is lost, we can still decrypt
+  # by `ssh root@agents.ztm.io -i <hostkey> agenix -d <file>`. Don't
+  # remove it without thinking through the rotation cost: stripping
+  # `agents` from every recipient list means losing the backup.
+  recovery = [ agents ];
 
-  agentsHosts = [
-    zimbatm
-    agents
-  ];
-
-  chatHosts = [
-    zimbatm
-    chat
-  ];
-  web2Hosts = [
-    zimbatm
-    web2
-  ];
-  mc1Hosts = [
-    zimbatm
-    mc1
-  ];
+  nv1Hosts     = [ zimbatm nv1 ]    ++ recovery;
+  agentsHosts  = [ zimbatm agents ];
+  chatHosts    = [ zimbatm chat ]   ++ recovery;
+  web2Hosts    = [ zimbatm web2 ]   ++ recovery;
+  mc1Hosts     = [ zimbatm mc1 ]    ++ recovery;
 in
 {
   "web2-restic-password.age".publicKeys = web2Hosts;

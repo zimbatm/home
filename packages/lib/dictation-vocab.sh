@@ -57,13 +57,11 @@ GBNF
 sem-grep
 ptt-dictate
 ask-local
-ask-cuda
 agent-eyes
 infer-queue
 wake-listen
 live-caption-log
 say-back
-shell-squeeze
 sel-act
 tab-tap
 gitbutler

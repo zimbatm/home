@@ -168,7 +168,6 @@
         in
         {
           agent-eyes = call ./packages/agent-eyes;
-          ask-cuda = call ./packages/ask-cuda;
           ask-local = call ./packages/ask-local;
           core = call ./packages/core;
           gitbutler-cli = call ./packages/gitbutler-cli;
@@ -186,7 +185,6 @@
           say-back = call ./packages/say-back;
           sel-act = call ./packages/sel-act;
           sem-grep = call ./packages/sem-grep;
-          shell-squeeze = call ./packages/shell-squeeze;
           tab-tap = call ./packages/tab-tap;
           transcribe-cpu = call ./packages/transcribe-cpu;
           transcribe-npu = call ./packages/transcribe-npu;
