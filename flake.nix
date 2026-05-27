@@ -109,7 +109,6 @@
       nixosModules = {
         common = ./modules/nixos/common.nix;
         desktop = ./modules/nixos/desktop.nix;
-        gnome = ./modules/nixos/gnome.nix;
         gotosocial = ./modules/nixos/gotosocial.nix;
         hardening = ./modules/nixos/hardening.nix;
         hc-ping = ./modules/nixos/hc-ping.nix;
