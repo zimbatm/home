@@ -11,7 +11,7 @@ in
   home.packages = [ self'.sem-grep ];
 
   # Nightly: last-7d journald (user + system≤warning) → hour-dedup → embed on
-  # the NPU → sqlite `logs` table, so `sem-grep log "wake-listen crash"` works.
+  # the NPU → sqlite `logs` table, so `sem-grep log "oom-killer"` works.
   # Falsifies whether bge-small embeds machine log text — bench at
   # packages/sem-grep/bench-log.txt, gated on ops-deploy-nv1.
   systemd.user.services.sem-grep-index-log = {

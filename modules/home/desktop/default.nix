@@ -25,7 +25,6 @@ in
 {
   imports = [
     ../terminal
-    ./live-caption.nix
     ./sem-grep.nix
     ./ssh-tpm-agent.nix
     inputs.subportal.homeModules.subportal-desktop
@@ -74,8 +73,6 @@ in
     "org/gnome/settings-daemon/plugins/media-keys" = {
       custom-keybindings = [
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/terminal/"
-        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate/"
-        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate-intent/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/sel-act-tighten/"
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/sel-act-ask/"
       ];
@@ -84,16 +81,6 @@ in
       name = "Terminal";
       command = "foot";
       binding = "<Super>Return";
-    };
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate" = {
-      name = "Push-to-talk dictate";
-      command = "ptt-dictate";
-      binding = "<Super>d";
-    };
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ptt-dictate-intent" = {
-      name = "Push-to-talk intent dispatch";
-      command = "ptt-dictate --intent";
-      binding = "<Super><Shift>d";
     };
     "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/sel-act-tighten" = {
       name = "Selection: tighten via ask-local";
@@ -120,25 +107,7 @@ in
       screenshot true screenshot "" '["yes"]' 2>/dev/null || true
   '';
 
-  # Dispatch table for `ptt-dictate --intent`. Each [section] is an intent name
-  # the GBNF-constrained classifier (ask-local --grammar) may emit; `exec` runs
-  # via bash -c with {arg} substituted shell-quoted. `fallthrough = true` types
-  # the raw utterance via ydotool (the pre-intent path). Unmatched → fallthrough.
-  # Targets are existing skill CLIs already on PATH (agent-eyes, ask-local,
-  # say-back) — zero new closure.
-  xdg.configFile."voice-intent/intents.toml".text = ''
-    [screenshot]
-    exec = "peek"
-
-    [ask]
-    exec = "ask-local {arg} | say-back"
-
-    [type]
-    fallthrough = true
-  '';
-
-  # Transform table for `sel-act <verb>`. Same [section].prompt shape as the
-  # ptt-dictate intent table above so the two grow together; ask-local sees
+  # Transform table for `sel-act <verb>`. ask-local sees
   # "<prompt>\n\n---\n<selection>". `sel-act ask` bypasses this (zenity entry).
   xdg.configFile."sel-act/prompts.toml".text = ''
     [tighten]
@@ -165,7 +134,7 @@ in
     telegram-desktop
     thunderbird
 
-    # Terminal chat — weechat (replaces Lith; if you want Lith back, add self'.lith)
+    # Terminal chat
     weechat
 
     # KDE stuff
@@ -176,8 +145,6 @@ in
     self'.core
 
     # AI
-    self'.ptt-dictate
-    self'.wake-listen
     self'.say-back
     self'.ask-local
     self'.llm-router
@@ -191,27 +158,8 @@ in
     llm.codex
     llm.opencode
     llm.pi
-    inputs.herdr.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.voxtype.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.munix.packages.${pkgs.stdenv.hostPlatform.system}.munix
   ];
 
-  # Always-on VAD gate on the NPU. ConditionPathExists keeps it inert until
-  # the accel node is live (gated on needs-human/ops-deploy-nv1).
-  systemd.user.services.wake-listen = {
-    Unit = {
-      Description = "NPU-resident VAD gate for ptt-dictate";
-      ConditionPathExists = "/dev/accel/accel0";
-      After = [ "pipewire.service" ];
-      StartLimitIntervalSec = 60;
-      StartLimitBurst = 5;
-    };
-    Service = {
-      Type = "simple";
-      ExecStart = "${self'.wake-listen}/bin/wake-listen";
-      Restart = "on-failure";
-      RestartSec = "5s";
-    };
-    Install.WantedBy = [ "graphical-session.target" ];
-  };
 }

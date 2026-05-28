@@ -81,7 +81,7 @@ mkdir -p "$CACHE"
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
-# Same shape as ptt-dictate's generated intent grammar.
+# GBNF intent grammar — JSON-only output, representative ask-local --grammar workload.
 cat >"$tmp/intent.gbnf" <<'EOF'
 root   ::= "{\"type\":\"" intent "\",\"arg\":\"" arg "\"}"
 intent ::= "ask" | "open" | "search" | "type" | "text"

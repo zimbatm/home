@@ -15,18 +15,17 @@ pkgs.writeShellApplication {
     pkgs.libnotify
   ];
   text = ''
-    # Text dual of ptt-dictate: grab the wayland primary selection (or
-    # clipboard on --clip), run a named transform from
-    # $XDG_CONFIG_HOME/sel-act/prompts.toml through ask-local, then
-    # wl-copy the result (or `ydotool type` it back on --replace).
+    # Grab the wayland primary selection (or clipboard on --clip), run a
+    # named transform from $XDG_CONFIG_HOME/sel-act/prompts.toml through
+    # ask-local, then wl-copy the result (or `ydotool type` it back on
+    # --replace).
     #
     #   sel-act <verb> [--clip] [--replace]
     #   sel-act ask    [--clip] [--replace]   → prompt from `zenity --entry`
     #
-    # Same [section].prompt TOML shape as ptt-dictate's intent table so
-    # the two grow together. Falsifies: Phi-3-mini on the Arc iGPU is
-    # fast enough (<2s/paragraph) for *interactive* text edits — if not,
-    # route through llm-router or revisit the 4060 dGPU (PRIME offload).
+    # Falsifies: Phi-3-mini on the Arc iGPU is fast enough (<2s/paragraph)
+    # for *interactive* text edits — if not, route through llm-router or
+    # revisit the 4060 dGPU (PRIME offload).
     CFG="''${XDG_CONFIG_HOME:-$HOME/.config}/sel-act/prompts.toml"
 
     src=--primary replace=0 verb=""

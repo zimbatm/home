@@ -17,11 +17,10 @@ pkgs.writeShellApplication {
     pkgs.python3
   ];
   text = ''
-    # One-shot offline LLM on the Intel Arc iGPU (vulkan). Mirrors ptt-dictate:
-    # model lives under XDG_DATA_HOME, auto-fetched on first run.
+    # One-shot offline LLM on the Intel Arc iGPU (vulkan). Model lives
+    # under XDG_DATA_HOME, auto-fetched on first run.
     #   ask-local "<prompt>"                  → llama-cli, prints completion to stdout
-    #   ask-local --grammar <gbnf> "<prompt>" → constrained decoding (used by
-    #                                           ptt-dictate --intent for JSON-only output)
+    #   ask-local --grammar <gbnf> "<prompt>" → constrained decoding (JSON-only output, etc.)
     #   ask-local --fast [...] "<prompt>"     → llama-lookup: prompt-lookup n-gram
     #                                           speculative decoding, no draft model.
     #                                           Dynamic n-gram cache persists under
@@ -104,9 +103,10 @@ pkgs.writeShellApplication {
     done
 
     # --grammar does NOT auto-enable --fast yet: llama-lookup has no
-    # --no-display-prompt, so the echoed prompt would break ptt-dictate's jq
-    # parse. Flip after bench.sh confirms grammar×lookup ≫ grammar-alone on Arc
-    # vulkan AND a strip is in place (or upstream gates the flag to LOOKUP).
+    # --no-display-prompt, so the echoed prompt would break downstream jq
+    # parsing of JSON-grammar output. Flip after bench.sh confirms
+    # grammar×lookup ≫ grammar-alone on Arc vulkan AND a strip is in place
+    # (or upstream gates the flag to LOOKUP).
     if [[ $fast -eq 1 ]]; then
       exec llama-lookup -m "$MODEL" -ngl 99 "''${extra[@]}" \
         -lcd "$CACHE/lookup.ngram" --draft-max 16 --color off -p "$*" 2>/dev/null

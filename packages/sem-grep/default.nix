@@ -1,8 +1,8 @@
 { pkgs, ... }:
 let
-  # Subset of transcribe-npu's closure (openvino+numpy+transformers) — no new
-  # python deps land on nv1. sqlite3 is stdlib. tree-sitter is for the `sig`
-  # verb's signature extraction at index time (zero new flake inputs).
+  # openvino+numpy+transformers for dense embeddings on the NPU. sqlite3 is
+  # stdlib. tree-sitter is for the `sig` verb's signature extraction at
+  # index time (zero new flake inputs).
   py = pkgs.python3.withPackages (ps: [
     ps.openvino
     ps.numpy
@@ -32,8 +32,7 @@ pkgs.writeShellApplication {
     # contentless FTS5 (lexical) at $XDG_STATE_HOME/sem-grep. Query: by default
     # both legs are run and RRF-fused — dense (bge-small cosine on the Meteor
     # Lake NPU) catches paraphrase, lexical (BM25, pure sqlite) catches exact
-    # identifiers. Reuses transcribe-npu's OpenVINO closure so
-    # the Arc iGPU stays free for ask-local.
+    # identifiers. NPU embeddings keep the Arc iGPU free for ask-local.
     #
     #   sem-grep "<query>"            → ranked file:line hits (top 10, hybrid)
     #   sem-grep -n 20 "<query>"      → top N

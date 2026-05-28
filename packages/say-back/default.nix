@@ -9,7 +9,7 @@ pkgs.writeShellApplication {
   ];
   text = ''
     # Read text from stdin, synthesise with piper (CPU-only, no Arc/NPU
-    # contention), play via pipewire. Closes the ptt-dictate voice loop.
+    # contention), play via pipewire.
     # shellcheck source=/dev/null
     . ${../lib/fetch-model.sh}
     MODEL="''${SAY_BACK_MODEL:-''${XDG_DATA_HOME:-$HOME/.local/share}/piper/en_US-lessac-medium.onnx}"

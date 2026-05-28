@@ -172,23 +172,16 @@
           core = call ./packages/core;
           gitbutler-cli = call ./packages/gitbutler-cli;
           gsnap = call ./packages/gsnap;
-          infer-queue = call ./packages/infer-queue;
-          lith = call ./packages/lith;
-          live-caption-log = call ./packages/live-caption-log;
           llm-router = call ./packages/llm-router;
           man-here = call ./packages/man-here;
           myvim = call ./packages/myvim;
           nvim = call ./packages/nvim;
-          ptt-dictate = call ./packages/ptt-dictate;
           pty-puppet = call ./packages/pty-puppet;
           rich-ssh-agent = call ./packages/rich-ssh-agent;
           say-back = call ./packages/say-back;
           sel-act = call ./packages/sel-act;
           sem-grep = call ./packages/sem-grep;
           tab-tap = call ./packages/tab-tap;
-          transcribe-cpu = call ./packages/transcribe-cpu;
-          transcribe-npu = call ./packages/transcribe-npu;
-          wake-listen = call ./packages/wake-listen;
           web-eyes = call ./packages/web-eyes;
           zimbatm-com = call ./packages/zimbatm-com;
         }

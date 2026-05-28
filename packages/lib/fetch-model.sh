@@ -2,7 +2,7 @@
 # Shared first-run model autofetch helpers. Sourced by the user-scoped (non-FOD,
 # XDG_DATA_HOME) model wrappers — large weights stay out of the nix store but
 # land automatically on first invocation instead of printing a curl hint and
-# dying. Small/system models go the FOD route instead (see wake-listen).
+# dying. Small/system models go the FOD route instead.
 
 # fetch_model DEST URL
 #   If DEST is missing, curl URL → DEST atomically (.part + mv) with a progress

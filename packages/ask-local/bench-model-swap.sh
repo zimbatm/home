@@ -11,8 +11,8 @@
 # PASS  post-swap p95 ≤ 5s for the 3.8B, ≤ 1s for the embed model, no
 #       OOM at MAX_RESIDENT=2.
 # FAIL  post-swap p95 > 10s, or iGPU memory pressure stutters
-#       ptt-dictate. Then keep MAX_RESIDENT=1 and document the
-#       constraint in llm-router.py's header.
+#       interactive ask-local. Then keep MAX_RESIDENT=1 and document
+#       the constraint in llm-router.py's header.
 #
 # Run on nv1 (Arc iGPU + models in $XDG_DATA_HOME/llama). NOT grind-safe.
 #

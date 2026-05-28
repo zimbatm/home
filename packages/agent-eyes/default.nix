@@ -22,9 +22,7 @@ let
       # Arc iGPU) and prints a short stdout answer — local triage so the agent
       # can gate "do I need to ship this PNG upstream?" on-device. Mirrors
       # ask-local: same llama-cpp+vulkan build, model under XDG_DATA_HOME/llama,
-      # auto-fetched on first run. Runs inline (not via infer-queue) on purpose:
-      # falsifies whether the Arc has headroom for a second resident model
-      # alongside ask-local's Phi-3, or the 1-slot arc lane was the right call.
+      # auto-fetched on first run.
       ask="" region=0
       while [[ $# -gt 0 ]]; do
         case "$1" in
