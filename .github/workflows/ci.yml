@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  flake-check:
+    name: Evaluate flake.nix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - run: nix flake check --print-build-logs
+
+  nixos-config:
+    name: nixosConfig ${{ matrix.host }}
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [nv1, chat, web2, mc1, agents]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      # Eval-only (resolve to a .drv path) instead of full build — catches
+      # syntax / missing-file / option-type errors without burning Actions
+      # minutes building 2+ GiB system closures on every push.
+      - run: nix eval .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel.drvPath
