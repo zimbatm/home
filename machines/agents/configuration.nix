@@ -253,6 +253,82 @@
     "AF_NETLINK"
   ];
 
+  # Offsite backups → rsync.net via restic SFTP. Mirrors the web2 pattern.
+  # Targets /home/zimbatm where every long-running Claude Code conversation,
+  # tmux scrollback, and scratch git tree lives — a VM-die wipes them
+  # otherwise. Excludes cache/build directories that bloat the repo without
+  # carrying anything we'd want back.
+  age.secrets.agents-restic-password.file = ../../secrets/agents-restic-password.age;
+  age.secrets.agents-restic-ssh-key = {
+    file = ../../secrets/agents-restic-ssh-key.age;
+    mode = "0400";
+  };
+
+  programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";
+
+  services.restic.backups.agents = {
+    paths = [ "/home/zimbatm" ];
+    exclude = [
+      "/home/zimbatm/.cache"
+      "/home/zimbatm/.local/share/Trash"
+      "/home/zimbatm/go/pkg"
+      "/home/zimbatm/**/node_modules"
+      "/home/zimbatm/**/target"
+      "/home/zimbatm/**/.direnv"
+    ];
+    repository = "sftp:zh6422@zh6422.rsync.net:zimbatm-home-backup/agents";
+    passwordFile = config.age.secrets.agents-restic-password.path;
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = true;
+      RandomizedDelaySec = "30m";
+    };
+    pruneOpts = [
+      "--keep-daily 7"
+      "--keep-weekly 4"
+      "--keep-monthly 6"
+    ];
+    extraOptions = [
+      "sftp.command='ssh -i ${config.age.secrets.agents-restic-ssh-key.path} -o StrictHostKeyChecking=yes zh6422@zh6422.rsync.net -s sftp'"
+    ];
+    initialize = true;
+  };
+
+  # Restic jail. ProtectHome="read-only" instead of true since /home/zimbatm
+  # IS the backup source — `true` would hide it entirely.
+  systemd.services."restic-backups-agents".serviceConfig = {
+    NoNewPrivileges = true;
+    LockPersonality = true;
+    PrivateDevices = true;
+    ProtectClock = true;
+    ProtectControlGroups = true;
+    ProtectHome = "read-only";
+    ProtectHostname = true;
+    ProtectKernelLogs = true;
+    ProtectKernelModules = true;
+    ProtectKernelTunables = true;
+    ProtectProc = "invisible";
+    ProtectSystem = "strict";
+    ReadWritePaths = [ "/var/cache/restic-backups-agents" ];
+    RestrictAddressFamilies = [
+      "AF_INET"
+      "AF_INET6"
+      "AF_UNIX"
+    ];
+    RestrictNamespaces = true;
+    RestrictRealtime = true;
+    RestrictSUIDSGID = true;
+    SystemCallArchitectures = "native";
+    SystemCallFilter = [
+      "@system-service"
+      "~@privileged"
+    ];
+    CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
+    AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
+    UMask = "0077";
+  };
+
   security.sudo.wheelNeedsPassword = false;
 
   system.stateVersion = "26.05";

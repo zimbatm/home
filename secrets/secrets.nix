@@ -32,6 +32,8 @@ in
 {
   "web2-restic-password.age".publicKeys = web2Hosts;
   "web2-restic-ssh-key.age".publicKeys = web2Hosts;
+  "agents-restic-password.age".publicKeys = agentsHosts;
+  "agents-restic-ssh-key.age".publicKeys = agentsHosts;
   "chat-restic-password.age".publicKeys = chatHosts;
   "chat-restic-ssh-key.age".publicKeys = chatHosts;
   "matrix-numtide-password.age".publicKeys = chatHosts;
