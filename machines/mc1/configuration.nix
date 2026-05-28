@@ -653,6 +653,9 @@ in
       "--keep-weekly 4"
       "--keep-monthly 6"
     ];
+    # 10% of pack data per run → full data verification over ~10 days.
+    # Metadata is always checked.
+    checkOpts = [ "--read-data-subset=10%" ];
     extraOptions = [
       "sftp.command='ssh -i ${config.age.secrets.mc1-restic-ssh-key.path} -o StrictHostKeyChecking=yes zh6422@zh6422.rsync.net -s sftp'"
     ];

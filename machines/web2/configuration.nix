@@ -161,6 +161,10 @@
           "--keep-weekly 4"
           "--keep-monthly 6"
         ];
+        # 10% of pack data per run → full data verification over ~10 days,
+        # rotating. Metadata is always checked. Without this we only find
+        # out the repo is corrupt when we try to restore.
+        checkOpts = [ "--read-data-subset=10%" ];
         extraOptions = [
           "sftp.command='ssh -i ${config.age.secrets.web2-restic-ssh-key.path} -o StrictHostKeyChecking=yes zh6422@zh6422.rsync.net -s sftp'"
         ];
