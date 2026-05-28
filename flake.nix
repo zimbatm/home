@@ -106,6 +106,7 @@
         gotosocial = ./modules/nixos/gotosocial.nix;
         hardening = ./modules/nixos/hardening.nix;
         hc-ping = ./modules/nixos/hc-ping.nix;
+        noctalia = ./modules/nixos/noctalia.nix;
         pocket-id-clients = ./modules/nixos/pocket-id-clients.nix;
         tinc-ztm = ./modules/nixos/tinc-ztm.nix;
         perlless = ./modules/nixos/perlless.nix;

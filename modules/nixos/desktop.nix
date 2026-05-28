@@ -3,6 +3,7 @@
 {
   imports = [
     ./common.nix
+    ./noctalia.nix
     ./ubuntu-light.nix
     inputs.srvos.nixosModules.desktop
   ];
