@@ -347,34 +347,32 @@ in
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks = {
+    settings = {
       "*" = {
-        compression = true;
-        serverAliveInterval = 60;
-        controlMaster = "auto";
-        addKeysToAgent = "confirm";
+        Compression = true;
+        ServerAliveInterval = 60;
+        ControlMaster = "auto";
+        AddKeysToAgent = "confirm";
         # Reuse the first FIDO/YubiKey-backed SSH auth for the rest of the
         # work session instead of re-touching for every shell/git/deploy.
-        controlPersist = "8h";
-        controlPath = "~/.ssh/control-%C";
-        extraOptions = {
-          # Breaks deploy_nixos
-          #IdentitiesOnly = "yes";
-          StrictHostKeyChecking = "no";
-        };
+        ControlPersist = "8h";
+        ControlPath = "~/.ssh/control-%C";
+        # Breaks deploy_nixos
+        #IdentitiesOnly = "yes";
+        StrictHostKeyChecking = "no";
       };
       "github.com" = {
-        user = "git";
-        identityFile = "~/.ssh/id_ed25519_sk";
-        identitiesOnly = true;
+        User = "git";
+        IdentityFile = "~/.ssh/id_ed25519_sk";
+        IdentitiesOnly = true;
       };
       # zero/fleet Hetzner hosts (by name or tailnet IP). The zimbatm user
       # there only has the FIDO2-SK key in authorized_keys, so the global
       # agent's other keys would blow past MaxAuthTries — pin to that one.
       "nibs-* 100.64.*" = {
-        user = "zimbatm";
-        identityFile = "~/.ssh/id_ed25519_sk";
-        identitiesOnly = true;
+        User = "zimbatm";
+        IdentityFile = "~/.ssh/id_ed25519_sk";
+        IdentitiesOnly = true;
       };
     };
   };

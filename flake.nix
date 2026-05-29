@@ -18,7 +18,8 @@
     };
     nixvim = {
       url = "github:nix-community/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # Intentionally do NOT follow `nixpkgs`: nixvim tracks unstable (26.11)
+      # and breaks when forced onto our 26.05 nixpkgs.
       inputs.systems.follows = "llm-agents/systems";
       inputs.flake-parts.follows = "llm-agents/flake-parts";
     };
