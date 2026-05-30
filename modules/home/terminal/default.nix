@@ -379,6 +379,10 @@ in
 
   programs.tmux.enable = true;
   programs.tmux.extraConfig = ''
+    # Name each window after the current directory's basename.
+    set -g automatic-rename on
+    set -g automatic-rename-format '#{b:pane_current_path}'
+
     # workmux dashboard popups
     bind C-s display-popup -h 30 -w 100 -E "workmux dashboard"
     bind C-w display-popup -h 30 -w 100 -E "workmux dashboard --tab worktrees"

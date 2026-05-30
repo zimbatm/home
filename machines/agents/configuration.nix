@@ -95,6 +95,14 @@
     fi
   '';
 
+  # System tmux config (read by the bare `tmux` the shell init exec's into).
+  # Name each window after the current directory's basename, so windows track
+  # the folder you cd into.
+  environment.etc."tmux.conf".text = ''
+    set -g automatic-rename on
+    set -g automatic-rename-format '#{b:pane_current_path}'
+  '';
+
   # Install fake-xclip as /etc/term-paste/xclip so it shadows the real one
   # only inside the agents shells that prepend /etc/term-paste to PATH.
   environment.etc."term-paste/xclip" = {
