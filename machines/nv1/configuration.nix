@@ -109,6 +109,9 @@
     "kvm"
     "uid-range"
     "recursive-nix"
+    # Run NixOS VM tests (nixosTest / runNixOSTest) locally; the test
+    # derivations require the "nixos-test" feature in addition to "kvm".
+    "nixos-test"
   ];
 
   # services.opencrow-local declares a NixOS container; the base
