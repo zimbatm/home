@@ -102,6 +102,7 @@
           };
         };
       nixosModules = {
+        agent-deploy = ./modules/nixos/agent-deploy.nix;
         common = ./modules/nixos/common.nix;
         desktop = ./modules/nixos/desktop.nix;
         gotosocial = ./modules/nixos/gotosocial.nix;

@@ -2,6 +2,7 @@
 {
   imports = [
     inputs.self.nixosModules.common
+    inputs.self.nixosModules.agent-deploy
     inputs.self.nixosModules.gotosocial
     inputs.self.nixosModules.hardening
     inputs.self.nixosModules.hc-ping

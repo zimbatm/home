@@ -8,6 +8,7 @@
 {
   imports = [
     inputs.self.nixosModules.common
+    inputs.self.nixosModules.agent-deploy
     inputs.self.nixosModules.hardening
     inputs.self.nixosModules.pocket-id-clients
     inputs.self.nixosModules.tinc-ztm
