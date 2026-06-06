@@ -55,6 +55,13 @@
 
   users.users.zimbatm.extraGroups = [ "wheel" ];
 
+  # Phone (Termux) key — agents-only, so it doesn't ride along to every host
+  # via modules/nixos/zimbatm.nix. Lets zimbatm SSH in from the phone to
+  # attach to long-running agent sessions.
+  users.users.zimbatm.openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII+nIj43n4afAhW0SYBrTrus/4W9LnqKXVWFQbduj2wc u0_a272@localhost"
+  ];
+
   # zimbatm can build via nix without sudo (trusted by the daemon).
   nix.settings.trusted-users = [ "@wheel" ];
 
