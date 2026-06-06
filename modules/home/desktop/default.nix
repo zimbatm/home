@@ -158,7 +158,6 @@ in
     llm.codex
     llm.opencode
     llm.pi
-    inputs.voxtype.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.munix.packages.${pkgs.stdenv.hostPlatform.system}.munix
   ];
 

@@ -28,14 +28,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.treefmt-nix.follows = "treefmt-nix";
     };
-    distro = {
-      url = "github:generational-infrastructure/distro";
+    spaces = {
+      url = "github:generational-infrastructure/spaces-os";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.treefmt-nix.follows = "treefmt-nix";
       inputs.llm-agents.follows = "llm-agents";
-    };
-    voxtype = {
-      follows = "distro/voxtype";
     };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";

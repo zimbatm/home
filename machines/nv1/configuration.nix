@@ -9,7 +9,7 @@
   imports = [
     ./hardware-configuration.nix
     inputs.agenix.nixosModules.default
-    inputs.distro.nixosModules.distro
+    inputs.spaces.nixosModules.spaces
     # NovaCustom V5xTNC: Intel Meteor Lake-H + NVIDIA RTX 4060 Max-Q
     inputs.nixos-hardware.nixosModules.common-cpu-intel
     inputs.nixos-hardware.nixosModules.common-pc-laptop
@@ -105,13 +105,14 @@
 
   nix.settings.trusted-users = [ "zimbatm" ];
 
-  nix.settings.system-features = lib.mkForce [
-    "kvm"
+  # Extend (don't replace) the NixOS default system-features, so we keep
+  # the upstream defaults — including "nixos-test" (required by nixosTest /
+  # runNixOSTest VM checks) and "big-parallel" — and just add the two
+  # extras we want. mkAfter merges with nixpkgs' normal-priority default
+  # (config/nix.nix sets it without mkDefault); mkForce would drop them.
+  nix.settings.system-features = lib.mkAfter [
     "uid-range"
     "recursive-nix"
-    # Run NixOS VM tests (nixosTest / runNixOSTest) locally; the test
-    # derivations require the "nixos-test" feature in addition to "kvm".
-    "nixos-test"
   ];
 
   # services.opencrow-local declares a NixOS container; the base
