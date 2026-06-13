@@ -14,25 +14,7 @@ let
     inherit pkgs lib;
   };
 
-  # The neoforge-21.8.49 installer's --fat-offline output bytes drifted since
-  # numcraft pinned its hash (NeoForged re-published or a transitive lib
-  # rolled). Override the src hash to the value Nix actually produces today.
-  # Drop this block once numcraft.nix lands a refreshed hash upstream.
-  neoforgeServer = numcraft.neoforgeServer.overrideAttrs (old: {
-    src = pkgs.fetchurl {
-      url = "https://maven.neoforged.net/releases/net/neoforged/neoforge/21.8.49/neoforge-21.8.49-installer.jar";
-      hash = "sha256-NmQaxGabKZ+/RiYTdlUJnqi+3Rp2RJNrXtAnrFoUVic=";
-      downloadToTemp = true;
-      nativeBuildInputs = [
-        pkgs.jdk
-        pkgs.perl5Packages.strip-nondeterminism
-      ];
-      postFetch = ''
-        java -jar $downloadedFile --fat-offline --fat $out
-        strip-nondeterminism -t zip $out
-      '';
-    };
-  });
+  neoforgeServer = numcraft.neoforgeServer;
 
   serverMods = numcraft.server.modList;
 
@@ -398,8 +380,8 @@ EOF
     pkgs.writeText "lazymc-${w.short}.toml" ''
       [public]
       address = "0.0.0.0:${toString w.port}"
-      version = "1.21.8"
-      protocol = 772
+      version = "1.21.11"
+      protocol = 774
 
       [server]
       address = "127.0.0.1:${toString (w.port + internalOffset)}"
@@ -496,7 +478,7 @@ in
   ];
 
   # Hetzner Cloud cpx42, fsn1, UEFI. Personal modded Minecraft hosting,
-  # NeoForge 1.21.8 — same mod set as Numtide's arcade1 (numcraft pinned as
+  # NeoForge 1.21.11 — same mod set as Numtide's arcade1 (numcraft pinned as
   # a flake input). One always-on "bridge" world + 14 on-demand worlds
   # behind lazymc, all sharing the same JVM/mods/whitelist. Public surface:
   # one TCP port per world + UDP 24454 for the voicechat mod.
