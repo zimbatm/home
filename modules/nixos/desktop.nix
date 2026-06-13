@@ -3,7 +3,9 @@
 {
   imports = [
     ./common.nix
-    ./noctalia.nix
+    # noctalia is now provided by the spaces-os bundle (nixosModules.spaces),
+    # which ships its own noctalia-shell user service. Importing the local
+    # copy here too collided on systemd.user.services.noctalia-shell.
     ./ubuntu-light.nix
     inputs.srvos.nixosModules.desktop
   ];

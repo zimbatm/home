@@ -2,7 +2,10 @@
 #   {
 #     "foo.age".publicKeys = chatHosts;  # list of recipients (user + host)
 #   }
-# Then create with: agenix -e secrets/foo.age
+# Then create with: agenix -e foo.age   (bare filename; the flake devShell's
+# wrapped `agenix` cd's into this dir for you. With direnv loaded it's on PATH;
+# otherwise `cd secrets && nix develop -c agenix -e foo.age`. Don't use `, agenix`
+# — that's ragenix and can't find this rules file.)
 #
 # Don't convert SSH host keys via ssh-to-age — list the raw `ssh-ed25519 AAAA...`
 # string. Converting produces an X25519 recipient that the SSH private key on
@@ -23,11 +26,40 @@ let
   # `agents` from every recipient list means losing the backup.
   recovery = [ agents ];
 
-  nv1Hosts     = [ zimbatm nv1 ]    ++ recovery;
-  agentsHosts  = [ zimbatm agents ];
-  chatHosts    = [ zimbatm chat ]   ++ recovery;
-  web2Hosts    = [ zimbatm web2 ]   ++ recovery;
-  mc1Hosts     = [ zimbatm mc1 ]    ++ recovery;
+  nv1Hosts = [
+    zimbatm
+    nv1
+  ]
+  ++ recovery;
+  agentsHosts = [
+    zimbatm
+    agents
+  ];
+  chatHosts = [
+    zimbatm
+    chat
+  ]
+  ++ recovery;
+
+  # Shared between nv1 (pi-chat OpenRouter backend + remote-executor client)
+  # and agents (pi-sessiond executor + OpenRouter backend): the OpenRouter API
+  # key and the pi-sessiond `hello` token must decrypt on both hosts. agents is
+  # also the recovery recipient, so no separate `++ recovery` needed.
+  piRemoteHosts = [
+    zimbatm
+    nv1
+    agents
+  ];
+  web2Hosts = [
+    zimbatm
+    web2
+  ]
+  ++ recovery;
+  mc1Hosts = [
+    zimbatm
+    mc1
+  ]
+  ++ recovery;
 in
 {
   "web2-restic-password.age".publicKeys = web2Hosts;
@@ -51,4 +83,8 @@ in
   "pocket-id-encryption-key.age".publicKeys = web2Hosts;
   "pocket-id-static-api-key.age".publicKeys = web2Hosts ++ [ agents ];
   "oauth2-proxy-agents-cookie.age".publicKeys = agentsHosts;
+  # Spaces remote-agent stack: OpenRouter backend (nv1 pi-chat + agents
+  # pi-sessiond) and the pi-sessiond `hello` token (agents serves, nv1 attaches).
+  "openrouter-api-key.age".publicKeys = piRemoteHosts;
+  "pi-sessiond-token.age".publicKeys = piRemoteHosts;
 }

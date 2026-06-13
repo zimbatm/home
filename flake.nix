@@ -241,6 +241,37 @@
         }
       );
 
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = pkgsFor system;
+          # agenix wrapped to always operate on secrets/secrets.nix. ryantm
+          # agenix resolves its rules from `RULES` (default ./secrets.nix) and
+          # writes the .age file at the path you pass, relative to cwd — and our
+          # rule keys are bare filenames. So the wrapper cd's into the repo's
+          # secrets/ dir first, letting you run `agenix -e <name>.age` with the
+          # bare key name from anywhere in the tree. (The bare nixpkgs agenix —
+          # and ragenix via `,` — can't find secrets/secrets.nix and die with
+          # "Failed to find config root".)
+          agenix = pkgs.writeShellApplication {
+            name = "agenix";
+            runtimeInputs = [ pkgs.git ];
+            text = ''
+              cd "$(git rev-parse --show-toplevel)/secrets"
+              exec ${inputs.agenix.packages.${system}.default}/bin/agenix "$@"
+            '';
+          };
+        in
+        {
+          default = pkgs.mkShellNoCC {
+            packages = [
+              agenix
+              pkgs.nixfmt-rfc-style
+            ];
+          };
+        }
+      );
+
       formatter = forAllSystems (
         system: (treefmtFor inputs.nixpkgs.legacyPackages.${system}).config.build.wrapper
       );

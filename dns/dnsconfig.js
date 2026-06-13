@@ -85,6 +85,9 @@ D("ztm.io", REG_NC, DnsProvider(DNS_NC),
   AAAA("mail",   MAIL_AAAA),
   A("agents",    AGENTS_A),
   AAAA("agents", AGENTS_AAAA),
+  // pi-web PWA (spaces remote-agent / pi-sessiond), same host as the terminal.
+  A("agent",     AGENTS_A),
+  AAAA("agent",  AGENTS_AAAA),
   A("mc",        MC1_A),
   AAAA("mc",     MC1_AAAA),
 );

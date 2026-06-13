@@ -12,6 +12,9 @@
     inputs.self.nixosModules.hardening
     inputs.self.nixosModules.pocket-id-clients
     inputs.self.nixosModules.tinc-ztm
+    # Remote-pi executor: WebSocket daemon embedding pi (one in-process
+    # session per chat) plus the served pi-web PWA. See services.pi-sessiond.
+    inputs.spaces.nixosModules.pi-sessiond
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.srvos.nixosModules.mixins-nginx
@@ -74,10 +77,12 @@
       fd
       jq
       nodejs_22 # for claude-code's npm-distributed wrapper, if used outside the nix path
-    ]) ++ [
+    ])
+    ++ [
       llm.claude-code
-      llm.happy-coder # `happy` — mobile/web client (app.happy.engineering),
-                      # E2E-encrypted, sessions still run locally on agents.
+      llm.happy-coder
+      # `happy` — mobile/web client (app.happy.engineering),
+      # E2E-encrypted, sessions still run locally on agents.
     ];
 
   # SSH login (or ttyd-spawned bash) auto-attaches to a tmux session
@@ -114,7 +119,46 @@
   # SSH + nginx (LE-terminated web terminal at 443, ACME HTTP-01 on 80).
   # Previously mTLS-gated with our own term CA; now SSO via Pocket ID
   # through oauth2-proxy. No per-device cert provisioning, single login.
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [
+    80
+    443
+  ];
+
+  # pi-sessiond's WebSocket port stays off the public interface (no entry in
+  # allowedTCPPorts above; openFirewall left false). nginx reaches it on
+  # loopback for the SSO-gated PWA; nv1's panel reaches it over the tinc mesh,
+  # so the port is opened only on the tinc-ztm interface.
+  networking.firewall.interfaces."tinc-ztm".allowedTCPPorts = [ 8770 ];
+
+  # Remote-pi executor. Headless Hetzner box has no GPU, so inference goes to
+  # OpenRouter rather than a local llama-swap; the daemon registers OpenRouter's
+  # catalog and new sessions default to it. Token + API key are systemd
+  # credentials (LoadCredential), never copied into the store.
+  age.secrets.openrouter-api-key.file = ../../secrets/openrouter-api-key.age;
+  age.secrets.pi-sessiond-token.file = ../../secrets/pi-sessiond-token.age;
+  services.pi-sessiond = {
+    enable = true;
+    # Bind all interfaces; the firewall (loopback always open + tinc-ztm rule
+    # above) is what scopes reachability, and the `hello` token gates the WS.
+    host = "0.0.0.0";
+    port = 8770;
+    tokenFile = config.age.secrets.pi-sessiond-token.path;
+    serveWebUi = true;
+    defaultProvider = "openrouter";
+    defaultModel = "anthropic/claude-sonnet-4.5";
+    openrouter = {
+      enable = true;
+      apiKeyFile = config.age.secrets.openrouter-api-key.path;
+    };
+  };
+  # pi-sessiond loads its token + OpenRouter key via systemd LoadCredential at
+  # unit-start. Without ordering it races agenix and can spawn before
+  # /run/agenix/* exists, failing 243/CREDENTIALS (it auto-restarts, but that
+  # trips switch-to-configuration). Order it after the secrets are installed.
+  systemd.services.pi-sessiond = {
+    after = [ "agenix-install-secrets.service" ];
+    wants = [ "agenix-install-secrets.service" ];
+  };
 
   age.secrets.pocket-id-static-api-key.file = ../../secrets/pocket-id-static-api-key.age;
   age.secrets.oauth2-proxy-agents-cookie.file = ../../secrets/oauth2-proxy-agents-cookie.age;
@@ -144,14 +188,14 @@
     clientID = "agents-ttyd";
     clientSecretFile = "/run/pocket-id-clients/agents-ttyd/secret";
     cookie.secretFile = config.age.secrets.oauth2-proxy-agents-cookie.path;
-    cookie.domain = ".ztm.io";  # share session across future *.ztm.io SSO targets
+    cookie.domain = ".ztm.io"; # share session across future *.ztm.io SSO targets
     cookie.refresh = "1h";
     redirectURL = "https://agents.ztm.io/oauth2/callback";
     email.domains = [ "*" ];
     reverseProxy = true;
     setXauthrequest = true;
     extraConfig = {
-      "skip-provider-button" = true;   # single-IdP setup, skip the chooser
+      "skip-provider-button" = true; # single-IdP setup, skip the chooser
       "whitelist-domain" = ".ztm.io";
       # Pocket ID's client config has pkceEnabled = true, so the token
       # exchange fails with "Invalid code verifier" unless oauth2-proxy
@@ -159,7 +203,15 @@
       "code-challenge-method" = "S256";
     };
     nginx.domain = "agents.ztm.io";
-    nginx.virtualHosts."agents.ztm.io" = { };
+    # Both the terminal (agents.ztm.io) and the pi-web PWA (agent.ztm.io)
+    # sit behind the same oauth2-proxy. The OIDC callback always lands on
+    # agents.ztm.io (the pinned redirectURL); the shared `.ztm.io` cookie +
+    # `whitelist-domain` then carry the session back to agent.ztm.io, so no
+    # second Pocket ID client/callback is needed.
+    nginx.virtualHosts = {
+      "agents.ztm.io" = { };
+      "agent.ztm.io" = { };
+    };
   };
   # oauth2-proxy starts before pocket-id-clients has run; depend on it so
   # the client_secret file exists when oauth2-proxy reads it.
@@ -180,12 +232,14 @@
     user = "zimbatm";
     interface = "127.0.0.1";
     port = 7681;
-    writeable = true;  # (sic — option name has a typo upstream)
+    writeable = true; # (sic — option name has a typo upstream)
     entrypoint = [
-      (toString (pkgs.writeShellScript "ttyd-shell" ''
-        export TTYD=1
-        exec ${pkgs.bash}/bin/bash -l
-      ''))
+      (toString (
+        pkgs.writeShellScript "ttyd-shell" ''
+          export TTYD=1
+          exec ${pkgs.bash}/bin/bash -l
+        ''
+      ))
     ];
     clientOptions = {
       fontSize = "16";
@@ -227,6 +281,24 @@
       extraConfig = ''
         client_max_body_size 25m;
         proxy_request_buffering off;
+      '';
+    };
+  };
+
+  # pi-web PWA + pi-sessiond WebSocket, same origin. oauth2-proxy gates HTTP
+  # access (see services.oauth2-proxy.nginx.virtualHosts above); the daemon's
+  # `hello` token gates the WS on top. A single "/" location serves the PWA
+  # assets, GET /executors, and the ws:// upgrade — proxyWebsockets wires the
+  # Upgrade/Connection headers and is a no-op for the plain HTTP requests.
+  services.nginx.virtualHosts."agent.ztm.io" = {
+    enableACME = true;
+    forceSSL = true;
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:8770";
+      proxyWebsockets = true;
+      extraConfig = ''
+        proxy_read_timeout 1d;
+        proxy_send_timeout 1d;
       '';
     };
   };

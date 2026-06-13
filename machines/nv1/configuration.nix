@@ -85,6 +85,45 @@
     };
   };
 
+  # Voice-to-text: Parakeet cache-aware streaming on the RTX 4060 (CUDA),
+  # from the spaces-os `voxtype-upgrade` branch. The streaming model
+  # (parakeet-unified-en-0.6b) must be present in ~/.local/share/voxtype.
+  spaces.voxtype = {
+    engine = "parakeet";
+    variant = "parakeet-cuda";
+    streaming = true;
+  };
+
+  # OpenRouter API key (pi-chat backend) and the pi-sessiond `hello` token
+  # (to attach to the always-on `agents` executor). Both decrypt on nv1 and
+  # agents — see secrets/secrets.nix `piRemoteHosts`.
+  age.secrets.openrouter-api-key.file = ../../secrets/openrouter-api-key.age;
+  age.secrets.pi-sessiond-token.file = ../../secrets/pi-sessiond-token.age;
+
+  services.pi-chat = {
+    # Add OpenRouter as a second backend alongside the local llama-swap.
+    # The local provider stays the session default; switch to OpenRouter's
+    # ~200 models from the panel's model selector. Key is loaded as a
+    # systemd credential, never landing in the world-readable config/store.
+    openrouter = {
+      enable = true;
+      apiKeyFile = config.age.secrets.openrouter-api-key.path;
+    };
+
+    # Attach the panel to the always-on remote executor on `agents` over the
+    # tinc mesh (plaintext ws is fine inside the encrypted tunnel; the public
+    # wss://agent.ztm.io path is SSO-gated and unreachable to this WS client).
+    # New sessions stay local by default — pick `agents` per session in the
+    # panel. The token is staged into /run/spaces-secrets, not the store.
+    executors = [
+      {
+        id = "agents";
+        url = "ws://agents.ztm:8770/";
+        tokenFile = config.age.secrets.pi-sessiond-token.path;
+      }
+    ];
+  };
+
   boot.loader.systemd-boot.configurationLimit = lib.mkDefault 8;
 
   environment.systemPackages = [
