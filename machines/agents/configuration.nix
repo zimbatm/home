@@ -87,9 +87,6 @@
     ])
     ++ [
       llm.claude-code
-      llm.happy-coder
-      # `happy` — mobile/web client (app.happy.engineering),
-      # E2E-encrypted, sessions still run locally on agents.
     ];
 
   # SSH login (or ttyd-spawned bash) auto-attaches to a tmux session
