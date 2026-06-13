@@ -135,7 +135,15 @@
   # catalog and new sessions default to it. Token + API key are systemd
   # credentials (LoadCredential), never copied into the store.
   age.secrets.openrouter-api-key.file = ../../secrets/openrouter-api-key.age;
-  age.secrets.pi-sessiond-token.file = ../../secrets/pi-sessiond-token.age;
+  age.secrets.pi-sessiond-token = {
+    file = ../../secrets/pi-sessiond-token.age;
+    # nginx serves this token to oauth2-proxy-authenticated PWA clients (the
+    # agent.ztm.io /pi-web-token location) so the browser auto-connects without
+    # a manual paste. Make it group-readable by nginx (already in `keys`);
+    # pi-sessiond still reads it as root via LoadCredential.
+    group = "keys";
+    mode = "0440";
+  };
   services.pi-sessiond = {
     enable = true;
     # Bind all interfaces; the firewall (loopback always open + tinc-ztm rule
@@ -290,6 +298,13 @@
   # `hello` token gates the WS on top. A single "/" location serves the PWA
   # assets, GET /executors, and the ws:// upgrade — proxyWebsockets wires the
   # Upgrade/Connection headers and is a no-op for the plain HTTP requests.
+  #
+  # Token auto-inject: the PWA otherwise asks the user to paste the executor
+  # token once. Since oauth2-proxy already authenticated them, sub_filter
+  # injects a bootstrap into the served HTML that fetches the token from the
+  # SSO-gated /pi-web-token endpoint and clicks Connect — same trust boundary
+  # (any Pocket ID user who can load the PWA can already use the executor).
+  # Mirrors the ttyd clip-shim sub_filter pattern on the agents.ztm.io vhost.
   services.nginx.virtualHosts."agent.ztm.io" = {
     enableACME = true;
     forceSSL = true;
@@ -299,6 +314,21 @@
       extraConfig = ''
         proxy_read_timeout 1d;
         proxy_send_timeout 1d;
+        # sub_filter needs uncompressed HTML; only rewrites text/html, so the
+        # JS/JSON assets and the ws:// upgrade pass through untouched.
+        proxy_set_header Accept-Encoding "";
+        sub_filter_once on;
+        sub_filter_types text/html;
+        sub_filter '</body>' '<script>(function(){function s(t){t=(t||"").trim();if(!t)return;try{localStorage.setItem("pi-web.token",t)}catch(e){}var n=0,iv=setInterval(function(){var g=document.getElementById("gate"),c=document.getElementById("connect"),i=document.getElementById("token");if(g&&g.style.display==="none"){clearInterval(iv);return}if(c&&i){i.value=t;c.click()}if(++n>50)clearInterval(iv)},100)}fetch("/pi-web-token",{cache:"no-store"}).then(function(r){return r.ok?r.text():Promise.reject()}).then(s).catch(function(){})})();</script></body>';
+      '';
+    };
+    # The executor token, served only to oauth2-proxy-authenticated clients:
+    # this location inherits the server-level `auth_request /oauth2/auth`.
+    locations."= /pi-web-token" = {
+      alias = config.age.secrets.pi-sessiond-token.path;
+      extraConfig = ''
+        default_type text/plain;
+        add_header Cache-Control "no-store";
       '';
     };
   };
