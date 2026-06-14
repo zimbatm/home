@@ -24,7 +24,15 @@ let
   # Single-line patch: treat state 3 the same as state 2 (Login). The
   # original handshake bytes are forwarded verbatim to the upstream JVM,
   # so NeoForge still sees the Transfer intent and handles re-auth.
+  #
+  # lazymc-whitelist-uuid.patch: lazymc's wake-on-join whitelist gate matched
+  # only by username, but Minecraft (and our numcraft-sourced whitelist) is
+  # keyed by UUID. A player who renamed their account could enter the always-on
+  # bridge (real JVM auths by UUID) but got bounced from every lazymc-fronted
+  # world ("not whitelisted"). The patch also matches the UUID the 1.20.2+
+  # client sends in Login Start, so renames no longer lock players out.
   lazymc = pkgs.lazymc.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./lazymc-whitelist-uuid.patch ];
     postPatch = (old.postPatch or "") + ''
       substituteInPlace src/proto/client.rs \
         --replace-fail '2 => Some(Self::Login),' '2 | 3 => Some(Self::Login),'

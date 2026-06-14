@@ -1,0 +1,149 @@
+--- a/src/mc/whitelist.rs
++++ b/src/mc/whitelist.rs
+@@ -16,16 +16,33 @@
+ #[derive(Debug, Default)]
+ pub struct Whitelist {
+     /// Whitelisted users.
+-    whitelist: Vec<String>,
++    whitelist: Vec<WhitelistUser>,
+ 
+     /// OPd users.
+-    ops: Vec<String>,
++    ops: Vec<OpUser>,
+ }
+ 
+ impl Whitelist {
+     /// Check whether a user is whitelisted.
+-    pub fn is_whitelisted(&self, username: &str) -> bool {
+-        self.whitelist.iter().any(|u| u == username) || self.ops.iter().any(|u| u == username)
++    ///
++    /// Matches by UUID first (stable across Minecraft account renames), then
++    /// falls back to the username. The Minecraft server whitelists by UUID,
++    /// but lazymc only sees the username from the Login Start packet unless the
++    /// client (1.20.2+) also sends its UUID there — so name-only matching
++    /// wrongly rejects renamed-but-whitelisted accounts from waking the server.
++    pub fn is_whitelisted(&self, username: &str, uuid: Option<&str>) -> bool {
++        let uuid = uuid.map(|u| u.to_ascii_lowercase());
++        let uuid_match = |u: &Option<String>| match (&uuid, u) {
++            (Some(want), Some(have)) => *want == have.to_ascii_lowercase(),
++            _ => false,
++        };
++        self.whitelist
++            .iter()
++            .any(|u| u.username == username || uuid_match(&u.uuid))
++            || self
++                .ops
++                .iter()
++                .any(|u| u.username == username || uuid_match(&u.uuid))
+     }
+ }
+ 
+@@ -83,25 +100,23 @@
+ }
+ 
+ /// Load whitelist from file.
+-fn load_whitelist(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
++fn load_whitelist(path: &Path) -> Result<Vec<WhitelistUser>, Box<dyn Error>> {
+     // Load file contents
+     let contents = fs::read_to_string(path)?;
+ 
+-    // Parse contents
++    // Parse contents, keeping name and UUID for matching
+     let users: Vec<WhitelistUser> = serde_json::from_str(&contents)?;
+ 
+-    // Pluck usernames
+-    Ok(users.into_iter().map(|user| user.username).collect())
++    Ok(users)
+ }
+ 
+ /// Load OPs from file.
+-fn load_ops(path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
++fn load_ops(path: &Path) -> Result<Vec<OpUser>, Box<dyn Error>> {
+     // Load file contents
+     let contents = fs::read_to_string(path)?;
+ 
+-    // Parse contents
++    // Parse contents, keeping name and UUID for matching
+     let users: Vec<OpUser> = serde_json::from_str(&contents)?;
+ 
+-    // Pluck usernames
+-    Ok(users.into_iter().map(|user| user.username).collect())
++    Ok(users)
+ }
+--- a/src/server.rs
++++ b/src/server.rs
+@@ -363,15 +363,16 @@
+         futures::executor::block_on(async { self.is_banned_ip(ip).await })
+     }
+ 
+-    /// Check whether the given username is whitelisted.
++    /// Check whether the given player is whitelisted.
+     ///
++    /// Matches by username or, when the client provided it, UUID.
+     /// Returns `true` if no whitelist is currently used.
+-    pub async fn is_whitelisted(&self, username: &str) -> bool {
++    pub async fn is_whitelisted(&self, username: &str, uuid: Option<&str>) -> bool {
+         self.whitelist
+             .read()
+             .await
+             .as_ref()
+-            .map(|w| w.is_whitelisted(username))
++            .map(|w| w.is_whitelisted(username, uuid))
+             .unwrap_or(true)
+     }
+ 
+--- a/src/status.rs
++++ b/src/status.rs
+@@ -122,11 +122,14 @@
+ 
+         // Hijack login start
+         if client_state == ClientState::Login && packet.id == packets::login::SERVER_LOGIN_START {
+-            // Try to get login username, update client info
++            // Try to get login username and UUID, update client info
+             // TODO: we should always parse this packet successfully
+-            let username = LoginStart::decode(&mut packet.data.as_slice())
+-                .ok()
+-                .map(|p| p.name);
++            let mut login_data = packet.data.as_slice();
++            let username = LoginStart::decode(&mut login_data).ok().map(|p| p.name);
++            // 1.20.2+ clients append their 16-byte UUID right after the name in
++            // Login Start; older clients omit it. Used to match the whitelist by
++            // UUID so account renames don't lock players out of waking servers.
++            let uuid = decode_login_uuid(login_data);
+             client_info.username = username.clone();
+ 
+             // Kick if lockout is enabled
+@@ -159,7 +162,7 @@
+ 
+             // Kick if client is not whitelisted to wake server
+             if let Some(ref username) = username {
+-                if !server.is_whitelisted(username).await {
++                if !server.is_whitelisted(username, uuid.as_deref()).await {
+                     info!(target: "lazymc", "User '{}' tried to wake server but is not whitelisted, disconnecting", username);
+                     action::kick(&client, WHITELIST_MESSAGE, &mut writer).await?;
+                     break;
+@@ -204,6 +207,24 @@
+     Ok(())
+ }
+ 
++/// Decode the player UUID a 1.20.2+ client appends after the name in Login
++/// Start, formatted lowercase-hyphenated to match `whitelist.json`.
++///
++/// `rest` is the Login Start packet body positioned right after the username.
++/// Returns `None` for older clients that don't send a UUID here.
++fn decode_login_uuid(rest: &[u8]) -> Option<String> {
++    let bytes = rest.get(..16)?;
++    let hex: String = bytes.iter().map(|b| format!("{b:02x}")).collect();
++    Some(format!(
++        "{}-{}-{}-{}-{}",
++        &hex[0..8],
++        &hex[8..12],
++        &hex[12..16],
++        &hex[16..20],
++        &hex[20..32],
++    ))
++}
++
+ /// Build server status object to respond to client with.
+ async fn server_status(client_info: &ClientInfo, config: &Config, server: &Server) -> ServerStatus {
+     let status = server.status().await;
