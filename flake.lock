@@ -685,11 +685,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781376501,
-        "narHash": "sha256-s0dJR5+/tLI7q7niHarBY/xnNe7aZye/D7IMWVLAKWQ=",
+        "lastModified": 1781433355,
+        "narHash": "sha256-IcrzdPoDXdWqRldo8Z76Gl8yUPZAwEkF9Qn+ThKMcCk=",
         "owner": "numtide",
         "repo": "numcraft",
-        "rev": "cc5beab2a96ff5a2132315d2b36f9d8ab2e4b11c",
+        "rev": "4295238aef927ceca8f2c2a3c74f7c08d724b25a",
         "type": "github"
       },
       "original": {
