@@ -41,6 +41,15 @@
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
 
+  # Backs the spaces location skill: pi-chat ships locationUpdates.enable =
+  # true by default, whose user timer runs geoclue's where-am-i demo every
+  # 10min into $XDG_RUNTIME_DIR/spaces/location.json. The demo needs the
+  # geoclue2 system D-Bus service (+ its demo agent, on by default) running;
+  # the spaces bundle does not enable it, so wire it here. WiFi positioning
+  # may need services.geoclue2.geoProviderUrl pointed at a live backend
+  # (Mozilla Location Service is retired) — verify location.json after deploy.
+  services.geoclue2.enable = true;
+
   services.greetd.settings.default_session.user = "zimbatm";
 
   # Meteor Lake NPU (Intel AI Boost) — exploration: OpenVINO Whisper offload off the iGPU.
