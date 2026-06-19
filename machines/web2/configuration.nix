@@ -76,6 +76,14 @@ in
     ];
   };
 
+  # /etc is an overlayfs (system.etc.overlay). cloud-init reads sshd's
+  # AuthorizedKeysFile (/etc/ssh/authorized_keys.d/%u) and writes root's
+  # instance-metadata key into the overlay's writable upper layer, which
+  # shadows NixOS's lower-layer authorized_keys (and survives every rebuild,
+  # since switch only refreshes the lower layer). NixOS owns authorized keys
+  # declaratively — keep cloud-init out of them.
+  services.cloud-init.settings.allow_public_ssh_keys = false;
+
   # Hetzner Cloud Volume web2-gts (scsi-0HC_Volume_105754691) holds the
   # gotosocial sqlite + media. nofail so a missing volume can't block boot.
   fileSystems."/var/lib/gotosocial" = {
