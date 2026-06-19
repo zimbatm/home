@@ -500,6 +500,7 @@ in
     inputs.self.nixosModules.hardening
     inputs.self.nixosModules.hc-ping
     inputs.self.nixosModules.tinc-ztm
+    inputs.self.nixosModules.borgbackup-rsync-net
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.disko.nixosModules.disko
@@ -598,88 +599,20 @@ in
     ];
   };
 
-  systemd.services = lib.mkMerge [
-    serviceUnits
-    {
-      # Sandbox the restic-backups unit created by services.restic.backups.minecraft.
-      "restic-backups-minecraft".serviceConfig = {
-        NoNewPrivileges = true;
-        LockPersonality = true;
-        PrivateDevices = true;
-        ProtectClock = true;
-        ProtectControlGroups = true;
-        ProtectHome = true;
-        ProtectHostname = true;
-        ProtectKernelLogs = true;
-        ProtectKernelModules = true;
-        ProtectKernelTunables = true;
-        ProtectProc = "invisible";
-        ProtectSystem = "strict";
-        ReadOnlyPaths = [ "/var/lib/minecraft/worlds" ];
-        ReadWritePaths = [ "/var/cache/restic-backups-minecraft" ];
-        RestrictAddressFamilies = [
-          "AF_INET"
-          "AF_INET6"
-          "AF_UNIX"
-        ];
-        RestrictNamespaces = true;
-        RestrictRealtime = true;
-        RestrictSUIDSGID = true;
-        SystemCallArchitectures = "native";
-        SystemCallFilter = [
-          "@system-service"
-          "~@privileged"
-        ];
-        # restic-as-root needs CAP_DAC_READ_SEARCH to traverse the world dirs.
-        CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
-        AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
-        UMask = "0077";
-      };
-    }
-  ];
+  systemd.services = serviceUnits;
 
-  # Offsite backups → rsync.net via restic SFTP. Same shape as mail/chat.
-  # Backs up all worlds (the bulk of state); the JVM/mods are re-derivable
-  # from Nix. preStart shovels each running JVM into save-all/save-off via
-  # rcon would be nicer, but with on-demand lazymc + 14 worlds, we accept
-  # a crash-consistent snapshot — lazymc's sleeping JVMs aren't touching
-  # disk anyway.
-  age.secrets.mc1-restic-password.file = ../../secrets/mc1-restic-password.age;
-  age.secrets.mc1-restic-ssh-key = {
-    file = ../../secrets/mc1-restic-ssh-key.age;
-    mode = "0400";
-  };
+  # Offsite backups → rsync.net via clan borgbackup (replaces restic). Backs up
+  # all worlds (the bulk of state); the JVM/mods are re-derivable from Nix. With
+  # on-demand lazymc + 14 worlds we accept a crash-consistent snapshot —
+  # lazymc's sleeping JVMs aren't touching disk anyway. Destination + shared key
+  # live in flake.nix (inventory.instances.borgbackup) + borgbackup-rsync-net.
+  clan.core.state.minecraft.folders = [ "/var/lib/minecraft/worlds" ];
+
   clan.core.vars.generators.hc-ping-minecraft = mkImport {
-    description = "healthchecks.io ping URL for restic-backups-minecraft (mc1)";
+    description = "healthchecks.io ping URL for the borg backup (mc1)";
   };
-  services.hcPing.units."restic-backups-minecraft".secret =
+  services.hcPing.units."borgbackup-job-rsync-net".secret =
     config.clan.core.vars.generators.hc-ping-minecraft.files.value.path;
-
-  programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";
-
-  services.restic.backups.minecraft = {
-    paths = [ "/var/lib/minecraft/worlds" ];
-    repository = "sftp:zh6422@zh6422.rsync.net:zimbatm-home-backup/mc1";
-    passwordFile = config.age.secrets.mc1-restic-password.path;
-    timerConfig = {
-      OnCalendar = "daily";
-      Persistent = true;
-      RandomizedDelaySec = "30m";
-    };
-    pruneOpts = [
-      "--keep-daily 7"
-      "--keep-weekly 4"
-      "--keep-monthly 6"
-    ];
-    # 10% of pack data per run → full data verification over ~10 days.
-    # Metadata is always checked.
-    checkOpts = [ "--read-data-subset=10%" ];
-    extraOptions = [
-      "sftp.command='ssh -i ${config.age.secrets.mc1-restic-ssh-key.path} -o StrictHostKeyChecking=yes zh6422@zh6422.rsync.net -s sftp'"
-    ];
-    initialize = true;
-  };
 
   security.sudo.wheelNeedsPassword = false;
 

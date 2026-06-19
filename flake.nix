@@ -154,20 +154,42 @@
 
         # Offsite backups → rsync.net via clan borgbackup (replaces the old
         # services.restic.backups). Each client backs up the union of its
-        # `clan.core.state.<svc>.folders` to its own borg repo, reusing the
-        # shared rsync.net ssh key (imported into vars). `clan backups
-        # list/create/restore <machine>` drives it. Rolled out chat-first as a
-        # canary; web2/agents/mc1 join once chat's first borg run is verified.
-        inventory.instances.borgbackup = {
-          module = {
-            name = "borgbackup";
-            input = "clan-core";
-          };
-          roles.client.machines.chat.settings.destinations.rsync-net = {
-            repo = "zh6422@zh6422.rsync.net:zimbatm-home-borg/chat";
+        # `clan.core.state.<svc>.folders` to its own borg repo under
+        # zimbatm-home-borg/<machine>, reusing the shared rsync.net ssh key
+        # (imported into vars). `clan backups list/create/restore <machine>`
+        # drives it. Validated end-to-end on chat (key authorized on rsync.net,
+        # borg14 remote-path, repo auto-init) before rolling to the rest.
+        inventory.instances.borgbackup =
+          let
             rsh = "ssh -i /run/secrets/vars/rsync-net-ssh/value -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o PasswordAuthentication=no";
+            dest = machine: {
+              repo = "zh6422@zh6422.rsync.net:zimbatm-home-borg/${machine}";
+              inherit rsh;
+            };
+          in
+          {
+            module = {
+              name = "borgbackup";
+              input = "clan-core";
+            };
+            roles.client.machines = {
+              chat.settings.destinations.rsync-net = dest "chat";
+              web2.settings.destinations.rsync-net = dest "web2";
+              mc1.settings.destinations.rsync-net = dest "mc1";
+              agents = {
+                settings.destinations.rsync-net = dest "agents";
+                # /home/zimbatm holds agent sessions; skip cache/build dirs.
+                settings.exclude = [
+                  "/home/zimbatm/.cache"
+                  "/home/zimbatm/.local/share/Trash"
+                  "/home/zimbatm/go/pkg"
+                  "/home/zimbatm/**/node_modules"
+                  "/home/zimbatm/**/target"
+                  "/home/zimbatm/**/.direnv"
+                ];
+              };
+            };
           };
-        };
 
         # Where `clan machines update <name>` deploys. Servers are reachable on
         # their public Hetzner addresses; web2 has no ztm.io host record so it

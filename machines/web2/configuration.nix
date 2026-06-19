@@ -41,6 +41,7 @@ in
     inputs.self.nixosModules.hc-ping
     inputs.self.nixosModules.pocket-id-clients
     inputs.self.nixosModules.tinc-ztm
+    inputs.self.nixosModules.borgbackup-rsync-net
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.srvos.nixosModules.mixins-nginx
@@ -172,60 +173,19 @@ in
     };
   };
 
-  # Offsite backups → rsync.net via restic SFTP. Same pattern kin-infra used
-  # before. SSH key + restic password live in agenix; the SSH key is a
-  # placeholder until you run `agenix -e secrets/web2-restic-ssh-key.age`
-  # with the rsync.net ed25519 private key body.
-  age.secrets.web2-restic-password.file = ../../secrets/web2-restic-password.age;
-  age.secrets.web2-restic-ssh-key = {
-    file = ../../secrets/web2-restic-ssh-key.age;
-    mode = "0400";
-  };
+  # Offsite backups → rsync.net via clan borgbackup (replaces the old
+  # services.restic.backups). The union of clan.core.state.*.folders below
+  # becomes one borg archive; destination + shared key live in flake.nix
+  # (inventory.instances.borgbackup) + the borgbackup-rsync-net module.
+  clan.core.state.gotosocial.folders = [ "/var/lib/gotosocial" ];
+  clan.core.state.pocket-id.folders = [ "/var/lib/pocket-id" ];
+  clan.core.state.bluesky-pds.folders = [ "/var/lib/pds" ];
+
   clan.core.vars.generators.hc-ping-gotosocial = mkImport {
-    description = "healthchecks.io ping URL for restic-backups-gotosocial (web2)";
+    description = "healthchecks.io ping URL for the borg backup (web2)";
   };
-  services.hcPing.units."restic-backups-gotosocial".secret =
+  services.hcPing.units."borgbackup-job-rsync-net".secret =
     config.clan.core.vars.generators.hc-ping-gotosocial.files.value.path;
-
-  programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";
-
-  services.restic.backups =
-    let
-      common = service: {
-        repository = "sftp:zh6422@zh6422.rsync.net:zimbatm-home-backup/${service}";
-        passwordFile = config.age.secrets.web2-restic-password.path;
-        timerConfig = {
-          OnCalendar = "daily";
-          Persistent = true;
-          RandomizedDelaySec = "30m";
-        };
-        pruneOpts = [
-          "--keep-daily 7"
-          "--keep-weekly 4"
-          "--keep-monthly 6"
-        ];
-        # 10% of pack data per run → full data verification over ~10 days,
-        # rotating. Metadata is always checked. Without this we only find
-        # out the repo is corrupt when we try to restore.
-        checkOpts = [ "--read-data-subset=10%" ];
-        extraOptions = [
-          "sftp.command='ssh -i ${config.age.secrets.web2-restic-ssh-key.path} -o StrictHostKeyChecking=yes zh6422@zh6422.rsync.net -s sftp'"
-        ];
-        initialize = true;
-      };
-    in
-    {
-      gotosocial = common "gotosocial" // {
-        paths = [ "/var/lib/gotosocial" ];
-      };
-      pocket-id = common "pocket-id" // {
-        paths = [ "/var/lib/pocket-id" ];
-      };
-      bluesky-pds = common "bluesky-pds" // {
-        paths = [ "/var/lib/pds" ];
-      };
-    };
 
   # ---------------------------------------------------------------------------
   # Per-service systemd sandbox overrides. nixpkgs ships these with minimal
@@ -254,42 +214,6 @@ in
     UMask = "0077";
   };
 
-  # restic backup jails. User stays root (needs read on /var/lib/{service}),
-  # but everything else clamps. ReadOnlyPaths covers what restic touches.
-  systemd.services."restic-backups-gotosocial".serviceConfig = {
-    NoNewPrivileges = true;
-    LockPersonality = true;
-    PrivateDevices = true;
-    ProtectClock = true;
-    ProtectControlGroups = true;
-    ProtectHome = true;
-    ProtectHostname = true;
-    ProtectKernelLogs = true;
-    ProtectKernelModules = true;
-    ProtectKernelTunables = true;
-    ProtectProc = "invisible";
-    ProtectSystem = "strict";
-    ReadOnlyPaths = [ "/var/lib/gotosocial" ];
-    ReadWritePaths = [ "/var/cache/restic-backups-gotosocial" ];
-    RestrictAddressFamilies = [
-      "AF_INET"
-      "AF_INET6"
-      "AF_UNIX"
-    ];
-    RestrictNamespaces = true;
-    RestrictRealtime = true;
-    RestrictSUIDSGID = true;
-    SystemCallArchitectures = "native";
-    SystemCallFilter = [
-      "@system-service"
-      "~@privileged"
-    ];
-    # restic runs as root but service data dirs are mode 0700 owned by the
-    # service user; root needs CAP_DAC_READ_SEARCH to traverse them.
-    CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
-    AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
-    UMask = "0077";
-  };
   security.sudo.wheelNeedsPassword = false;
 
   system.stateVersion = "26.05";
