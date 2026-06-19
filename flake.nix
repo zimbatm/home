@@ -73,6 +73,19 @@
       url = "github:Mic92/tincr";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Clan manages the fleet: `lib.clan` auto-discovers machines/<name>/ and
+    # auto-imports their configuration.nix/hardware-configuration.nix/disko.nix,
+    # and the `clan` CLI drives deploys + vars (sops) + services. Follow our
+    # nixpkgs (nixos-unstable carries the `_class` field clan requires).
+    clan-core = {
+      url = "git+https://git.clan.lol/clan/clan-core";
+      inputs.nixpkgs.follows = "nixpkgs";
+      # The servers import `inputs.disko.nixosModules.disko` directly while clan
+      # also pulls disko in; two different disko store paths make
+      # `_module.args.diskoLib` conflict. Unify on our disko so the module
+      # dedupes.
+      inputs.disko.follows = "disko";
+    };
   };
 
   outputs =
@@ -120,45 +133,38 @@
         pi-extensions = ./modules/home/pi-extensions;
         terminal = ./modules/home/terminal;
       };
-      nixosConfigurations = {
-        nv1 = lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./machines/nv1/configuration.nix
-            {
-              nixpkgs.config.allowUnfree = true;
-            }
-          ];
+      # Clan builds all five machines. Each machines/<name>/ directory is
+      # auto-discovered and its configuration.nix (+ hardware-configuration.nix
+      # / disko.nix) auto-imported, so the per-machine bodies are unchanged from
+      # the old hand-written nixosConfigurations. `specialArgs.inputs` keeps the
+      # machine modules' `inputs` argument working. `clan` (clan.config) is
+      # exposed below; the CLI reads `clanInternals`.
+      clan = inputs.clan-core.lib.clan {
+        self = inputs.self;
+        specialArgs = { inherit inputs; };
+        meta.name = "ztm";
+
+        inventory.machines = {
+          nv1 = { };
+          chat = { };
+          web2 = { };
+          agents = { };
+          mc1 = { };
         };
-        chat = lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./machines/chat/configuration.nix
-            inputs.agenix.nixosModules.default
-          ];
-        };
-        web2 = lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./machines/web2/configuration.nix
-          ];
-        };
-        agents = lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./machines/agents/configuration.nix
-          ];
-        };
-        mc1 = lib.nixosSystem {
-          system = "x86_64-linux";
-          specialArgs = { inherit inputs; };
-          modules = [
-            ./machines/mc1/configuration.nix
-          ];
+
+        # Where `clan machines update <name>` deploys. Servers are reachable on
+        # their public Hetzner addresses; web2 has no ztm.io host record so it
+        # uses the zimbatm.com apex (WEB2_A). nv1 is the local laptop.
+        machines = {
+          nv1 = {
+            clan.core.networking.targetHost = "root@localhost";
+            # Was injected by the old flake module list; nv1 needs unfree.
+            nixpkgs.config.allowUnfree = true;
+          };
+          chat.clan.core.networking.targetHost = "root@chat.ztm.io";
+          web2.clan.core.networking.targetHost = "root@zimbatm.com";
+          agents.clan.core.networking.targetHost = "root@agents.ztm.io";
+          mc1.clan.core.networking.targetHost = "root@mc.ztm.io";
         };
       };
       packages = forAllSystems (
@@ -189,12 +195,19 @@
       );
     in
     {
+      # Our own reusable modules + packages. NOTE: we deliberately do NOT
+      # re-export clan.config.nixosModules here — machines reference
+      # `inputs.self.nixosModules.<name>` for these local modules, and clan's
+      # generated `clan-machine-*` modules would clobber that set.
       inherit
         nixosModules
         homeModules
-        nixosConfigurations
         packages
         ;
+
+      # Machine builds + CLI surface come from clan.
+      inherit (clan.config) nixosConfigurations clanInternals;
+      clan = clan.config;
 
       # `nix run .#dns-preview` shows the diff between dns/dnsconfig.js and
       # Namecheap's current state. `nix run .#dns-push` applies it. Both
@@ -268,6 +281,8 @@
             packages = [
               agenix
               pkgs.nixfmt-rfc-style
+              # `clan machines update/install`, `clan vars`, `clan backups`, …
+              inputs.clan-core.packages.${system}.clan-cli
             ];
           };
         }
