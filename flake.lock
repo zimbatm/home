@@ -800,11 +800,11 @@
         "voxtype": "voxtype"
       },
       "locked": {
-        "lastModified": 1781536149,
-        "narHash": "sha256-Hv++yJnYyQSQmXGMFTylq4q6rAknpt++P5orf5YZY7g=",
+        "lastModified": 1781849936,
+        "narHash": "sha256-J0bH1DFgQ+lN/UoVBM3Q1v09ilOk0ip8OLc0LJ5CHIo=",
         "owner": "generational-infrastructure",
         "repo": "spaces-os",
-        "rev": "c8bf42a802ce7e4ef48f2d8cddc965fcb3af75a2",
+        "rev": "2413013d939c9272136f27567ad0b73edca692c1",
         "type": "github"
       },
       "original": {
