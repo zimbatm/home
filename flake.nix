@@ -114,6 +114,7 @@
       nixosModules = {
         agent-deploy = ./modules/nixos/agent-deploy.nix;
         bluesky-pds = ./modules/nixos/bluesky-pds.nix;
+        borgbackup-rsync-net = ./modules/nixos/borgbackup-rsync-net.nix;
         common = ./modules/nixos/common.nix;
         desktop = ./modules/nixos/desktop.nix;
         gotosocial = ./modules/nixos/gotosocial.nix;
@@ -149,6 +150,23 @@
           web2 = { };
           agents = { };
           mc1 = { };
+        };
+
+        # Offsite backups → rsync.net via clan borgbackup (replaces the old
+        # services.restic.backups). Each client backs up the union of its
+        # `clan.core.state.<svc>.folders` to its own borg repo, reusing the
+        # shared rsync.net ssh key (imported into vars). `clan backups
+        # list/create/restore <machine>` drives it. Rolled out chat-first as a
+        # canary; web2/agents/mc1 join once chat's first borg run is verified.
+        inventory.instances.borgbackup = {
+          module = {
+            name = "borgbackup";
+            input = "clan-core";
+          };
+          roles.client.machines.chat.settings.destinations.rsync-net = {
+            repo = "zh6422@zh6422.rsync.net:zimbatm-home-borg/chat";
+            rsh = "ssh -i /run/secrets/vars/rsync-net-ssh/value -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes -o PasswordAuthentication=no";
+          };
         };
 
         # Where `clan machines update <name>` deploys. Servers are reachable on

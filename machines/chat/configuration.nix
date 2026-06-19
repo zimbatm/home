@@ -45,6 +45,7 @@ in
     inputs.self.nixosModules.hardening
     inputs.self.nixosModules.hc-ping
     inputs.self.nixosModules.tinc-ztm
+    inputs.self.nixosModules.borgbackup-rsync-net
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.disko.nixosModules.disko
@@ -68,7 +69,7 @@ in
     runtimeInputs = [ pkgs.coreutils ];
     script = ''cat "$prompts"/url > "$out"/url'';
   };
-  services.hcPing.units."restic-backups-weechat".secret =
+  services.hcPing.units."borgbackup-job-rsync-net".secret =
     config.clan.core.vars.generators.hc-ping-weechat.files.url.path;
 
   # Hetzner Cloud cx23 (Intel x86, 2c/4GB/40GB, BIOS), fsn1.
@@ -223,14 +224,6 @@ in
   # as a remote HS via weechat-matrix. Agenix scaffolding is kept (cheap) so
   # the bridges can come back later without re-bootstrapping.
 
-  # Offsite backups for the weechat state. Same rsync.net pattern as web2.
-  # Run `agenix -e secrets/chat-restic-ssh-key.age` to paste the rsync.net
-  # ed25519 private key body — until then the daily timer will fail.
-  age.secrets.chat-restic-password.file = ../../secrets/chat-restic-password.age;
-  age.secrets.chat-restic-ssh-key = {
-    file = ../../secrets/chat-restic-ssh-key.age;
-    mode = "0400";
-  };
   # weechat-matrix credential (currently unused scaffolding; kept so the bridge
   # can return without re-bootstrapping). Migrated agenix -> clan vars.
   clan.core.vars.generators.matrix-numtide-password = {
@@ -247,31 +240,12 @@ in
     runtimeInputs = [ pkgs.coreutils ];
     script = ''cat "$prompts"/value > "$out"/value'';
   };
-  programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";
 
-  services.restic.backups.weechat = {
-    repository = "sftp:zh6422@zh6422.rsync.net:zimbatm-home-backup/weechat";
-    passwordFile = config.age.secrets.chat-restic-password.path;
-    paths = [ "/var/lib/weechat" ];
-    timerConfig = {
-      OnCalendar = "daily";
-      Persistent = true;
-      RandomizedDelaySec = "30m";
-    };
-    pruneOpts = [
-      "--keep-daily 7"
-      "--keep-weekly 4"
-      "--keep-monthly 6"
-    ];
-    # 10% of pack data per run → full data verification over ~10 days.
-    # Metadata is always checked.
-    checkOpts = [ "--read-data-subset=10%" ];
-    extraOptions = [
-      "sftp.command='ssh -i ${config.age.secrets.chat-restic-ssh-key.path} -o StrictHostKeyChecking=yes zh6422@zh6422.rsync.net -s sftp'"
-    ];
-    initialize = true;
-  };
+  # Offsite backups → rsync.net via clan borgbackup (see
+  # inventory.instances.borgbackup in flake.nix + the borgbackup-rsync-net
+  # module). This declares WHAT to back up; the union of clan.core.state.*.folders
+  # becomes the borg archive. Replaces the old services.restic.backups.weechat.
+  clan.core.state.weechat.folders = [ "/var/lib/weechat" ];
 
   # ---------------------------------------------------------------------------
   # Per-service systemd sandbox overrides (nixpkgs modules ship minimal
@@ -316,45 +290,6 @@ in
     ];
     # UMask comes from the main service block (0007) — needs group-rw on the
     # dtach socket so zimbatm (member of the weechat group) can attach.
-  };
-
-  # restic backup: handles untrusted network input from rsync.net's SFTP
-  # service. Keeps User=root because it needs to read /var/lib/weechat as
-  # root, but everything else gets clamped down.
-  systemd.services."restic-backups-weechat".serviceConfig = {
-    NoNewPrivileges = true;
-    LockPersonality = true;
-    PrivateDevices = true;
-    ProtectClock = true;
-    ProtectControlGroups = true;
-    ProtectHome = true;
-    ProtectHostname = true;
-    ProtectKernelLogs = true;
-    ProtectKernelModules = true;
-    ProtectKernelTunables = true;
-    ProtectProc = "invisible";
-    ProtectSystem = "strict";
-    ReadOnlyPaths = [ "/var/lib/weechat" ];
-    ReadWritePaths = [ "/var/cache/restic-backups-weechat" ];
-    RestrictAddressFamilies = [
-      "AF_INET"
-      "AF_INET6"
-      "AF_UNIX"
-    ];
-    RestrictNamespaces = true;
-    RestrictRealtime = true;
-    RestrictSUIDSGID = true;
-    SystemCallArchitectures = "native";
-    SystemCallFilter = [
-      "@system-service"
-      "~@privileged"
-    ];
-    # restic runs as root but /var/lib/weechat is mode 0750 owned by
-    # weechat:weechat — without CAP_DAC_READ_SEARCH the DAC mode check
-    # still applies and restic silently saves Files: 0 new.
-    CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
-    AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
-    UMask = "0077";
   };
 
   # subportal-agent runs as the lingered root user manager. Iroh's netmon
