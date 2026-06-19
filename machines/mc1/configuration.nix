@@ -6,6 +6,28 @@
   ...
 }:
 let
+  # Import an existing secret into clan vars (sops): value carried over from
+  # agenix via `clan vars set <machine> <gen>/value`, deployed by sops-nix to
+  # /run/secrets/vars/<gen>/value.
+  mkImport =
+    {
+      description,
+      extraFile ? { },
+    }:
+    {
+      files.value = {
+        secret = true;
+      }
+      // extraFile;
+      prompts.value = {
+        inherit description;
+        type = "hidden";
+        persist = true;
+      };
+      runtimeInputs = [ pkgs.coreutils ];
+      script = ''cat "$prompts"/value > "$out"/value'';
+    };
+
   # Reuse Numtide's numcraft build: same NeoForge version + mod set the
   # client side already ships (you're whitelisted there, and your PrismLauncher
   # is wired to its mrpack). Importing the file directly from the flake input
@@ -315,25 +337,25 @@ let
       vcPort = toString (voicechatPortFor w);
     in
     pkgs.writeShellScript "minecraft-${w.short}-prestart" ''
-      cd /var/lib/minecraft/worlds/${w.short}
-      cp -f ${props} server.properties
-      chmod 0644 server.properties
-      ${rconSubst}
-      cat > whitelist.json <<'EOF'
-${whitelistJson}
-EOF
-      cat > ops.json <<'EOF'
-${opsJson}
-EOF
-      chmod 0644 whitelist.json ops.json
-      # Per-world voicechat port — bridge holds the default 24454, every
-      # other backend would crash on bind without a unique port here.
-      mkdir -p config/voicechat
-      if [ -f config/voicechat/voicechat-server.properties ]; then
-        sed -i "s/^port=.*/port=${vcPort}/" config/voicechat/voicechat-server.properties
-      else
-        printf 'port=%s\nbind_address=\n' "${vcPort}" > config/voicechat/voicechat-server.properties
-      fi
+            cd /var/lib/minecraft/worlds/${w.short}
+            cp -f ${props} server.properties
+            chmod 0644 server.properties
+            ${rconSubst}
+            cat > whitelist.json <<'EOF'
+      ${whitelistJson}
+      EOF
+            cat > ops.json <<'EOF'
+      ${opsJson}
+      EOF
+            chmod 0644 whitelist.json ops.json
+            # Per-world voicechat port — bridge holds the default 24454, every
+            # other backend would crash on bind without a unique port here.
+            mkdir -p config/voicechat
+            if [ -f config/voicechat/voicechat-server.properties ]; then
+              sed -i "s/^port=.*/port=${vcPort}/" config/voicechat/voicechat-server.properties
+            else
+              printf 'port=%s\nbind_address=\n' "${vcPort}" > config/voicechat/voicechat-server.properties
+            fi
     '';
 
   # Bridge runs the JVM directly. The wrapper from neoforgeServer expects to
@@ -570,7 +592,10 @@ in
     # The per-world chown reference the minecraft user — must run after
     # `users` populates /etc/passwd. Without this, the initrd activation
     # runs before user creation and chown fails for every world.
-    deps = [ "users" "groups" ];
+    deps = [
+      "users"
+      "groups"
+    ];
   };
 
   systemd.services = lib.mkMerge [
@@ -624,8 +649,11 @@ in
     file = ../../secrets/mc1-restic-ssh-key.age;
     mode = "0400";
   };
-  age.secrets.hc-ping-minecraft.file = ../../secrets/hc-ping-minecraft.age;
-  services.hcPing.units."restic-backups-minecraft".secret = config.age.secrets.hc-ping-minecraft.path;
+  clan.core.vars.generators.hc-ping-minecraft = mkImport {
+    description = "healthchecks.io ping URL for restic-backups-minecraft (mc1)";
+  };
+  services.hcPing.units."restic-backups-minecraft".secret =
+    config.clan.core.vars.generators.hc-ping-minecraft.files.value.path;
 
   programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";

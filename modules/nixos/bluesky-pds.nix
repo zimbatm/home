@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -27,11 +28,21 @@ in
       PDS_EMAIL_FROM_ADDRESS = "zimbatm@zimbatm.com";
     };
     # PDS_JWT_SECRET, PDS_ADMIN_PASSWORD, PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX
-    # and PDS_EMAIL_SMTP_URL. Generate per the runbook, then `agenix -e`.
-    environmentFiles = [ config.age.secrets.web2-bluesky-pds.path ];
+    # and PDS_EMAIL_SMTP_URL. Migrated agenix -> clan vars (imported, NOT
+    # regenerated — the PLC rotation key is the PDS's identity).
+    environmentFiles = [ config.clan.core.vars.generators.web2-bluesky-pds.files.value.path ];
   };
 
-  age.secrets.web2-bluesky-pds.file = ../../secrets/web2-bluesky-pds.age;
+  clan.core.vars.generators.web2-bluesky-pds = {
+    files.value.secret = true;
+    prompts.value = {
+      description = "Bluesky PDS env file (PDS_JWT_SECRET, PDS_ADMIN_PASSWORD, PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX, PDS_EMAIL_SMTP_URL)";
+      type = "multiline-hidden";
+      persist = true;
+    };
+    runtimeInputs = [ pkgs.coreutils ];
+    script = ''cat "$prompts"/value > "$out"/value'';
+  };
 
   services.nginx.virtualHosts."${domain}" = {
     enableACME = true;

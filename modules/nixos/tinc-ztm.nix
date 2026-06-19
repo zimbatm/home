@@ -35,18 +35,30 @@ in
 {
   imports = [ inputs.tincr.nixosModules.tincr ];
 
-  # Per-host private key, agenix-encrypted to zimbatm + the host's own
-  # recipient. Generated out-of-band; see docs/runbooks/tinc-ztm.md.
-  age.secrets."tinc-ztm-${nodeName}-key" = {
-    file = ../../secrets + "/tinc-ztm-${nodeName}-key.age";
-    owner = "tincr";
-    group = "tincr";
-    mode = "0400";
+  # Per-host private key. Migrated agenix -> clan vars; the existing key is
+  # imported (NOT regenerated — regenerating would change the public key and
+  # break the mesh) and deployed by sops-nix to
+  # /run/secrets/vars/tinc-ztm-${nodeName}-key/value. See docs/runbooks/tinc-ztm.md.
+  clan.core.vars.generators."tinc-ztm-${nodeName}-key" = {
+    files.value = {
+      secret = true;
+      owner = "tincr";
+      group = "tincr";
+      mode = "0400";
+    };
+    prompts.value = {
+      description = "tinc ztm ed25519 private key (${nodeName})";
+      type = "multiline-hidden";
+      persist = true;
+    };
+    runtimeInputs = [ pkgs.coreutils ];
+    script = ''cat "$prompts"/value > "$out"/value'';
   };
 
   services.tincr.networks.ztm = {
     nodeName = nodeName;
-    ed25519PrivateKeyFile = config.age.secrets."tinc-ztm-${nodeName}-key".path;
+    ed25519PrivateKeyFile =
+      config.clan.core.vars.generators."tinc-ztm-${nodeName}-key".files.value.path;
     hosts = hostFiles;
     connectTo = bootstrap;
     openFirewall = true;

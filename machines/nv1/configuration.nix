@@ -5,6 +5,27 @@
   inputs,
   ...
 }:
+let
+  # Import an existing secret into clan vars (sops): value carried over from
+  # agenix via `clan vars set <machine> <gen>/value`. `share = true` is the same
+  # generator agents declares, so the one stored value re-encrypts to both.
+  mkImport =
+    {
+      description,
+      share ? false,
+    }:
+    {
+      inherit share;
+      files.value.secret = true;
+      prompts.value = {
+        inherit description;
+        type = "hidden";
+        persist = true;
+      };
+      runtimeInputs = [ pkgs.coreutils ];
+      script = ''cat "$prompts"/value > "$out"/value'';
+    };
+in
 {
   imports = [
     ./hardware-configuration.nix
@@ -26,6 +47,11 @@
   # sshd so the default discovery path doesn't pick anything up. Point at
   # the host's existing ed25519 key (the one in secrets/secrets.nix as `nv1`).
   age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+
+  # Same story for sops-nix (clan vars): with no sshd, clanCore can't infer a
+  # key source. nv1's registered clan age key was derived from this ed25519
+  # host key (ssh-to-age), so sops-nix derives the matching private key here.
+  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
   # Hybrid graphics: Intel Arc (Meteor Lake iGPU) drives the display; NVIDIA
   # RTX 4060 Max-Q is the compute dGPU (CUDA / llama.cpp). Apps stay on Intel
@@ -105,8 +131,15 @@
   # OpenRouter API key (pi-chat backend) and the pi-sessiond `hello` token
   # (to attach to the always-on `agents` executor). Both decrypt on nv1 and
   # agents — see secrets/secrets.nix `piRemoteHosts`.
-  age.secrets.openrouter-api-key.file = ../../secrets/openrouter-api-key.age;
-  age.secrets.pi-sessiond-token.file = ../../secrets/pi-sessiond-token.age;
+  # Shared with agents (the always-on executor). Migrated agenix -> clan vars.
+  clan.core.vars.generators.openrouter-api-key = mkImport {
+    description = "OpenRouter API key (shared nv1 + agents)";
+    share = true;
+  };
+  clan.core.vars.generators.pi-sessiond-token = mkImport {
+    description = "pi-sessiond hello token (shared nv1 + agents)";
+    share = true;
+  };
 
   services.pi-chat = {
     # Add OpenRouter as a second backend alongside the local llama-swap.
@@ -115,7 +148,7 @@
     # systemd credential, never landing in the world-readable config/store.
     openrouter = {
       enable = true;
-      apiKeyFile = config.age.secrets.openrouter-api-key.path;
+      apiKeyFile = config.clan.core.vars.generators.openrouter-api-key.files.value.path;
     };
 
     # Attach the panel to the always-on remote executor on `agents` over the
@@ -127,7 +160,7 @@
       {
         id = "agents";
         url = "ws://agents.ztm:8770/";
-        tokenFile = config.age.secrets.pi-sessiond-token.path;
+        tokenFile = config.clan.core.vars.generators.pi-sessiond-token.files.value.path;
       }
     ];
   };

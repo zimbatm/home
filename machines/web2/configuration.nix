@@ -1,4 +1,36 @@
-{ inputs, config, lib, pkgs, ... }:
+{
+  inputs,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  # Import an existing secret into clan vars (sops). The value is brought over
+  # from agenix via `clan vars set <machine> <gen>/value` (NOT regenerated);
+  # sops-nix deploys it to /run/secrets/vars/<gen>/value. `extraFile` carries
+  # owner/group/mode/restartUnits where a consumer needs them.
+  mkImport =
+    {
+      description,
+      share ? false,
+      extraFile ? { },
+    }:
+    {
+      inherit share;
+      files.value = {
+        secret = true;
+      }
+      // extraFile;
+      prompts.value = {
+        inherit description;
+        type = "hidden";
+        persist = true;
+      };
+      runtimeInputs = [ pkgs.coreutils ];
+      script = ''cat "$prompts"/value > "$out"/value'';
+    };
+in
 {
   imports = [
     inputs.self.nixosModules.bluesky-pds
@@ -86,14 +118,21 @@
   # per [[feedback-identity-host-separation]] — id.zimbatm.com is a
   # zimbatm-identity surface so it belongs on web2. Was on the now-retired
   # mail VM before #82.
-  age.secrets.pocket-id-encryption-key.file = ../../secrets/pocket-id-encryption-key.age;
-  age.secrets.pocket-id-static-api-key.file = ../../secrets/pocket-id-static-api-key.age;
+  # Migrated agenix -> clan vars. pocket-id-static-api-key is shared with agents
+  # (web2 serves Pocket ID; agents reconciles its OIDC client), so share = true.
+  clan.core.vars.generators.pocket-id-encryption-key = mkImport {
+    description = "Pocket ID ENCRYPTION_KEY (web2)";
+  };
+  clan.core.vars.generators.pocket-id-static-api-key = mkImport {
+    description = "Pocket ID STATIC_API_KEY (shared web2 + agents)";
+    share = true;
+  };
 
   services.pocket-id = {
     enable = true;
     credentials = {
-      ENCRYPTION_KEY = config.age.secrets.pocket-id-encryption-key.path;
-      STATIC_API_KEY = config.age.secrets.pocket-id-static-api-key.path;
+      ENCRYPTION_KEY = config.clan.core.vars.generators.pocket-id-encryption-key.files.value.path;
+      STATIC_API_KEY = config.clan.core.vars.generators.pocket-id-static-api-key.files.value.path;
     };
     settings = {
       APP_URL = "https://id.zimbatm.com";
@@ -113,7 +152,7 @@
   # in machines/agents/configuration.nix).
   services.pocketIdClients = {
     apiBaseUrl = "https://id.zimbatm.com/api";
-    apiKeyFile = config.age.secrets.pocket-id-static-api-key.path;
+    apiKeyFile = config.clan.core.vars.generators.pocket-id-static-api-key.files.value.path;
   };
 
   services.nginx.virtualHosts."id.zimbatm.com" = {
@@ -142,8 +181,11 @@
     file = ../../secrets/web2-restic-ssh-key.age;
     mode = "0400";
   };
-  age.secrets.hc-ping-gotosocial.file = ../../secrets/hc-ping-gotosocial.age;
-  services.hcPing.units."restic-backups-gotosocial".secret = config.age.secrets.hc-ping-gotosocial.path;
+  clan.core.vars.generators.hc-ping-gotosocial = mkImport {
+    description = "healthchecks.io ping URL for restic-backups-gotosocial (web2)";
+  };
+  services.hcPing.units."restic-backups-gotosocial".secret =
+    config.clan.core.vars.generators.hc-ping-gotosocial.files.value.path;
 
   programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";

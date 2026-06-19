@@ -231,10 +231,21 @@ in
     file = ../../secrets/chat-restic-ssh-key.age;
     mode = "0400";
   };
-  age.secrets.matrix-numtide-password = {
-    file = ../../secrets/matrix-numtide-password.age;
-    owner = "weechat";
-    mode = "0400";
+  # weechat-matrix credential (currently unused scaffolding; kept so the bridge
+  # can return without re-bootstrapping). Migrated agenix -> clan vars.
+  clan.core.vars.generators.matrix-numtide-password = {
+    files.value = {
+      secret = true;
+      owner = "weechat";
+      mode = "0400";
+    };
+    prompts.value = {
+      description = "matrix @…:numtide.com password (chat weechat)";
+      type = "hidden";
+      persist = true;
+    };
+    runtimeInputs = [ pkgs.coreutils ];
+    script = ''cat "$prompts"/value > "$out"/value'';
   };
   programs.ssh.knownHosts."zh6422.rsync.net".publicKey =
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJtclizeBy1Uo3D86HpgD3LONGVH0CJ0NT+YfZlldAJd";

@@ -5,6 +5,33 @@
   pkgs,
   ...
 }:
+let
+  # Import an existing secret into clan vars (sops): value carried over from
+  # agenix via `clan vars set <machine> <gen>/value` (NOT regenerated); sops-nix
+  # deploys it to /run/secrets/vars/<gen>/value. `share = true` stores one copy
+  # re-encrypted to every consuming machine; `extraFile` carries
+  # owner/group/mode/restartUnits.
+  mkImport =
+    {
+      description,
+      share ? false,
+      extraFile ? { },
+    }:
+    {
+      inherit share;
+      files.value = {
+        secret = true;
+      }
+      // extraFile;
+      prompts.value = {
+        inherit description;
+        type = "hidden";
+        persist = true;
+      };
+      runtimeInputs = [ pkgs.coreutils ];
+      script = ''cat "$prompts"/value > "$out"/value'';
+    };
+in
 {
   imports = [
     inputs.self.nixosModules.common
@@ -138,15 +165,24 @@
   # OpenRouter rather than a local llama-swap; the daemon registers OpenRouter's
   # catalog and new sessions default to it. Token + API key are systemd
   # credentials (LoadCredential), never copied into the store.
-  age.secrets.openrouter-api-key.file = ../../secrets/openrouter-api-key.age;
-  age.secrets.pi-sessiond-token = {
-    file = ../../secrets/pi-sessiond-token.age;
+  # Shared with nv1 (pi-chat backend + executor client). Migrated agenix -> vars.
+  clan.core.vars.generators.openrouter-api-key = mkImport {
+    description = "OpenRouter API key (shared nv1 + agents)";
+    share = true;
+    extraFile.restartUnits = [ "pi-sessiond.service" ];
+  };
+  clan.core.vars.generators.pi-sessiond-token = mkImport {
+    description = "pi-sessiond hello token (shared nv1 + agents)";
+    share = true;
     # nginx serves this token to oauth2-proxy-authenticated PWA clients (the
     # agent.ztm.io /pi-web-token location) so the browser auto-connects without
     # a manual paste. Make it group-readable by nginx (already in `keys`);
     # pi-sessiond still reads it as root via LoadCredential.
-    group = "keys";
-    mode = "0440";
+    extraFile = {
+      group = "keys";
+      mode = "0440";
+      restartUnits = [ "pi-sessiond.service" ];
+    };
   };
   services.pi-sessiond = {
     enable = true;
@@ -154,26 +190,29 @@
     # above) is what scopes reachability, and the `hello` token gates the WS.
     host = "0.0.0.0";
     port = 8770;
-    tokenFile = config.age.secrets.pi-sessiond-token.path;
+    tokenFile = config.clan.core.vars.generators.pi-sessiond-token.files.value.path;
     serveWebUi = true;
     defaultProvider = "openrouter";
     defaultModel = "anthropic/claude-sonnet-4.5";
     openrouter = {
       enable = true;
-      apiKeyFile = config.age.secrets.openrouter-api-key.path;
+      apiKeyFile = config.clan.core.vars.generators.openrouter-api-key.files.value.path;
     };
   };
   # pi-sessiond loads its token + OpenRouter key via systemd LoadCredential at
-  # unit-start. Without ordering it races agenix and can spawn before
-  # /run/agenix/* exists, failing 243/CREDENTIALS (it auto-restarts, but that
-  # trips switch-to-configuration). Order it after the secrets are installed.
-  systemd.services.pi-sessiond = {
-    after = [ "agenix-install-secrets.service" ];
-    wants = [ "agenix-install-secrets.service" ];
-  };
+  # unit-start. sops-nix installs vars during activation (before multi-user),
+  # and restartUnits (set on the token/key files) bounces the unit when a
+  # secret changes — so the old agenix-install-secrets ordering is no longer
+  # needed.
 
-  age.secrets.pocket-id-static-api-key.file = ../../secrets/pocket-id-static-api-key.age;
-  age.secrets.oauth2-proxy-agents-cookie.file = ../../secrets/oauth2-proxy-agents-cookie.age;
+  # pocket-id-static-api-key shared with web2 (which serves Pocket ID).
+  clan.core.vars.generators.pocket-id-static-api-key = mkImport {
+    description = "Pocket ID STATIC_API_KEY (shared web2 + agents)";
+    share = true;
+  };
+  clan.core.vars.generators.oauth2-proxy-agents-cookie = mkImport {
+    description = "oauth2-proxy cookie secret (agents)";
+  };
   # nginx needs to traverse /run/agenix/ (root:keys, 0750) to reach secret files.
   users.users.nginx.extraGroups = [ "keys" ];
 
@@ -182,7 +221,7 @@
   # /run/pocket-id-clients/agents-ttyd/{id,secret} for oauth2-proxy to read.
   services.pocketIdClients = {
     apiBaseUrl = "https://id.zimbatm.com/api";
-    apiKeyFile = config.age.secrets.pocket-id-static-api-key.path;
+    apiKeyFile = config.clan.core.vars.generators.pocket-id-static-api-key.files.value.path;
     clients.agents-ttyd = {
       name = "agents.ztm.io terminal";
       callbackURLs = [ "https://agents.ztm.io/oauth2/callback" ];
@@ -199,7 +238,7 @@
     # is the one the reconciler generated and stored at /run/pocket-id-clients/.
     clientID = "agents-ttyd";
     clientSecretFile = "/run/pocket-id-clients/agents-ttyd/secret";
-    cookie.secretFile = config.age.secrets.oauth2-proxy-agents-cookie.path;
+    cookie.secretFile = config.clan.core.vars.generators.oauth2-proxy-agents-cookie.files.value.path;
     cookie.domain = ".ztm.io"; # share session across future *.ztm.io SSO targets
     cookie.refresh = "1h";
     redirectURL = "https://agents.ztm.io/oauth2/callback";
@@ -329,7 +368,7 @@
     # The executor token, served only to oauth2-proxy-authenticated clients:
     # this location inherits the server-level `auth_request /oauth2/auth`.
     locations."= /pi-web-token" = {
-      alias = config.age.secrets.pi-sessiond-token.path;
+      alias = config.clan.core.vars.generators.pi-sessiond-token.files.value.path;
       extraConfig = ''
         default_type text/plain;
         add_header Cache-Control "no-store";
