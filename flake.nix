@@ -125,7 +125,6 @@
         perlless = ./modules/nixos/perlless.nix;
         steam = ./modules/nixos/steam.nix;
         ubuntu-light = ./modules/nixos/ubuntu-light.nix;
-        zero-tailnet = ./modules/nixos/zero-tailnet.nix;
         zimbatm = ./modules/nixos/zimbatm.nix;
       };
       homeModules = {

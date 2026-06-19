@@ -17,7 +17,6 @@
     inputs.self.nixosModules.desktop
     inputs.self.nixosModules.steam
     inputs.self.nixosModules.tinc-ztm
-    inputs.self.nixosModules.zero-tailnet
     inputs.srvos.nixosModules.mixins-systemd-boot
   ];
 
