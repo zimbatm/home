@@ -55,8 +55,21 @@ in
     ./disko.nix
   ];
 
-  age.secrets.hc-ping-weechat.file = ../../secrets/hc-ping-weechat.age;
-  services.hcPing.units."restic-backups-weechat".secret = config.age.secrets.hc-ping-weechat.path;
+  # Migrated agenix -> clan vars. The existing healthchecks.io ping URL is
+  # imported (not regenerated) via `clan vars generate chat`; deployed by
+  # sops-nix to /run/secrets/vars/hc-ping-weechat/url.
+  clan.core.vars.generators.hc-ping-weechat = {
+    files.url.secret = true;
+    prompts.url = {
+      description = "healthchecks.io ping URL for restic-backups-weechat (chat)";
+      type = "hidden";
+      persist = true;
+    };
+    runtimeInputs = [ pkgs.coreutils ];
+    script = ''cat "$prompts"/url > "$out"/url'';
+  };
+  services.hcPing.units."restic-backups-weechat".secret =
+    config.clan.core.vars.generators.hc-ping-weechat.files.url.path;
 
   # Hetzner Cloud cx23 (Intel x86, 2c/4GB/40GB, BIOS), fsn1.
   # Long-running weechat-headless under systemd; clients (Lith, Glowing Bear,
