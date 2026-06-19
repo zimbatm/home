@@ -128,11 +128,11 @@ in
 
     systemd.services.pocket-id-clients = {
       description = "Reconcile Pocket ID OIDC clients against Nix-declared spec";
-      # agenix-install-secrets populates /run/agenix/* — the LoadCredential
-      # below would fail at activation time if we don't wait for it.
-      after = [ "pocket-id.service" "network-online.target" "agenix-install-secrets.service" ];
+      # sops-install-secrets populates /run/secrets/vars/* (clan vars) — the
+      # LoadCredential below would fail at activation time if we don't wait for it.
+      after = [ "pocket-id.service" "network-online.target" "sops-install-secrets.service" ];
       wants = [ "pocket-id.service" "network-online.target" ];
-      requires = [ "agenix-install-secrets.service" ];
+      requires = [ "sops-install-secrets.service" ];
       wantedBy = [ "multi-user.target" ];
       restartTriggers = [ specFile ];
       serviceConfig = {
