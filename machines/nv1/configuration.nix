@@ -29,7 +29,6 @@ in
 {
   imports = [
     ./hardware-configuration.nix
-    inputs.agenix.nixosModules.default
     inputs.spaces.nixosModules.spaces
     # NovaCustom V5xTNC: Intel Meteor Lake-H + NVIDIA RTX 4060 Max-Q
     inputs.nixos-hardware.nixosModules.common-cpu-intel
@@ -43,14 +42,9 @@ in
 
   nixpkgs.hostPlatform = "x86_64-linux";
 
-  # agenix uses ssh host keys as identities at activation; nv1 doesn't run
-  # sshd so the default discovery path doesn't pick anything up. Point at
-  # the host's existing ed25519 key (the one in secrets/secrets.nix as `nv1`).
-  age.identityPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-
-  # Same story for sops-nix (clan vars): with no sshd, clanCore can't infer a
-  # key source. nv1's registered clan age key was derived from this ed25519
-  # host key (ssh-to-age), so sops-nix derives the matching private key here.
+  # nv1 runs no sshd, so clanCore can't infer a sops key source. nv1's clan age
+  # key was derived (ssh-to-age) from this ed25519 host key, so point sops-nix
+  # at it to derive the matching private key for clan vars.
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
 
   # Hybrid graphics: Intel Arc (Meteor Lake iGPU) drives the display; NVIDIA

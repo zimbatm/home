@@ -50,9 +50,6 @@ in
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.disko.nixosModules.disko
     inputs.subportal.nixosModules.subportal
-    # agenix: previously injected by the flake's per-machine module list; now
-    # that clan auto-imports only this file, import it here directly.
-    inputs.agenix.nixosModules.default
     ./disko.nix
   ];
 

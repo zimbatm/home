@@ -46,7 +46,6 @@ in
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.srvos.nixosModules.mixins-nginx
     inputs.disko.nixosModules.disko
-    inputs.agenix.nixosModules.default
     ./disko.nix
   ];
 

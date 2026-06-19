@@ -504,7 +504,6 @@ in
     inputs.srvos.nixosModules.server
     inputs.srvos.nixosModules.hardware-hetzner-cloud
     inputs.disko.nixosModules.disko
-    inputs.agenix.nixosModules.default
     ./disko.nix
   ];
 

@@ -49,7 +49,6 @@ in
     inputs.subportal.nixosModules.subportal
     inputs.nix-index-database.nixosModules.nix-index
     inputs.disko.nixosModules.disko
-    inputs.agenix.nixosModules.default
     ./disko.nix
   ];
 
