@@ -1,6 +1,7 @@
 { inputs, config, lib, pkgs, ... }:
 {
   imports = [
+    inputs.self.nixosModules.bluesky-pds
     inputs.self.nixosModules.common
     inputs.self.nixosModules.agent-deploy
     inputs.self.nixosModules.gotosocial
@@ -178,6 +179,9 @@
       };
       pocket-id = common "pocket-id" // {
         paths = [ "/var/lib/pocket-id" ];
+      };
+      bluesky-pds = common "bluesky-pds" // {
+        paths = [ "/var/lib/pds" ];
       };
     };
 

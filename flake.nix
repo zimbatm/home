@@ -100,6 +100,7 @@
         };
       nixosModules = {
         agent-deploy = ./modules/nixos/agent-deploy.nix;
+        bluesky-pds = ./modules/nixos/bluesky-pds.nix;
         common = ./modules/nixos/common.nix;
         desktop = ./modules/nixos/desktop.nix;
         gotosocial = ./modules/nixos/gotosocial.nix;

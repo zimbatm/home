@@ -38,6 +38,10 @@ D("zimbatm.com", REG_NC, DnsProvider(DNS_NC),
   // Pocket ID — SSO root for agents.ztm.io. Lives on web2 since #82.
   A("id",    WEB2_A),
   AAAA("id", WEB2_AAAA),
+  // Self-hosted AT Protocol PDS (handle @zimbatm.com → the _atproto TXT
+  // DID below). Lives on web2.
+  A("pds",    WEB2_A),
+  AAAA("pds", WEB2_AAAA),
 
   // ─── CNAME ───
   CNAME("www",             "zimbatm.com."),

@@ -82,6 +82,9 @@ in
   # Pocket ID lives on `web2` since #82.
   "pocket-id-encryption-key.age".publicKeys = web2Hosts;
   "pocket-id-static-api-key.age".publicKeys = web2Hosts ++ [ agents ];
+  # Self-hosted bsky PDS env file: PDS_JWT_SECRET, PDS_ADMIN_PASSWORD,
+  # PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX, PDS_EMAIL_SMTP_URL.
+  "web2-bluesky-pds.age".publicKeys = web2Hosts;
   "oauth2-proxy-agents-cookie.age".publicKeys = agentsHosts;
   # Spaces remote-agent stack: OpenRouter backend (nv1 pi-chat + agents
   # pi-sessiond) and the pi-sessiond `hello` token (agents serves, nv1 attaches).
