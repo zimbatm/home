@@ -67,6 +67,6 @@ remove a record, edit/delete the line and push — dnscontrol issues a DELETE.
 
 | zone | role |
 |---|---|
-| `zimbatm.com` | work-ish/public identity, MX on Google Workspace (changes at #52) |
+| `zimbatm.com` | work-ish/public identity, MX on Fastmail; `pds` → self-hosted Bluesky PDS |
 | `ztm.io` | internal services (chat, mail, agents, mc) |
 | `chevalier.sh` | personal/family identity, MX on Fastmail |
